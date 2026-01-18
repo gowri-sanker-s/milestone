@@ -1,4 +1,4 @@
-const sampleData = {
+export const sampleData = {
     products:[
         {
             name:"Nanayuvan Njan Kadalakunnu SIGNED",
