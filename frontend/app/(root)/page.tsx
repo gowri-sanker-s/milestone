@@ -1,13 +1,16 @@
-import { getLatestProducts } from "@/lib/actions/product.action"
+import Featured from "@/components/pageComponents/home/Featured";
+import Spotlight from "@/components/pageComponents/home/Spotlight";
+import WhoWeAre from "@/components/pageComponents/home/WhoWeAre";
 
-const Home = async () => {
+const Home = () => {
 
-  const latestProducts = await getLatestProducts();
-
-  console.log(latestProducts);
 
   return (
-    <div>Home</div>
+    <div>
+      <Spotlight />
+      <WhoWeAre />
+      <Featured />
+    </div>
   )
 }
 

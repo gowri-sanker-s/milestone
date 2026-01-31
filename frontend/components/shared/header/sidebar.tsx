@@ -33,7 +33,7 @@ const Sidebar = () => {
     `}
                 />
             </button>
-            <div className={`fixed top-[61.5px] left-0 transition-translate duration-400 bg-black h-full w-full md:w-1/4 ${!openSidebar ? "-translate-x-full" : "translate-x-0"}`}></div>
+            <div className={`fixed bg-primary-border top-[61.5px] left-0 transition-translate duration-400 bg-black h-full w-full md:w-1/4 ${!openSidebar ? "-translate-x-full" : "translate-x-0"}`}></div>
         </div>
     )
 }

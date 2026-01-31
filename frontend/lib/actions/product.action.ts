@@ -1,23 +1,22 @@
-'use server'
-import { PrismaClient } from "../generated/prisma/client"
-import { Pool } from "pg";
-import { PrismaPg } from "@prisma/adapter-pg";
+'use server';
 
-// get latest products
-export async function getLatestProducts(){
-      const connectionString = process.env.DATABASE_URL;
-      if (!connectionString) {
-        throw new Error("DATABASE_URL environment variable is not set");
-      }
-    
-      const pool = new Pool({ connectionString });
-      const adapter = new PrismaPg(pool);
-    const prisma = new PrismaClient({adapter})
-    try {
-        const data = await prisma.product.findMany({take:5, orderBy:{createdAt:"desc"}})
+import { prisma } from '@/lib/prisma';
 
-        return data;
-    } catch (error) {
-        
-    }
+export async function getLatestProducts() {
+  try {
+    const data = await prisma.product.findMany({
+      take: 5,
+      orderBy: { createdAt: 'desc' },
+    });
+
+    // ✅ Normalize Prisma output
+    return data.map((product) => ({
+      ...product,
+      price: Number(product.price),          // Decimal → number
+      createdAt: product.createdAt.toISOString(), // Date → string
+    }));
+  } catch (error) {
+    console.error('getLatestProducts error:', error);
+    return [];
+  }
 }

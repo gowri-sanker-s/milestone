@@ -5,6 +5,8 @@
 
 @theme{
 
+  --breakpoint-xs: 480px;
+
   --color-primary-bg: #e9dfd9;
   --color-primary-text: #442917;
   --color-primary-border: #d6cbc4
@@ -12,7 +14,7 @@
 
 
 @layer base {
-*{
+body {
   @apply bg-primary-bg 
 }
 button, a, svg{
@@ -21,6 +23,12 @@ button, a, svg{
 }
 .wrapper{
   @apply max-w-[1480px] w-[95%] mx-auto
+}
+.img{
+  @apply h-full w-full object-cover block
+}
+.icon{
+  @apply h-full w-full object-contain block
 }
 
 }
