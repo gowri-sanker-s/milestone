@@ -6,6 +6,7 @@ import { ThemeProvider } from "next-themes";
 
 
 const inter = Inter({ subsets: ['latin'] })
+
 export const metadata: Metadata = {
   // title: { template: `%s | ${APP_NAME}`, default: APP_NAME },
   title: APP_NAME,
@@ -21,7 +22,7 @@ export default function RootLayout({
   return (
     <html lang="en" suppressHydrationWarning>
       <body
-        className={`${inter.className} antialiased`}
+        className={`${inter.className}  antialiased`}
       >
         <ThemeProvider attribute="class" defaultTheme="light" enableSystem disableTransitionOnChange>
           {children}
