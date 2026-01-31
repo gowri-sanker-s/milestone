@@ -2,18 +2,27 @@
 
 import { prisma } from '@/lib/prisma';
 
-export async function getLatestProducts() {
+export async function getLatestProducts(options?: {
+  isFeatured?: boolean;
+  take?: number;
+}) {
   try {
     const data = await prisma.product.findMany({
-      take: 5,
-      orderBy: { createdAt: 'desc' },
+      where: {
+        ...(options?.isFeatured !== undefined && {
+          isFeatured: options.isFeatured,
+        }),
+      },
+      take: options?.take ?? undefined,
+      orderBy: {
+        createdAt: 'desc',
+      },
     });
 
-    // ✅ Normalize Prisma output
     return data.map((product) => ({
       ...product,
-      price: Number(product.price),          // Decimal → number
-      createdAt: product.createdAt.toISOString(), // Date → string
+      price: Number(product.price),
+      createdAt: product.createdAt.toISOString(),
     }));
   } catch (error) {
     console.error('getLatestProducts error:', error);

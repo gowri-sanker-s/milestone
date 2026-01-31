@@ -1,5 +1,6 @@
 import Featured from "@/components/pageComponents/home/Featured";
 import Spotlight from "@/components/pageComponents/home/Spotlight";
+import Testimonial from "@/components/pageComponents/home/Testimonial";
 import WhoWeAre from "@/components/pageComponents/home/WhoWeAre";
 
 const Home = () => {
@@ -10,6 +11,7 @@ const Home = () => {
       <Spotlight />
       <WhoWeAre />
       <Featured />
+      <Testimonial />
     </div>
   )
 }
