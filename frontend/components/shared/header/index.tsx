@@ -2,7 +2,8 @@ import ModeToggle from "./mode-toggle"
 
 const Header = () => {
     return (
-        <header>Header
+        <header>
+           
             <ModeToggle />
         </header>
     )
