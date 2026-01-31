@@ -4,7 +4,7 @@ import Sidebar from "./sidebar"
 
 const Header = () => {
     return (
-        <header className=" text-primary-text  border-b border-primary-border py-1 sticky top-0">
+        <header className=" text-primary-text bg-primary-bg  border-b border-primary-border py-1 sticky top-0">
             <div className="flex justify-between items-center wrapper">
                 {/* open toggle */}
                 <Sidebar />

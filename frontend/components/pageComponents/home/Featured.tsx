@@ -17,7 +17,7 @@ const Featured = async () => {
                     {latestProducts && latestProducts.map((data, index) => {
                         return (<div key={data.id} className='bg-primary-border p-3 rounded-2xl'>
                             <div className="img-container rounded-2xl overflow-clip">
-                                <img src={data.banner ?? '/placeholder-book.jpg'} alt={data.name} className="img aspect-[2/3]" />
+                                <img src={data.banner ?? '/placeholder-book.jpg'} alt={data.name} className="img aspect-[4/5]" />
                             </div>
                             <div className="details grid pt-4">
                                 <p className='text-[13px]  capitalize leading-tight'>{String(data.author).toLocaleLowerCase()}</p>
