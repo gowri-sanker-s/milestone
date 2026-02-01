@@ -14,7 +14,7 @@ const Spotlight = () => {
                 </div>
             </div>
             <div className="right lg:h-[400px] lg:w-[650px] ">
-                <Image src={spotlightImg} alt="Milestone Books" className="img" />
+                <Image src={spotlightImg} alt="Milestone Books" loading="lazy" fetchPriority="high" className="img" />
             </div>
         </div>
     )
