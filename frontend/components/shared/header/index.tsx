@@ -1,6 +1,7 @@
 import { oleo } from "@/lib/fonts"
 import ModeToggle from "./mode-toggle"
 import Sidebar from "./sidebar"
+import Link from "next/link"
 
 const Header = () => {
     return (
@@ -9,7 +10,7 @@ const Header = () => {
                 {/* open toggle */}
                 <Sidebar />
                 {/* logo */}
-                <div className={`${oleo.className} text-[25px] md:text-[35px] justify-self-center `}>milestone books</div>
+                <Link href={'/'} className={`${oleo.className} text-[25px] md:text-[35px] justify-self-center `}>milestone books</Link>
                 {/* empty */}
                 <div className="invisible">s</div>
                 {/* <ModeToggle /> */}

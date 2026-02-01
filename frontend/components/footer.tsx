@@ -1,13 +1,16 @@
 import logo from "@/assets/images/home/logo.png"
 import { Copyright, Instagram, MapPin } from "lucide-react"
 import Image from "next/image"
+import Link from "next/link"
 const Footer = () => {
     return (
         <footer className="border-t border-primary-border pt-8">
             <div className="wrapper grid justify-items-center sm:flex items-center justify-between">
-                <div className="img-container h-[150px] w-[150px] rounded-full overflow-clip">
-                    <Image src={logo} alt="Milestone Books" className="icon" />
-                </div>
+                <Link href={'/'}>
+                    <div className="img-container h-[150px] w-[150px] rounded-full overflow-clip">
+                        <Image src={logo} alt="Milestone Books" className="icon" />
+                    </div>
+                </Link>
                 <div className="grid grid-cols-2 gap-10">
                     <ul className="">
                         <li className="font-bold text-[20px] mb-2">Quick Links</li>
