@@ -1,5 +1,6 @@
 'use client'
 
+import Link from "next/link";
 import { useState } from "react"
 const Sidebar = () => {
     const [openSidebar, setOpenSidebar] = useState(false)
@@ -33,7 +34,13 @@ const Sidebar = () => {
     `}
                 />
             </button>
-            <div className={`fixed bg-primary-border top-[61.5px] left-0 transition-translate duration-400 bg-black h-full w-full md:w-1/4 ${!openSidebar ? "-translate-x-full" : "translate-x-0"}`}></div>
+            <div className={`fixed bg-primary-border top-[61.5px] left-0 transition-translate duration-400 bg-black h-full w-full md:w-1/4 ${!openSidebar ? "-translate-x-full" : "translate-x-0"}`}>
+                <div className="grid gap-3 items-center justify-items-center py-15">
+                    <ul>
+                        <li><Link href={'/products'}></Link></li>
+                    </ul>
+                </div>
+            </div>
         </div>
     )
 }
