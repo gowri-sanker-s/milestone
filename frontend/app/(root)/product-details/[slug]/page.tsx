@@ -36,8 +36,8 @@ const Page = async ({ params }: Props) => {
             <p className="text-[14px] font-bold opacity-60 leading-1 ">
               {product.author}
             </p>
-            <h1 className="text-[55px] font-extrabold mb-5 max-w-[60%] leading-tight">
-              {product.name}
+            <h1 className="text-[45px] font-extrabold mb-5 max-w-[80%] leading-[1] mt-2">
+              {product.title}
             </h1>
             <div className="flex gap-3 items-center text-[15px] font-medium">
               <div className="bg-primary-border p-1 px-4 rounded-full">
