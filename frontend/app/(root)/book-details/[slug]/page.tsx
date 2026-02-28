@@ -20,10 +20,10 @@ const Page = async ({ params }: Props) => {
   return (
     <div>
       <div className="wrapper pt-15">
-        <div className="top sticky top-[120px] z-0 flex gap-10 items-center">
+        <div className="top lg:sticky top-[120px] z-0 grid justify-items-center lg:flex  gap-10 items-center">
           <div className="left">
             <div className="img-wrapper p-10 rounded-3xl bg-primary-border">
-              <div className="img-container w-[280px] h-[400px] overflow-clip rounded-2xl">
+              <div className="img-container w-[200px] h-[300px] sm:w-[280px] sm:h-[400px] overflow-clip rounded-2xl">
                 <img
                   src={product.banner ?? "/placeholder-book.jpg"}
                   alt={product.name}
@@ -36,10 +36,10 @@ const Page = async ({ params }: Props) => {
             <p className="text-[14px] font-bold opacity-60 leading-1 ">
               {product.author}
             </p>
-            <h1 className="text-[45px] font-extrabold mb-5 max-w-[80%] leading-[1] mt-2">
+            <h1 className="text-[30px] md:text-[45px] font-extrabold mb-5 max-w-[80%] leading-[1] mt-2">
               {product.title}
             </h1>
-            <div className="flex gap-3 items-center text-[15px] font-medium">
+            <div className="flex flex-wrap gap-3 items-center text-[15px] font-medium">
               <div className="bg-primary-border p-1 px-4 rounded-full">
                 {product.pages} pages
               </div>
@@ -56,7 +56,7 @@ const Page = async ({ params }: Props) => {
             <p className="text-[13px] pt-8 pb-5 font-semibold opacity-60 leading-1 ">
               GENERES
             </p>
-            <div className="flex gap-2">
+            <div className="flex flex-wrap gap-2">
               {product.genres.map((genre, index) => (
                 <div
                   key={index}
@@ -72,7 +72,7 @@ const Page = async ({ params }: Props) => {
             <h1 className="text-[35px] font-extrabold max-w-[60%]">
               ₹ {product.price.toFixed(2)}
             </h1>
-            <div className="flex gap-5 items-center mt-5">
+            <div className="flex flex-wrap gap-5 items-center mt-5">
               <button className="flex gap-2 items-center bg-primary-text text-primary-bg px-8 py-2 rounded-full font-semibold">
                 {/* <ShoppingCart size={20} /> */}
                 Add to Cart
