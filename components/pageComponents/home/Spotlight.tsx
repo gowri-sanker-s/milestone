@@ -3,7 +3,7 @@ import spotlightImg from "@/assets/images/home/spotlight.png";
 
 const Spotlight = () => {
   return (
-    <div className="grid lg:flex gap-10 items-center wrapper py-15 md:py-40">
+    <div className="grid lg:flex gap-10 items-center wrapper py-15 md:py-40 pb-10 md:pb-25">
       <div className="left flex-1">
         <span className="rounded-full text-[13px] font-bold opacity-70 bg-primary-border p-2 px-6">
           Effortless Reading. Fast Delivery.
