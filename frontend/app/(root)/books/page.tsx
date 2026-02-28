@@ -1,26 +1,33 @@
 import FilterComponent from "@/components/pageComponents/allBooks/FilterComponent";
+import SearchInput from "@/components/pageComponents/allBooks/SearchInput";
 import BookCard from "@/components/shared/BookCard";
-import { getFeaturedProducts } from "@/lib/actions/product.action";
+import { getAllProducts } from "@/lib/actions/product.action";
 import { ProductType } from "@/types/product";
-import { Search } from "lucide-react";
 import React from "react";
 
-const page = async () => {
-  const latestProducts: ProductType[] = await getFeaturedProducts();
+const page = async (props: {
+  searchParams: Promise<{ [key: string]: string | undefined }>;
+}) => {
+  const searchParams = await props.searchParams;
+
+  const query = searchParams.query;
+  const pageNumber = Number(searchParams.page) || 1;
+  const genre = searchParams.genre;
+  const author = searchParams.author;
+  const language = searchParams.language;
+
+  const { data: latestProducts } = await getAllProducts({
+    query,
+    page: pageNumber,
+    genre,
+    author,
+    language,
+  });
+
   return (
     <div>
       <div className="top bg-primary-border p-5 min-h-[150px] w-full grid place-items-center">
-        <div className="relative bg-white  rounded-full w-full max-w-[50%] mx-auto overflow-clip">
-          <input
-            type="text"
-            className="w-full p-3 px-4 focus-visible:outline-0"
-            placeholder="Search books, authors, or genres..."
-          />
-          <button className="flex gap-2 items-center h-full absolute right-0 top-0 bg-primary-text text-primary-bg px-7">
-            <Search size={16} strokeWidth={1.8} />
-            <span className="font-semibold">Search</span>
-          </button>
-        </div>
+        <SearchInput />
       </div>
       <div className="wrapper py-8">
         <FilterComponent />

@@ -1,15 +1,57 @@
 "use client";
 
 import { Grip } from "lucide-react";
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import PillSelector from "./PillSelector";
-import { oleo } from "@/lib/fonts";
+import { useRouter, useSearchParams, usePathname } from "next/navigation";
 
 const FilterComponent = () => {
+  const router = useRouter();
+  const pathname = usePathname();
+  const searchParams = useSearchParams();
+
   const [filterOpen, setFilterOpen] = useState(false);
-  const [selectedGenres, setSelectedGenres] = useState<string[]>([]);
-  const [selectedAuthors, setSelectedAuthors] = useState<string[]>([]);
-  const [selectedLanguages, setSelectedLanguages] = useState<string[]>([]);
+
+  // Initialize state from URL
+  const [selectedGenres, setSelectedGenres] = useState<string[]>(
+    searchParams.get("genre") ? searchParams.get("genre")!.split(",") : [],
+  );
+  const [selectedAuthors, setSelectedAuthors] = useState<string[]>(
+    searchParams.get("author") ? searchParams.get("author")!.split(",") : [],
+  );
+  const [selectedLanguages, setSelectedLanguages] = useState<string[]>(
+    searchParams.get("language")
+      ? searchParams.get("language")!.split(",")
+      : [],
+  );
+
+  // Update URL whenever filters change
+  useEffect(() => {
+    const params = new URLSearchParams(searchParams.toString());
+
+    if (selectedGenres.length > 0) {
+      params.set("genre", selectedGenres.join(","));
+    } else {
+      params.delete("genre");
+    }
+
+    if (selectedAuthors.length > 0) {
+      params.set("author", selectedAuthors.join(","));
+    } else {
+      params.delete("author");
+    }
+
+    if (selectedLanguages.length > 0) {
+      params.set("language", selectedLanguages.join(","));
+    } else {
+      params.delete("language");
+    }
+
+    // Reset to page 1 when filters change
+    params.set("page", "1");
+
+    router.push(`${pathname}?${params.toString()}`, { scroll: false });
+  }, [selectedGenres, selectedAuthors, selectedLanguages, pathname, router]);
 
   return (
     <div className="filter-section flex w-full justify-between relative">
@@ -26,7 +68,7 @@ const FilterComponent = () => {
       </button>
 
       <div
-        className={`absolute top-10 grid gap-6  right-0 min-w-[400px] bg-primary-border shadow-lg rounded-xl p-4 px-6 transition-all duration-300 ease-in-out transform
+        className={`absolute top-10 grid gap-6 z-10 right-0 min-w-[400px] bg-primary-border shadow-lg rounded-xl p-4 px-6 transition-all duration-300 ease-in-out transform
         ${
           filterOpen
             ? "opacity-100 scale-100 pointer-events-auto"
