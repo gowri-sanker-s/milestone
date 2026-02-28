@@ -3,13 +3,14 @@ import addCart from "@/assets/images/add_cart.png"
 import removeCart from "@/assets/images/remove_cart.png"
 import Image from 'next/image'
 import { ProductType } from '@/types/product'
+import Link from 'next/link'
 
 type BookCardProps = {
     data: ProductType;
 };
 const BookCard = ({ data }: BookCardProps) => {
     return (
-        <div key={data.id} className='bg-primary-border p-3 rounded-2xl flex flex-col'>
+        <Link href={`/product-details/${data.slug}`} key={data.id} className='bg-primary-border p-3 rounded-2xl flex flex-col'>
             <div className="img-container rounded-2xl overflow-clip">
                 <img src={data.banner ?? '/placeholder-book.jpg'} alt={data.name} className="img aspect-[4/5]" />
             </div>
@@ -18,7 +19,7 @@ const BookCard = ({ data }: BookCardProps) => {
                 <h3 className='font-extrabold text-[19px] leading-tight'>{data.name}</h3>
                 <p className='text-[15px] py-2'>{String(data.description).slice(0, 80)}...</p>
                 {/* rating */}
-                <div className="border-t border-primary-bg pt-3 self-end flex gap-3 items-center justify-between">
+                <div className="border-t border-primary-bg pt-3 self-end flex gap-3 items-center justify-between font-semibold text-[17px]">
                     <span>
                         ₹ {data.price}
                     </span>
@@ -28,7 +29,7 @@ const BookCard = ({ data }: BookCardProps) => {
 
                 </div>
             </div>
-        </div>
+        </Link>
     )
 }
 

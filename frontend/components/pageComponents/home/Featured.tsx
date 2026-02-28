@@ -1,4 +1,4 @@
-import { getLatestProducts } from '@/lib/actions/product.action';
+import { getFeaturedProducts } from '@/lib/actions/product.action';
 import Image from 'next/image';
 import React from 'react'
 import type { ProductType } from '@/types/product';
@@ -6,7 +6,7 @@ import type { ProductType } from '@/types/product';
 import BookCard from '@/components/shared/BookCard';
 const Featured = async () => {
 
-    const latestProducts: ProductType[] = await getLatestProducts({
+    const latestProducts: ProductType[] = await getFeaturedProducts({
         isFeatured: true,
     });
 

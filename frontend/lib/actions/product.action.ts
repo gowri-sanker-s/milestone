@@ -2,7 +2,7 @@
 
 import { prisma } from '@/lib/prisma';
 
-export async function getLatestProducts(options?: {
+export async function getFeaturedProducts(options?: {
   isFeatured?: boolean;
   take?: number;
 }) {
@@ -25,7 +25,20 @@ export async function getLatestProducts(options?: {
       createdAt: product.createdAt.toISOString(),
     }));
   } catch (error) {
-    console.error('getLatestProducts error:', error);
+    console.error('getFeaturedProducts error:', error);
     return [];
   }
+}
+export async function getProductBySlug(slug: string) {
+    try {
+        const data = await prisma.product.findUnique({
+            where: {
+                slug,
+            },
+        });
+        return data;
+    } catch (error) {
+        console.error('getProductBySlug error:', error);
+        return null;
+    }
 }

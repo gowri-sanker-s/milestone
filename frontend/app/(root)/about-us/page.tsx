@@ -1,4 +1,4 @@
-import { getLatestProducts } from "@/lib/actions/product.action"
+import { getFeaturedProducts } from "@/lib/actions/product.action"
 
 const Home = async () => {
 

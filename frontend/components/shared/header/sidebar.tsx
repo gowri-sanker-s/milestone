@@ -108,9 +108,9 @@ const Sidebar = () => {
                                             <Link
                                                 href={item.href}
                                                 onClick={() => setOpenSidebar(false)}
-                                                className="flex items-center gap-2"
+                                                className="flex items-center gap-2 font-normal"
                                             >
-                                                <Icon size={20} strokeWidth={2} />
+                                                <Icon size={22} strokeWidth={1.5} />
                                                 {item.label}
                                             </Link>
                                         </motion.li>
