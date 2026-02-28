@@ -19,12 +19,28 @@ async function main() {
 
     // Delete existing products
     await prisma.product.deleteMany();
+    await prisma.user.deleteMany();
+    await prisma.account.deleteMany();
+    await prisma.session.deleteMany();
+    await prisma.verificationToken.deleteMany();
     console.log("✅ Cleared existing products");
 
     // Insert sample data
     await prisma.product.createMany({
       data: sampleData.products,
     });
+    await prisma.user.createMany({
+      data: sampleData.users,
+    });
+    // await prisma.account.createMany({
+    //   data: sampleData.accounts,
+    // });
+    // await prisma.product.createMany({
+    //   data: sampleData.products,
+    // });
+    // await prisma.product.createMany({
+    //   data: sampleData.products,
+    // });
     console.log(`✅ Inserted ${sampleData.products.length} products`);
 
     console.log("🎉 Seed completed successfully!");
@@ -45,4 +61,3 @@ main()
     console.error(error);
     process.exit(1);
   });
-
