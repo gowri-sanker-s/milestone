@@ -11,8 +11,8 @@ const red_hat = Red_Hat_Display({
 });
 
 export const metadata: Metadata = {
-  // title: { template: `%s | ${APP_NAME}`, default: APP_NAME },
-  title: APP_NAME,
+  title: { template: `%s | ${APP_NAME}`, default: APP_NAME },
+  // title: APP_NAME,
   description: APP_DESCRIPTION,
   metadataBase: new URL(SERVER_URL),
 };
