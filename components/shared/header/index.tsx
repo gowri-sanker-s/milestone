@@ -2,6 +2,7 @@ import { oleo } from "@/lib/fonts";
 import ModeToggle from "./mode-toggle";
 import Sidebar from "./sidebar";
 import Link from "next/link";
+import UserButton from "./user-button";
 
 const Header = () => {
   return (
@@ -17,7 +18,9 @@ const Header = () => {
           milestone books
         </Link>
         {/* empty */}
-        <div className="invisible">s</div>
+        <div>
+          <UserButton />
+        </div>
         {/* <ModeToggle /> */}
       </div>
     </header>

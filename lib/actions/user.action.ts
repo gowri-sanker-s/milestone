@@ -35,17 +35,16 @@ export async function signInWithCredentials(
 
 // sign out
 export async function signOutUser() {
-  try {
-    await signOut();
-
-    return {
-      success: true,
-      message: "User signed out successfully",
-    };
-  } catch (error) {
-    return {
-      success: false,
-      message: "Failed to sign out",
-    };
-  }
+  await signOut({ redirectTo: "/" });
+  //   try {
+  //     return {
+  //       success: true,
+  //       message: "User signed out successfully",
+  //     };
+  //   } catch (error) {
+  //     return {
+  //       success: false,
+  //       message: "Failed to sign out",
+  //     };
+  //   }
 }
