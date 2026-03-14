@@ -1,32 +1,30 @@
 "use client";
+
 import React from "react";
 import { CartItem } from "@/types";
-import { useRouter } from "next/router";
-import { useToast } from "@/hooks/use-toast";
-import { ToastAction } from "@/components/ui/sonner";
+import { useRouter } from "next/navigation";
+import { toast } from "sonner";
 import { addItemToCart } from "@/lib/actions/cart.action";
+
 const AddToCart = ({ item }: { item: CartItem }) => {
-  const { toast } = useToast();
   const router = useRouter();
+
   const handleAddToCart = async () => {
     const res = await addItemToCart(item);
+
     if (!res.success) {
-      toast({
-        variant: "destructive",
-        title: "Error",
-        description: res.message,
-      });
+      toast.error(res.message);
       return;
     }
-    toast({
-      description: `${item.name} added to cart`,
-      action: (
-        <ToastAction onClick={() => router.push("/cart")}>
-          Go TO Cart
-        </ToastAction>
-      ),
+
+    toast.success(`${item.name} added to cart`, {
+      action: {
+        label: "Go to Cart",
+        onClick: () => router.push("/cart"),
+      },
     });
   };
+
   return (
     <button
       onClick={handleAddToCart}

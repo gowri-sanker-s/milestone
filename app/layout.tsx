@@ -32,8 +32,24 @@ export default function RootLayout({
           disableTransitionOnChange
         >
           <PageTransition>
+            <Toaster
+              position="top-center"
+              richColors
+              closeButton
+              toastOptions={{
+                classNames: {
+                  actionButton:
+                    "bg-primary-text! text-primary-bg! hover:bg-black/80 px-4 py-2! rounded-xl! font-semibold",
+                  toast:
+                    "bg-primary-text text-primary-bg border border-primary-text/20 rounded-xl! lg:min-w-[380px]! shadow-lg",
+                },
+              }}
+              // toastOptions={{
+              //   className:
+              //     "bg-primary-text text-primary-bg border border-primary-text/20 rounded-xl! lg:min-w-[380px]! shadow-lg",
+              // }}
+            />
             {children}
-            <Toaster />
           </PageTransition>
         </ThemeProvider>
       </body>
