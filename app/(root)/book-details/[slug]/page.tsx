@@ -1,4 +1,5 @@
 import AddToCart from "@/components/shared/product/add-cart-button";
+import { getMyCart } from "@/lib/actions/cart.action";
 import { getProductBySlug } from "@/lib/actions/product.action";
 import { oleo } from "@/lib/fonts";
 import { Heart, ShoppingCart, Star } from "lucide-react";
@@ -12,6 +13,8 @@ const Page = async ({ params }: Props) => {
   const { slug } = await params;
 
   const product = await getProductBySlug(slug);
+
+  const cart = await getMyCart();
 
   if (!product) return notFound();
 
@@ -72,6 +75,7 @@ const Page = async ({ params }: Props) => {
             </h1>
             <div className="flex flex-wrap gap-5 items-center mt-5">
               <AddToCart
+                cart={cart}
                 item={{
                   productId: product.id,
                   name: product.name,
