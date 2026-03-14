@@ -66,7 +66,6 @@ const itemVariants: Variants = {
 const Sidebar = () => {
   const [openSidebar, setOpenSidebar] = useState(false);
 
-
   return (
     <div className="">
       <button

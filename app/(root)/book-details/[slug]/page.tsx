@@ -1,3 +1,4 @@
+import AddToCart from "@/components/shared/product/add-cart-button";
 import { getProductBySlug } from "@/lib/actions/product.action";
 import { oleo } from "@/lib/fonts";
 import { Heart, ShoppingCart, Star } from "lucide-react";
@@ -13,8 +14,6 @@ const Page = async ({ params }: Props) => {
   const product = await getProductBySlug(slug);
 
   if (!product) return notFound();
-
-;
 
   return (
     <div>
@@ -69,13 +68,20 @@ const Page = async ({ params }: Props) => {
               PRICE
             </p>
             <h1 className="text-[35px] font-extrabold max-w-[60%]">
-              ₹ {product.price.toFixed(2)}
+              ₹ {product.price}
             </h1>
             <div className="flex flex-wrap gap-5 items-center mt-5">
-              <button className="flex gap-2 items-center bg-primary-text text-primary-bg px-8 py-2 rounded-full font-semibold">
-                {/* <ShoppingCart size={20} /> */}
-                Add to Cart
-              </button>
+              <AddToCart
+                item={{
+                  productId: product.id,
+                  name: product.name,
+                  slug: product.slug,
+                  qty: 1,
+                  price: product.price,
+                  image: product.images[0],
+                }}
+              />
+
               <button className="flex gap-2 items-center bg-primary-border text-primary-text px-8 py-2 rounded-full font-semibold">
                 {/* <ShoppingCart size={20} /> */}
                 Buy Now
