@@ -15,7 +15,7 @@ async function main() {
   const prisma = new PrismaClient({ adapter });
 
   try {
-    console.log("🌱 Starting database seed...");
+
 
     // Delete existing products
     await prisma.product.deleteMany();
@@ -23,7 +23,7 @@ async function main() {
     await prisma.account.deleteMany();
     await prisma.session.deleteMany();
     await prisma.verificationToken.deleteMany();
-    console.log("✅ Cleared existing products");
+
 
     // Insert sample data
     await prisma.product.createMany({
@@ -41,9 +41,9 @@ async function main() {
     // await prisma.product.createMany({
     //   data: sampleData.products,
     // });
-    console.log(`✅ Inserted ${sampleData.products.length} products`);
 
-    console.log("🎉 Seed completed successfully!");
+
+
   } catch (error) {
     console.error("❌ Seed failed:", error);
     throw error;

@@ -9,7 +9,7 @@ const Featured = async () => {
     isFeatured: true,
   });
 
-  console.log(latestProducts);
+
   return (
     <>
       <div className="wrapper py-10">

@@ -14,8 +14,7 @@ const Page = async ({ params }: Props) => {
 
   if (!product) return notFound();
 
-  console.log(slug);
-  console.log(product);
+;
 
   return (
     <div>

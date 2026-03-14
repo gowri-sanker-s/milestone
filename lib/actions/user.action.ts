@@ -78,7 +78,6 @@ export async function signUpUser(prevState: unknown, formData: FormData) {
       message: "User signed up successfully",
     };
   } catch (error: any) {
-    console.log(error);
     if (isRedirectError(error)) {
       throw error;
     }
