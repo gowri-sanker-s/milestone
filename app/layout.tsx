@@ -4,7 +4,7 @@ import "@/assets/styles/globals.css";
 import { APP_DESCRIPTION, APP_NAME, SERVER_URL } from "@/lib/constants";
 import { ThemeProvider } from "next-themes";
 import PageTransition from "@/components/PageTransition";
-
+import { Toaster } from "@/components/ui/sonner";
 const red_hat = Red_Hat_Display({
   subsets: ["latin"],
   weight: ["300", "400", "500", "600", "700", "800", "900"],
@@ -31,7 +31,10 @@ export default function RootLayout({
           enableSystem
           disableTransitionOnChange
         >
-          <PageTransition>{children}</PageTransition>
+          <PageTransition>
+            {children}
+            <Toaster />
+          </PageTransition>
         </ThemeProvider>
       </body>
     </html>

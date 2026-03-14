@@ -35,7 +35,7 @@ export async function getProductBySlug(slug: string) {
         slug,
       },
     });
-    return data;
+    return data ? { ...data, price: Number(data.price) } : null;
   } catch (error) {
     console.error("getProductBySlug error:", error);
     return null;
