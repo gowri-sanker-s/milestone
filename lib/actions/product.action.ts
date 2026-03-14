@@ -21,7 +21,6 @@ export async function getFeaturedProducts(options?: {
 
     return data.map((product) => ({
       ...product,
-      price: Number(product.price),
       createdAt: product.createdAt.toISOString(),
     }));
   } catch (error) {
@@ -82,7 +81,6 @@ export async function getAllProducts({
     return {
       data: data.map((product) => ({
         ...product,
-        price: Number(product.price),
         createdAt: product.createdAt.toISOString(),
       })),
       totalPages: Math.ceil(dataCount / limit),
