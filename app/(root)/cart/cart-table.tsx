@@ -8,6 +8,7 @@ import Link from "next/link";
 import Image from "next/image";
 import { toast } from "sonner";
 import AddToCart from "@/components/shared/product/add-cart-button";
+import { formatCurrency } from "@/lib/utils";
 
 const CartTable = ({ cart }: { cart?: Cart }) => {
   const router = useRouter();
@@ -24,6 +25,7 @@ const CartTable = ({ cart }: { cart?: Cart }) => {
               <div key={item.productId} className="">
                 {item.name}
                 <button
+                  disabled={isPending}
                   type="button"
                   onClick={() => {
                     startTransition(async () => {
@@ -33,7 +35,6 @@ const CartTable = ({ cart }: { cart?: Cart }) => {
                         toast.error(res.message);
                         return;
                       }
-                      
                     });
                   }}
                 >
@@ -45,6 +46,7 @@ const CartTable = ({ cart }: { cart?: Cart }) => {
                 </button>
                 <span>{item.qty}</span>
                 <button
+                  disabled={isPending}
                   type="button"
                   onClick={() => {
                     startTransition(async () => {
@@ -63,9 +65,22 @@ const CartTable = ({ cart }: { cart?: Cart }) => {
                     <Plus strokeWidth={1.5} />
                   )}
                 </button>
+                <p>{formatCurrency(item.price)}</p>
               </div>
             );
           })}
+          {/* card subtotal */}
+          Subtotal {cart.items.reduce((acc, item) => acc + item.qty, 0)}
+          {formatCurrency(cart.itemsPrice)}
+          {/* proceed to checkout */}
+          <button
+            disabled={isPending}
+            onClick={() =>
+              startTransition(() => router.push("/shipping-address"))
+            }
+          >
+            {isPending ? <Loader /> : <ArrowRight />} Proceed to checkout
+          </button>
         </div>
       )}
     </div>

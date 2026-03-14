@@ -11,7 +11,7 @@ export function formatErrors(error: any) {
     // handle zod error
     const errors = error.issues || error.errors || [];
     const fieldErrors = Object.keys(errors).map(
-      (field) => errors[field].message
+      (field) => errors[field].message,
     );
     return fieldErrors.length > 0 ? fieldErrors.join(". ") : error.message;
   } else if (
@@ -44,3 +44,20 @@ export function formatErrors(error: any) {
 }
 
 // convert prisma obj to typescript object
+
+// currency formatter
+const currencyFormatter = new Intl.NumberFormat("en-IN", {
+  style: "currency",
+  currency: "INR",
+});
+
+// format currency using above formatter
+export function formatCurrency(amount: number | string | null) {
+  if (typeof amount === "number") {
+    return currencyFormatter.format(amount);
+  } else if (typeof amount === "string") {
+    return currencyFormatter.format(Number(amount));
+  } else {
+    return NaN;
+  }
+}
