@@ -83,18 +83,6 @@ export const config = {
       }
       return token;
     },
-    authorized({ auth, request }: any) {
-      // check for session cart cookie
-      if (!request.cookies.get("sessionCartId")) {
-        // generate new session cart id cookie
-        const sessionCartId = crypto.randomUUID();
-
-        console.log(sessionCartId);
-        return true;
-      } else {
-        return true;
-      }
-    },
   },
 } satisfies NextAuthConfig;
 
