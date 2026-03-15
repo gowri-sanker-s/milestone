@@ -1,21 +1,21 @@
 import Link from "next/link";
 import { auth } from "@/auth";
-import { signOutUser } from "@/lib/actions/user.action";
+import UserDropdown from "./user-dropdown";
+import { LogIn } from "lucide-react";
 const UserButton = async () => {
   const session = await auth();
+
   if (!session) {
-    return <Link href="/sign-in">Sign In</Link>;
+    return (
+      <div className="bg-primary-text p-3 px-3 rounded-xl text-primary-bg font-semibold text-[20px]">
+        <Link href="/sign-in" className="">
+          <LogIn size={16} strokeWidth={1.5} />
+        </Link>
+      </div>
+    );
   }
 
-  const firstInitial = session.user?.name?.charAt(0).toUpperCase() ?? "U";
-  return (
-    <div>
-      {firstInitial}{" "}
-      <form action={signOutUser}>
-        <button type="submit">Sign Out</button>
-      </form>
-    </div>
-  );
+  return <UserDropdown user={session.user} />;
 };
 
 export default UserButton;
