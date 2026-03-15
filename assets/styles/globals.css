@@ -29,4 +29,20 @@
   .icon {
     @apply h-full w-full object-contain block;
   }
+
+  input:-webkit-autofill {
+    -webkit-box-shadow: 0 0 0px 1000px transparent inset;
+    -webkit-text-fill-color: inherit;
+  }
+}
+/* Override Chrome autofill styles */
+input:-webkit-autofill,
+input:-webkit-autofill:hover,
+input:-webkit-autofill:focus,
+textarea:-webkit-autofill,
+select:-webkit-autofill {
+  -webkit-text-fill-color: inherit !important;
+  -webkit-box-shadow: 0 0 0px 1000px transparent inset !important;
+  background-color: transparent !important;
+  transition: background-color 5000s ease-in-out 0s;
 }
