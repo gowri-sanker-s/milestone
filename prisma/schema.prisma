@@ -96,7 +96,7 @@ model Account {
 
  model Cart {
   id String @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
-  userId String @db.Uuid
+  userId String? @db.Uuid
   items Json[] @default([]) @db.Json
   itemsPrice Int
   taxPrice Int
