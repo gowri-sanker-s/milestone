@@ -1,4 +1,5 @@
 import { z } from "zod";
+import { PAYMENT_METHODS } from "./constants";
 
 export const signInFormSchema = z.object({
   email: z.string().email("Invalid email"),
@@ -48,3 +49,12 @@ export const shippingAddressSchema = z.object({
   latitude: z.number().optional(),
   longitude: z.number().optional(),
 });
+
+export const paymentMethodSchema = z
+  .object({
+    type: z.string().min(1, "Payment method is required"),
+  })
+  .refine((data) => PAYMENT_METHODS.includes(data.type), {
+    path: ["type"],
+    message: "Invalid payment method",
+  });
