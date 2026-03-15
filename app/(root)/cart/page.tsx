@@ -8,9 +8,10 @@ export const metadata = {
 const CartPage = async () => {
   const cart = await getMyCart();
   return (
-    <div>
-        <h2>Shopping cart</h2>
-      <CartTable cart={cart} />
+    <div className="wrapper mt-10">
+      <div className="">
+        <CartTable cart={cart} />
+      </div>
     </div>
   );
 };
