@@ -33,6 +33,7 @@ model Product {
   banner     String?
 
   createdAt DateTime @default(now()) @db.Timestamp(6)
+  orderItem OrderItem[]
 }
 
 model User {
@@ -43,7 +44,8 @@ model User {
   image         String?
   accounts      Account[]
   sessions      Session[]
-  cart        Cart[]
+  cart          Cart[]
+  order         Order[]
   password      String?
   role          String? @default("user")
   phone         String?
@@ -109,4 +111,45 @@ model Account {
   user         User?     @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   @@unique([userId, sessionCartId])
+ }
+
+ model Order {
+  id String @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  userId String @db.Uuid
+  shippingAddress Json @db.Json
+  paymentMethod String
+  paymentResult Json? @db.Json
+  itemsPrice Int
+  shippingPrice Int
+  taxPrice Int
+  totalPrice Int
+  isPaid Boolean @default(false)
+  paidAt DateTime? @db.Timestamp(6)
+  isDelivered Boolean @default(false)
+  deliveredAt DateTime? @db.Timestamp(6)
+  createdAt DateTime @default(now()) @db.Timestamp(6)
+  updatedAt DateTime @updatedAt
+  orderItem OrderItem[]
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+ }
+
+ model OrderItem {
+  orderId String @db.Uuid
+  productId String @db.Uuid
+  qty Int
+  name String
+  slug String
+  image String
+  price Int
+
+// orderId from this model refer the id of the Order
+  order Order @relation(fields: [orderId], references: [id], onDelete: Cascade)
+  
+  product Product @relation(fields: [productId], references: [id], onDelete: Cascade)
+
+
+// since no primary key- mash these 2 to make a primary key
+  @@id([orderId, productId], map: "orderitems_orderId_productId_pk")
+  
  }
