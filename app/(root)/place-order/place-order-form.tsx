@@ -18,8 +18,8 @@ const PlaceOrderForm = () => {
   const PlaceOrderButton = () => {
     const { pending } = useFormStatus();
     return (
-      <button type="submit" disabled={pending}>
-        {pending ? <Loader /> : <Check />} Place Order
+      <button className="flex items-center gap-3 p-2 w-full bg-primary-text text-primary-bg justify-center rounded-lg mt-5" type="submit" disabled={pending}>
+        {pending ? <Loader strokeWidth={1.7} /> : <Check strokeWidth={1.7} />} Place Order
       </button>
     );
   };

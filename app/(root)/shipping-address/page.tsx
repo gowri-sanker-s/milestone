@@ -28,7 +28,7 @@ const ShippingAddressPage = async () => {
   }
 
   return (
-    <div>
+    <div className="wrapper my-10 w-[75%] mx-auto">
       <CheckoutSteps current={1} />
       <ShippingAddressForm address={user.address as ShippingAddress} />
     </div>

@@ -16,7 +16,7 @@ const PaymentMethodPage = async () => {
   if (!user) throw new Error("User Not Found");
 
   return (
-    <div>
+    <div className="wrapper my-10 w-[75%] mx-auto">
       <CheckoutSteps current={2} />
       <PaymentMethodForm prefferedMethodType={user.paymentMethod} />
     </div>

@@ -23,6 +23,7 @@ import {
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { toast } from "sonner";
+import { funnel } from "@/lib/fonts";
 
 const ShippingAddressForm = ({ address }: { address?: ShippingAddress }) => {
   const router = useRouter();
@@ -51,17 +52,21 @@ const ShippingAddressForm = ({ address }: { address?: ShippingAddress }) => {
   };
 
   return (
-    <div className="max-w-2xl mx-auto space-y-6">
+    <div className="mt-10">
       <div>
-        <h2 className="text-xl font-semibold">Shipping Address</h2>
-        <p className="text-muted-foreground text-sm">
+        <h2
+          className={`text-[25px] leading-[1] font-semibold ${funnel.className}`}
+        >
+          Shipping Address
+        </h2>
+        <p className="text-muted-foreground text-sm mb-5">
           Please enter the shipping address
         </p>
       </div>
 
       <Form {...form}>
         <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4 gap-y-6">
             {/* Full Name */}
             <FormField
               control={form.control}
@@ -75,9 +80,13 @@ const ShippingAddressForm = ({ address }: { address?: ShippingAddress }) => {
                 >;
               }) => (
                 <FormItem>
-                  <FormLabel>Full Name</FormLabel>
+                  <FormLabel className={`${funnel.className} font-semibold`}>Full Name</FormLabel>
                   <FormControl>
-                    <Input placeholder="Full Name" {...field} />
+                    <Input
+                      placeholder="Full Name"
+                      {...field}
+                      className="rounded-full py-5! pl-5 border-2 border-primary-text/30 focus-visible:border-primary-text focus-visible:border-2 focus-visible:ring-0 font-medium"
+                    />
                   </FormControl>
                   <FormMessage className="text-red-500" />
                 </FormItem>
@@ -97,9 +106,13 @@ const ShippingAddressForm = ({ address }: { address?: ShippingAddress }) => {
                 >;
               }) => (
                 <FormItem>
-                  <FormLabel>Street Address</FormLabel>
+                  <FormLabel className={`${funnel.className} font-semibold`}>Street Address</FormLabel>
                   <FormControl>
-                    <Input placeholder="Street Address" {...field} />
+                    <Input
+                      placeholder="Street Address"
+                      {...field}
+                      className="rounded-full py-5! pl-5 border-2 border-primary-text/30 focus-visible:border-primary-text focus-visible:border-2 focus-visible:ring-0 font-medium"
+                    />
                   </FormControl>
                   <FormMessage className="text-red-500" />
                 </FormItem>
@@ -119,9 +132,13 @@ const ShippingAddressForm = ({ address }: { address?: ShippingAddress }) => {
                 >;
               }) => (
                 <FormItem>
-                  <FormLabel>City</FormLabel>
+                  <FormLabel className={`${funnel.className} font-semibold`}>City</FormLabel>
                   <FormControl>
-                    <Input placeholder="City" {...field} />
+                    <Input
+                      placeholder="City"
+                      {...field}
+                      className="rounded-full py-5! pl-5 border-2 border-primary-text/30 focus-visible:border-primary-text focus-visible:border-2 focus-visible:ring-0 font-medium"
+                    />
                   </FormControl>
                   <FormMessage className="text-red-500" />
                 </FormItem>
@@ -141,9 +158,13 @@ const ShippingAddressForm = ({ address }: { address?: ShippingAddress }) => {
                 >;
               }) => (
                 <FormItem>
-                  <FormLabel>Postal Code</FormLabel>
+                  <FormLabel className={`${funnel.className} font-semibold`}>Postal Code</FormLabel>
                   <FormControl>
-                    <Input placeholder="Postal Code" {...field} />
+                    <Input
+                      placeholder="Postal Code"
+                      {...field}
+                      className="rounded-full py-5! pl-5 border-2 border-primary-text/30 focus-visible:border-primary-text focus-visible:border-2 focus-visible:ring-0 font-medium"
+                    />
                   </FormControl>
                   <FormMessage className="text-red-500" />
                 </FormItem>
@@ -163,9 +184,13 @@ const ShippingAddressForm = ({ address }: { address?: ShippingAddress }) => {
                 >;
               }) => (
                 <FormItem>
-                  <FormLabel>Country</FormLabel>
+                  <FormLabel className={`${funnel.className} font-semibold`}>Country</FormLabel>
                   <FormControl>
-                    <Input placeholder="Country" {...field} />
+                    <Input
+                      placeholder="Country"
+                      {...field}
+                      className="rounded-full py-5! pl-5 border-2 border-primary-text/30 focus-visible:border-primary-text focus-visible:border-2 focus-visible:ring-0 font-medium"
+                    />
                   </FormControl>
                   <FormMessage className="text-red-500" />
                 </FormItem>
@@ -185,12 +210,13 @@ const ShippingAddressForm = ({ address }: { address?: ShippingAddress }) => {
                 >;
               }) => (
                 <FormItem>
-                  <FormLabel>Latitude</FormLabel>
+                  <FormLabel className={`${funnel.className} font-semibold`}>Latitude</FormLabel>
                   <FormControl>
                     <Input
                       type="number"
                       placeholder="Latitude"
                       {...field}
+                      className="rounded-full py-5! pl-5 border-2 border-primary-text/30 focus-visible:border-primary-text focus-visible:border-2 focus-visible:ring-0 font-medium"
                       onChange={(e) => field.onChange(Number(e.target.value))}
                     />
                   </FormControl>
@@ -212,12 +238,13 @@ const ShippingAddressForm = ({ address }: { address?: ShippingAddress }) => {
                 >;
               }) => (
                 <FormItem>
-                  <FormLabel>Longitude</FormLabel>
+                  <FormLabel className={`${funnel.className} font-semibold`}>Longitude</FormLabel>
                   <FormControl>
                     <Input
                       type="number"
                       placeholder="Longitude"
                       {...field}
+                      className="rounded-full py-5! pl-5 border-2 border-primary-text/30 focus-visible:border-primary-text focus-visible:border-2 focus-visible:ring-0 font-medium"
                       onChange={(e) => field.onChange(Number(e.target.value))}
                     />
                   </FormControl>
@@ -225,16 +252,19 @@ const ShippingAddressForm = ({ address }: { address?: ShippingAddress }) => {
                 </FormItem>
               )}
             />
+            <Button
+              type="submit"
+              disabled={isPending}
+              className="flex gap-2 self-end bg-primary-text text-primary-bg font-semibold py-5.5 rounded-full"
+            >
+              {isPending ? (
+                <Loader className="animate-spin" size={18} />
+              ) : (
+                <ArrowRight size={18} />
+              )}
+              Continue
+            </Button>
           </div>
-
-          <Button type="submit" disabled={isPending} className="flex gap-2">
-            {isPending ? (
-              <Loader className="animate-spin" size={18} />
-            ) : (
-              <ArrowRight size={18} />
-            )}
-            Continue
-          </Button>
         </form>
       </Form>
     </div>

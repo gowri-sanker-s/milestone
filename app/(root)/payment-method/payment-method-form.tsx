@@ -23,6 +23,7 @@ import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { updateUserPaymentMethod } from "@/lib/actions/user.action";
+import { funnel } from "@/lib/fonts";
 const PaymentMethodForm = ({
   prefferedMethodType,
 }: {
@@ -50,12 +51,22 @@ const PaymentMethodForm = ({
     });
   };
   return (
-    <div>
+    <div className="mt-10">
+      <div>
+        <h2
+          className={`text-[25px] leading-[1] font-semibold ${funnel.className}`}
+        >
+          Payment Method
+        </h2>
+        <p className="text-muted-foreground text-sm mb-5">
+          Please specify your payment method
+        </p>
+      </div>
       <>
         {/* form similar to shipping-address */}
         <Form {...form}>
           <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
-            <div className="">
+            <div className="flex gap-5 items-center">
               <FormField
                 control={form.control}
                 name="type"
@@ -67,9 +78,10 @@ const PaymentMethodForm = ({
                     "type"
                   >;
                 }) => (
-                  <FormItem>
+                  <FormItem className="my-2">
                     <FormControl>
                       <RadioGroup
+                        className="flex gap-20"
                         onValueChange={field.onChange}
                         defaultValue={field.value}
                       >
@@ -90,7 +102,11 @@ const PaymentMethodForm = ({
               />
             </div>
 
-            <Button type="submit" disabled={isPending} className="flex gap-2">
+            <Button
+              type="submit"
+              disabled={isPending}
+              className="flex gap-2 bg-primary-text text-primary-bg font-semibold min-w-[180px] rounded-full"
+            >
               {isPending ? (
                 <Loader className="animate-spin" size={18} />
               ) : (
