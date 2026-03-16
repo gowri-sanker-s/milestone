@@ -2,22 +2,32 @@ import { getOrderById } from "@/lib/actions/order.action";
 import { Metadata } from "next";
 import { notFound } from "next/navigation";
 import { ShippingAddress } from "@/types";
+import OrderDetailsTable from "./order-details-table";
 
 export const metadata: Metadata = {
   title: "Order Details",
 };
 
-const OrderDetailsPage = async ({ params }: { params: { id: string } }) => {
-  const { id } = params;
+const OrderDetailsPage = async (props: { params: Promise<{ id: string }> }) => {
+  const { id } = await props.params;
+
   const order = await getOrderById(id);
+
   if (!order) {
     notFound();
   }
-  const { order: orderData } = order;
-
   console.log(order);
 
-  return <div>{orderData?.totalPrice}</div>;
+  return (
+    <div>
+      <OrderDetailsTable
+        order={{
+          ...order,
+          shippingAddress: order.shippingAddress as ShippingAddress,
+        }}
+      />
+    </div>
+  );
 };
 
 export default OrderDetailsPage;
