@@ -100,3 +100,29 @@ export const createOrder = async () => {
     };
   }
 };
+
+// get orderbyId
+export const getOrderById = async (id: string) => {
+  try {
+    const order = await prisma.order.findFirst({
+      where: {
+        id,
+      },
+      include: {
+        orderitems: true,
+        user: { select: { name: true, email: true } },
+      },
+    });
+    if (!order) throw new Error("Order Not Found");
+    return {
+      success: true,
+      order,
+    };
+  } catch (error) {
+    if (isRedirectError(error)) throw error;
+    return {
+      success: false,
+      message: formatErrors(error),
+    };
+  }
+};
