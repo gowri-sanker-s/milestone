@@ -27,6 +27,7 @@ const OrderDetailsTable = ({ order }: { order: Order }) => {
       <h1 className={`${funnel.className} text-[30px] font-semibold`}>
         Order {formatId(id)}
       </h1>
+      <p>Payment Status: {isPaid ? "Paid" : "Not Paid"}</p>
     </div>
   );
 };

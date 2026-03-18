@@ -1,4 +1,4 @@
-import { getOrderById } from "@/lib/actions/order.action";
+import { getOrderById, verifyOrderPayment } from "@/lib/actions/order.action";
 import { Metadata } from "next";
 import { notFound } from "next/navigation";
 import { ShippingAddress } from "@/types";
@@ -11,12 +11,16 @@ export const metadata: Metadata = {
 const OrderDetailsPage = async (props: { params: Promise<{ id: string }> }) => {
   const { id } = await props.params;
 
-  const order = await getOrderById(id);
+  let order = await getOrderById(id);
 
   if (!order) {
     notFound();
   }
-  console.log(order);
+
+  if (!order.isPaid) {
+    await verifyOrderPayment(order.id);
+    order = await getOrderById(id);
+  }
 
   return (
     <div>

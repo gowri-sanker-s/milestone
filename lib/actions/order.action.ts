@@ -8,6 +8,8 @@ import { prisma } from "../../lib/prisma";
 import { insertOrderSchema } from "../validators";
 import { CartItem } from "@/types";
 import { formatErrors } from "../utils";
+import { createPhonePePayment, checkPhonePeStatus } from "./phonepe.action";
+import { SERVER_URL } from "../constants";
 
 // create order and create order items
 export const createOrder = async () => {
@@ -87,6 +89,28 @@ export const createOrder = async () => {
       return insertedOrder.id;
     });
     if (!insertedOrderId) throw new Error("Order Not Created");
+
+    if (user.paymentMethod === "PhonePay") {
+      try {
+        const phonePeRedirectUrl = await createPhonePePayment(
+          insertedOrderId,
+          cart.totalPrice,
+          `${SERVER_URL}/order/${insertedOrderId}`
+        );
+        return {
+          success: true,
+          message: "Redirecting to PhonePe...",
+          redirect: phonePeRedirectUrl,
+        };
+      } catch (error) {
+        console.error("PhonePe Initiation Error", error);
+        return {
+          success: false,
+          message: "Failed to initiate PhonePe payment",
+        };
+      }
+    }
+
     return {
       success: true,
       message: "Order created successfully",
@@ -116,4 +140,30 @@ export const getOrderById = async (id: string) => {
   }
 
   return order;
+};
+
+// verify order payment status
+export const verifyOrderPayment = async (orderId: string) => {
+  const order = await getOrderById(orderId);
+  if (!order) throw new Error("Order not found");
+
+  if (order.isPaid) return { success: true };
+
+  if (order.paymentMethod === "PhonePay") {
+    const isPaid = await checkPhonePeStatus(order.id);
+    if (isPaid) {
+      await prisma.order.update({
+        where: { id: order.id },
+        data: {
+          isPaid: true,
+          paidAt: new Date(),
+        },
+      });
+      return { success: true, message: "Payment verified successfully" };
+    } else {
+      return { success: false, message: "Payment not completed" };
+    }
+  }
+
+  return { success: false, message: "Payment verification not applicable" };
 };
