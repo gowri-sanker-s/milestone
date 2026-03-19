@@ -4,6 +4,7 @@ import { createOrder } from "@/lib/actions/order.action";
 import { Check, Loader } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useFormStatus } from "react-dom";
+import { toast } from "sonner";
 
 const PlaceOrderForm = () => {
   const router = useRouter();
@@ -12,6 +13,11 @@ const PlaceOrderForm = () => {
     const result = await createOrder();
     if (result.redirect) {
       router.push(result.redirect);
+    }
+    if (!result.success && result.message) {
+      toast.error(result.message);
+    } else if (result.message) {
+      toast.success(result.message);
     }
   };
 

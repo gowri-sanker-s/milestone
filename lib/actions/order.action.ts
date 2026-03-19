@@ -105,8 +105,10 @@ export const createOrder = async () => {
       } catch (error) {
         console.error("PhonePe Initiation Error", error);
         return {
-          success: false,
-          message: "Failed to initiate PhonePe payment",
+          success: true,
+          message:
+            "Order created, but failed to initiate PhonePe payment. Redirecting to order details...",
+          redirect: `/order/${insertedOrderId}`,
         };
       }
     }
