@@ -166,6 +166,69 @@ export async function removeItemFromCart(productId: string) {
   }
 }
 
+export async function mergeOpenCart(userId: string) {
+  try {
+    const sessionCartId = (await cookies()).get("sessionCartId")?.value;
+    if (!sessionCartId) return;
+
+    const sessionCart = await prisma.cart.findFirst({
+      where: { sessionCartId },
+    });
+    if (!sessionCart) return;
+
+    const userCart = await prisma.cart.findFirst({
+      where: { userId },
+    });
+
+    if (userCart && userCart.id === sessionCart.id) {
+      // Cart already belongs to user and is the same cart
+      return;
+    }
+
+    if (userCart) {
+      // Merge items
+      const userItems = userCart.items as CartItem[];
+      const sessionItems = sessionCart.items as CartItem[];
+
+      for (const sessionItem of sessionItems) {
+        const existItem = userItems.find(
+          (x) => x.productId === sessionItem.productId,
+        );
+        if (existItem) {
+          existItem.qty += sessionItem.qty;
+        } else {
+          userItems.push(sessionItem);
+        }
+      }
+
+      await prisma.cart.update({
+        where: { id: userCart.id },
+        data: {
+          items: userItems,
+          ...calcPrice(userItems),
+        },
+      });
+
+      await prisma.cart.delete({
+        where: { id: sessionCart.id },
+      });
+    } else {
+      // Connect session cart to user
+      await prisma.cart.update({
+        where: { id: sessionCart.id },
+        data: {
+          userId,
+        },
+      });
+    }
+
+    // clear session cart cookie
+    (await cookies()).delete("sessionCartId");
+  } catch (error) {
+    console.error("Failed to merge carts", error);
+  }
+}
+
 export async function getMyCart() {
   try {
     // check for cart cookie

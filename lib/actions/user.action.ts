@@ -8,7 +8,8 @@ import {
 } from "../validators";
 import { auth, signIn, signOut } from "@/auth";
 import { isRedirectError } from "next/dist/client/components/redirect-error";
-import { hashSync } from "bcrypt-ts-edge";
+import { hashSync, compareSync } from "bcrypt-ts-edge";
+import { mergeOpenCart } from "./cart.action";
 import { prisma } from "../../lib/prisma";
 import { formatErrors } from "../utils";
 import { ShippingAddress } from "@/types";
@@ -26,6 +27,17 @@ export async function signInWithCredentials(
     });
 
     const callbackUrl = formData.get("callbackUrl")?.toString() || "/";
+
+    const existingUser = await prisma.user.findFirst({
+      where: { email: user.email },
+    });
+
+    if (existingUser && existingUser.password) {
+      const isMatch = compareSync(user.password, existingUser.password);
+      if (isMatch) {
+        await mergeOpenCart(existingUser.id);
+      }
+    }
 
     await signIn("credentials", { ...user, redirectTo: callbackUrl });
 
@@ -71,13 +83,14 @@ export async function signUpUser(prevState: unknown, formData: FormData) {
     });
     const plainPassword = user.password;
     user.password = hashSync(user.password, 10);
-    await prisma.user.create({
+    const createdUser = await prisma.user.create({
       data: {
         name: user.name,
         email: user.email,
         password: user.password,
       },
     });
+    await mergeOpenCart(createdUser.id);
     await signIn("credentials", {
       email: user.email,
       password: plainPassword,
