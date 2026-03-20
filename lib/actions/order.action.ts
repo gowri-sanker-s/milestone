@@ -9,7 +9,7 @@ import { insertOrderSchema } from "../validators";
 import { CartItem } from "@/types";
 import { formatErrors } from "../utils";
 import { createPhonePePayment, checkPhonePeStatus } from "./phonepe.action";
-import { SERVER_URL } from "../constants";
+import { PAGE_SIZE, SERVER_URL } from "../constants";
 
 // create order and create order items
 export const createOrder = async () => {
@@ -95,7 +95,7 @@ export const createOrder = async () => {
         const phonePeRedirectUrl = await createPhonePePayment(
           insertedOrderId,
           cart.totalPrice,
-          `${SERVER_URL}/order/${insertedOrderId}`
+          `${SERVER_URL}/order/${insertedOrderId}`,
         );
         return {
           success: true,
@@ -164,4 +164,35 @@ export const verifyOrderPayment = async (orderId: string) => {
   }
 
   return { success: false, message: "Payment verification not applicable" };
+};
+
+// get users orders
+export const getMyOrders = async ({
+  limit = PAGE_SIZE,
+  page = 1,
+}: {
+  limit?: number;
+  page?: number;
+}) => {
+  const session = await auth();
+  if (!session) throw new Error("User Not Authenticated");
+
+  const userId = session.user?.id;
+  if (!userId) throw new Error("User Not Found");
+
+  const orders = await prisma.order.findMany({
+    where: { userId },
+    include: {
+      orderitems: true,
+    },
+    take: limit,
+    skip: (page - 1) * limit,
+    orderBy: { createdAt: "desc" },
+  });
+
+  const dataCount = await prisma.order.count({
+    where: { userId },
+  });
+
+  return { orders, totalPages: Math.ceil(dataCount / limit) };
 };

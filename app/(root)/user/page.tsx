@@ -33,7 +33,7 @@ const UserPage = async ({ searchParams }: Props) => {
 
       <div className="min-h-[400px]">
         {activeTab === "profile" && <Profile />}
-        {activeTab === "orders" && <Orders />}
+        {activeTab === "orders" && <Orders searchParams={searchParams} />}
         {/* Additional components can be added here matching the items in TABS */}
       </div>
     </div>
