@@ -18,8 +18,13 @@ const OrderDetailsPage = async (props: { params: Promise<{ id: string }> }) => {
   }
 
   if (!order.isPaid) {
-    await verifyOrderPayment(order.id);
-    order = await getOrderById(id);
+    try {
+      await verifyOrderPayment(order.id);
+      const updatedOrder = await getOrderById(id);
+      if (updatedOrder) order = updatedOrder;
+    } catch (err) {
+      console.error("Order payment verification error:", err);
+    }
   }
 
   return (
@@ -28,7 +33,7 @@ const OrderDetailsPage = async (props: { params: Promise<{ id: string }> }) => {
         order={{
           ...order,
           shippingAddress: order.shippingAddress as ShippingAddress,
-        }}
+        } as any}
       />
     </div>
   );

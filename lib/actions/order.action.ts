@@ -137,10 +137,6 @@ export const getOrderById = async (id: string) => {
     },
   });
 
-  if (!order) {
-    throw new Error("Order Not Found");
-  }
-
   return order;
 };
 
