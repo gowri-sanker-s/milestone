@@ -17,6 +17,7 @@ import {
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { updateProfile } from "@/lib/actions/user.action";
+import { funnel } from "@/lib/fonts";
 const ProfileUpdateForm = () => {
   const { data: session, update } = useSession();
   const form = useForm<z.infer<typeof updateProfileSchema>>({
@@ -29,7 +30,7 @@ const ProfileUpdateForm = () => {
   const onSubmit = async (values: z.infer<typeof updateProfileSchema>) => {
     const res = await updateProfile(values);
     if (!res.success) {
-      toast(res.message);
+      toast.error(res.message);
       return;
     }
     const newSession = {
@@ -40,7 +41,7 @@ const ProfileUpdateForm = () => {
       },
     };
     await update(newSession);
-    toast(res.message);
+    toast.success(res.message);
   };
   return (
     <Form {...form}>
@@ -54,13 +55,13 @@ const ProfileUpdateForm = () => {
           name="email"
           render={({ field }) => (
             <FormItem>
-              <FormLabel>Email</FormLabel>
+              <FormLabel className={funnel.className}>Email</FormLabel>
               <FormControl>
                 <Input
                   disabled
                   placeholder="Email"
                   {...field}
-                  className="rounded-full py-5! pl-5 border-2 border-primary-text/30 focus-visible:border-primary-text focus-visible:border-2 focus-visible:ring-0 font-medium"
+                  className={`rounded-full py-5! pl-5 border-2 border-primary-text/30 focus-visible:border-primary-text focus-visible:border-2 focus-visible:ring-0 font-medium ${funnel.className}`}
                 />
               </FormControl>
               <FormMessage />
@@ -72,12 +73,12 @@ const ProfileUpdateForm = () => {
           name="name"
           render={({ field }) => (
             <FormItem>
-              <FormLabel>Name</FormLabel>
+              <FormLabel className={funnel.className}>Name</FormLabel>
               <FormControl>
                 <Input
                   placeholder="Name"
                   {...field}
-                  className="rounded-full py-5! pl-5 border-2 border-primary-text/30 focus-visible:border-primary-text focus-visible:border-2 focus-visible:ring-0 font-medium"
+                  className={`rounded-full py-5! pl-5 border-2 border-primary-text/30 focus-visible:border-primary-text focus-visible:border-2 focus-visible:ring-0 font-medium ${funnel.className}`}
                 />
               </FormControl>
               <FormMessage />
@@ -85,7 +86,11 @@ const ProfileUpdateForm = () => {
           )}
         />
 
-        <Button type="submit" disabled={form.formState.isSubmitting}>
+        <Button
+          className="bg-primary-text w-full rounded-full text-primary-bg font-bold"
+          type="submit"
+          disabled={form.formState.isSubmitting}
+        >
           {form.formState.isSubmitting ? "Updating..." : "Update"}
         </Button>
       </form>

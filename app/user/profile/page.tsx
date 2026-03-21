@@ -11,7 +11,10 @@ const Profile = async () => {
   const session = await auth();
   return (
     <SessionProvider session={session}>
-      <ProfileUpdateForm />
+      <div className="max-w-md mx-auto">
+        <h2 className="font-bold text-2xl mb-6">Update Profile</h2>
+        <ProfileUpdateForm />
+      </div>
     </SessionProvider>
   );
 };
