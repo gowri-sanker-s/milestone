@@ -183,14 +183,14 @@ export async function updateUserPaymentMethod(
 }
 
 // update user profile
-export async function updateProfile(user: z.infer<typeof updateProfileSchema>) {
+export async function updateProfile(data: z.infer<typeof updateProfileSchema>) {
   try {
     const session = await auth();
     if (!session?.user?.id) throw new Error("No User ID");
     const user = await getUserById(session.user.id);
     if (!user) throw new Error("User not found");
 
-    const updatedUser = updateProfileSchema.parse(user);
+    const updatedUser = updateProfileSchema.parse(data);
     await prisma.user.update({
       where: { id: session.user.id },
       data: {
