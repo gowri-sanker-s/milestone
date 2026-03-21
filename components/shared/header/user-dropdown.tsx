@@ -2,6 +2,8 @@
 
 import React, { useState, useRef, useEffect } from "react";
 import { signOutUser } from "@/lib/actions/user.action";
+import Link from "next/link";
+import { Box, LogOut, User } from "lucide-react";
 
 const UserDropdown = ({ user }: { user: any }) => {
   const [open, setOpen] = useState(false);
@@ -51,7 +53,7 @@ const UserDropdown = ({ user }: { user: any }) => {
       {/* Dropdown */}
       {open && (
         <div
-          className="absolute right-0 mt-2 w-48 rounded-xl bg-white shadow-lg border p-3 overflow-hidden"
+          className="absolute right-0 mt-2 w-fit rounded-xl bg-primary-border shadow-md border border-primary-text/10 p-3 px-5 overflow-hidden"
           style={{
             transform: visible ? "translateX(0)" : "translateX(100%)",
             opacity: visible ? 1 : 0,
@@ -59,7 +61,51 @@ const UserDropdown = ({ user }: { user: any }) => {
               "transform 250ms cubic-bezier(0.4, 0, 0.2, 1), opacity 250ms ease",
           }}
         >
-          <div className="mb-2">
+          <div className="top flex gap-3 items-center pb-3 border-b border-primary-text/10">
+            <div className="left shrink-0 h-[40px] w-[40px] rounded-md bg-primary-text text-primary-bg grid place-items-center">
+              {user?.image ? <img src={user?.image} alt="" /> : firstInitial}
+            </div>
+            <div className="right">
+              <p className="font-semibold leading-[1]">{user?.name}</p>
+              <p className="text-sm leading-[1] opacity-50">{user?.email}</p>
+            </div>
+          </div>
+          <div className="mid py-3">
+            <Link
+              href="/user/profile"
+              className="py-1.5 hover:bg-primary-bg rounded-md px-2 flex! items-center gap-2"
+            >
+              <span>
+                <User size={15} strokeWidth={1.5} />
+              </span>
+              Profile
+            </Link>
+            <Link
+              href="/user/orders"
+              className="py-1.5 hover:bg-primary-bg rounded-md px-2 flex! items-center gap-2"
+            >
+              <span>
+                <Box size={15} strokeWidth={1.5} />
+              </span>
+              Orders
+            </Link>
+          </div>
+          <div className="bottom border-t border-primary-text/10">
+            <div className="py-2">
+              <form action={signOutUser}>
+                <button
+                  type="submit"
+                  className="py-1.5 text-red-500 hover:bg-primary-bg rounded-md px-2 flex! items-center gap-2 w-full"
+                >
+                  <span>
+                    <LogOut size={15} strokeWidth={1.5} />
+                  </span>
+                  Sign Out
+                </button>
+              </form>
+            </div>
+          </div>
+          {/* <div className="mb-2">
             <p className="font-semibold">{user?.name}</p>
             <p className="text-sm text-gray-500">{user?.email}</p>
           </div>
@@ -71,7 +117,7 @@ const UserDropdown = ({ user }: { user: any }) => {
             >
               Sign Out
             </button>
-          </form>
+          </form> */}
         </div>
       )}
     </div>
