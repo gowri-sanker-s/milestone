@@ -16,7 +16,7 @@ export default function RootLayout({
   return (
     <div className="flex flex-col h-screen bg-primary-bg overflow-scroll">
       <Header />
-      <main className="flex-1">{children}</main>
+      <main className="flex-1 wrapper py-10">{children}</main>
       <Footer />
     </div>
   );

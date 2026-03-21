@@ -3,6 +3,7 @@ import { formatCurrency, formatDate, formatId } from "@/lib/utils";
 import React from "react";
 import { Metadata } from "next";
 import Link from "next/link";
+import Pagination from "./Pagination";
 
 export const metadata: Metadata = {
   title: "My Orders",
@@ -78,6 +79,13 @@ const Orders = async (props: {
           </tbody>
         </table>
       </div>
+      {totalPages > 1 && (
+        <Pagination
+          page={Number(page) || 1}
+          totalPages={totalPages}
+          // urlParamName="page"
+        />
+      )}
     </div>
   );
 };
