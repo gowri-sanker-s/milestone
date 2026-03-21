@@ -79,3 +79,9 @@ export const insertOrderItemSchema = z.object({
   image: z.string(),
   price: z.number(),
 });
+
+// schema for updation schema profile
+export const updateProfileSchema = z.object({
+  name: z.string().min(3, "Name must atleast be 3 charachters"),
+  email: z.string().min(3,"Invalid email"),
+});
