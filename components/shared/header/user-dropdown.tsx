@@ -3,7 +3,7 @@
 import React, { useState, useRef, useEffect } from "react";
 import { signOutUser } from "@/lib/actions/user.action";
 import Link from "next/link";
-import { Box, LogOut, User } from "lucide-react";
+import { Box, LogOut, User, UserCheck } from "lucide-react";
 
 const UserDropdown = ({ user }: { user: any }) => {
   const [open, setOpen] = useState(false);
@@ -78,7 +78,7 @@ const UserDropdown = ({ user }: { user: any }) => {
               <span>
                 <User size={15} strokeWidth={1.5} />
               </span>
-              Profile
+              User Profile
             </Link>
             <Link
               href="/user/orders"
@@ -87,9 +87,21 @@ const UserDropdown = ({ user }: { user: any }) => {
               <span>
                 <Box size={15} strokeWidth={1.5} />
               </span>
-              Orders
+              Order History
             </Link>
+            {user?.role === "admin" && (
+              <Link
+                href="/admin/overview"
+                className="py-1.5 hover:bg-primary-bg rounded-md px-2 flex! items-center gap-2"
+              >
+                <span>
+                  <UserCheck size={15} strokeWidth={1.5} />
+                </span>
+                Admin
+              </Link>
+            )}
           </div>
+
           <div className="bottom border-t border-primary-text/10">
             <div className="py-2">
               <form action={signOutUser}>
