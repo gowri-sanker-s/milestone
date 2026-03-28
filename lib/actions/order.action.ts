@@ -11,6 +11,10 @@ import { formatErrors } from "../utils";
 import { createPhonePePayment, checkPhonePeStatus } from "./phonepe.action";
 import { PAGE_SIZE, SERVER_URL } from "../constants";
 
+type SalesDataType = {
+  month: string;
+  totalSales: number;
+}[];
 // create order and create order items
 export const createOrder = async () => {
   try {
@@ -195,4 +199,61 @@ export const getMyOrders = async ({
   });
 
   return { orders, totalPages: Math.ceil(dataCount / limit) };
+};
+
+// get sales data and order summary
+export const getOrderSummary = async () => {
+  // get count for each resource
+  const orderCount = await prisma.order.count();
+  const deliveredOrderCount = await prisma.order.count({
+    where: { isDelivered: true },
+  });
+  const pendingOrderCount = await prisma.order.count({
+    where: { isDelivered: false },
+  });
+  const productsCount = await prisma.product.count();
+  const userCount = await prisma.user.count();
+
+  // calc total sales
+  const totalSales = await prisma.order.aggregate({
+    _sum: { totalPrice: true },
+    where: { isPaid: true },
+  });
+
+  const monthlySalesRaw = await prisma.$queryRaw<
+    Array<{ month: string; totalSales: Number }>
+  >` SELECT 
+    to_char("createdAt", 'MM/YY') AS "month",
+    sum("totalPrice") AS "totalSales"
+  FROM "Order"
+  WHERE "isPaid" = true
+  GROUP BY to_char("createdAt", 'MM/YY')
+  ORDER BY to_char("createdAt", 'MM/YY')  `;
+
+  const monthlySales: SalesDataType = monthlySalesRaw.map((sale) => ({
+    month: sale.month,
+    totalSales: Number(sale.totalSales),
+  }));
+
+  // get latest sales
+  const latestSales = await prisma.order.findMany({
+    orderBy: { createdAt: "desc" },
+    include: {
+      orderitems: true,
+      user: { select: { name: true, email: true, id: true } },
+    },
+    where: { isPaid: true },
+    take: 6,
+  });
+
+  return {
+    orderCount,
+    deliveredOrderCount,
+    pendingOrderCount,
+    productsCount,
+    userCount,
+    totalSales,
+    monthlySales,
+    latestSales,
+  };
 };

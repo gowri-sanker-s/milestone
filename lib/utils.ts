@@ -63,6 +63,18 @@ export function formatCurrency(amount: number | string | null) {
   }
 }
 
+// number formatter
+const NUMBER_FORMATTER = new Intl.NumberFormat("en-IN");
+export function formatNumber(number: number | string) {
+  if (typeof number === "number") {
+    return NUMBER_FORMATTER.format(number);
+  } else if (typeof number === "string") {
+    return NUMBER_FORMATTER.format(Number(number));
+  } else {
+    return NaN;
+  }
+}
+
 // shorten uuid
 export function formatId(id: string) {
   return `...${id.substring(id.length - 6)}`;
