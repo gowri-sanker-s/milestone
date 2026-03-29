@@ -297,3 +297,50 @@ export const deleteOrder = async (id: string) => {
     return { success: false, message: formatErrors(error) };
   }
 };
+
+// update COD order to paid
+export const updateCODOrderToPaid = async (id: string) => {
+  try {
+    const order = await prisma.order.findFirst({
+      where: { id },
+    });
+    if (!order) throw new Error("Order not found");
+    if (order.isPaid)
+      return { success: false, message: "Order is already paid" };
+    await prisma.order.update({
+      where: { id },
+      data: {
+        isPaid: true,
+        paidAt: new Date(),
+      },
+    });
+    revalidatePath(`/order/${id}`);
+    return { success: true, message: "Order marked as paid" };
+  } catch (error) {
+    return { success: false, message: formatErrors(error) };
+  }
+};
+
+// update COD order to delivered
+export const updateCODOrderToDelivered = async (id: string) => {
+  try {
+    const order = await prisma.order.findFirst({
+      where: { id },
+    });
+    if (!order) throw new Error("Order not found");
+    if (!order.isPaid) throw new Error("Order is not paid");
+    if (order.isDelivered)
+      return { success: false, message: "Order is already delivered" };
+    await prisma.order.update({
+      where: { id },
+      data: {
+        isDelivered: true,
+        deliveredAt: new Date(),
+      },
+    });
+    revalidatePath(`/order/${id}`);
+    return { success: true, message: "Order marked as delivered" };
+  } catch (error) {
+    return { success: false, message: formatErrors(error) };
+  }
+};
