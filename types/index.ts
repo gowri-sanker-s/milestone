@@ -15,9 +15,9 @@ export type Order = z.infer<typeof insertOrderSchema> & {
   // these are not added through form thats why here given
   id: string;
   createdAt: Date;
-  isPaid: Boolean;
+  isPaid: boolean;
   paidAt: Date | null;
-  isDelivered: Boolean;
+  isDelivered: boolean;
   deliveredAt: Date | null;
   orderitems: OrderItem[];
   user: { name: string; email: string; id: string };

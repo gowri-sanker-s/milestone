@@ -5,7 +5,7 @@ import {
   updateCODOrderToPaid,
 } from "@/lib/actions/order.action";
 import { funnel } from "@/lib/fonts";
-import { formatCurrency, formatId } from "@/lib/utils";
+import { formatCurrency, formatDate, formatId } from "@/lib/utils";
 import { Order } from "@/types";
 import Image from "next/image";
 import React, { useState, useTransition } from "react";
@@ -217,7 +217,7 @@ const OrderDetailsTable = ({
 
       {/* payment-method and shipping address */}
       <div className="grid grid-cols-[1.5fr_2fr] gap-5 mt-10">
-        <div className="border rounded-2xl border-primary-text/20 p-5">
+        <div className="border rounded-2xl border-primary-text/20 p-5 relative">
           <div className="flex justify-between items-start gap-10">
             <h3 className={`${funnel.className} text-[25px] font-semibold`}>
               Payment Method
@@ -233,8 +233,11 @@ const OrderDetailsTable = ({
           <div className="flex justify-between gap-2 items-center mt-5">
             <p className="text-[17px] font-medium">{paymentMethod}</p>
           </div>
+          <div className="absolute bottom-3 right-3 text-[14px] font-semibold">
+            {isPaid && paidAt && `Paid on ${formatDate(paidAt!).dateTime}`}
+          </div>
         </div>
-        <div className="shipping-address border rounded-2xl border-primary-text/20 p-5">
+        <div className="shipping-address border rounded-2xl border-primary-text/20 p-5 relative">
           <div className="flex items-center justify-between">
             <h3 className={`${funnel.className} text-[25px] font-semibold`}>
               Shipping Address
@@ -268,6 +271,11 @@ const OrderDetailsTable = ({
               </span>{" "}
               <span>{shippingAddress.country}</span>
             </p>
+          </div>
+          <div className="absolute bottom-3 right-3 text-[14px] font-semibold">
+            {isDelivered &&
+              deliveredAt &&
+              `Delivered on ${formatDate(deliveredAt!).dateTime}`}
           </div>
         </div>
         {/* fullfilment status */}
