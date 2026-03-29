@@ -7,12 +7,13 @@ import { formatCurrency, formatId } from "@/lib/utils";
 import Cards from "./Cards";
 import MonthlySales from "./MonthlySales";
 import Link from "next/link";
-
+import { requireAdmin } from "@/lib/auth-guard";
 export const metadata: Metadata = {
   title: "Admin Dashboard",
 };
 
 const Overview = async () => {
+  await requireAdmin();
   const session = await auth();
   if (!session) throw new Error("User Not Authenticated");
   if (session?.user?.role !== "admin") throw new Error("Unauthorized");
