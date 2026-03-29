@@ -36,7 +36,7 @@ const OrderDetailsTable = ({
   } = order;
   const [isDeliveredUpdate, setIsDeliveredUpdate] = useState(isDelivered);
 
-  const MarkAsPaidButton = async () => {
+  const MarkAsPaidButton = () => {
     const [isPending, startTransition] = useTransition();
     return (
       <button
@@ -52,13 +52,13 @@ const OrderDetailsTable = ({
             }
           })
         }
-        className="w-full bg-primary-text text-white px-4 py-2 rounded-md mt-5"
+        className="w-fit bg-primary-text text-white px-4 py-2 rounded-md mt-5"
       >
         {isPending ? "Processing" : "Mark as paid"}
       </button>
     );
   };
-  const MarkAsDeliveredButton = async () => {
+  const MarkAsDeliveredButton = () => {
     const [isPending, startTransition] = useTransition();
     return (
       <button
@@ -74,9 +74,9 @@ const OrderDetailsTable = ({
             }
           })
         }
-        className="w-full bg-primary-text text-white px-4 py-2 rounded-md mt-5"
+        className="w-fit bg-primary-text text-white px-4 py-2 rounded-md mt-5"
       >
-        {isPending ? "Marking as delivered..." : "Mark as delivered"}
+        {isPending ? "processing..." : "Mark as delivered"}
       </button>
     );
   };
@@ -93,88 +93,128 @@ const OrderDetailsTable = ({
         </button>
       </div>
       {/* display the list of items in the order ui as in the cart page */}
-      <h3 className={`${funnel.className} text-[25px] font-semibold`}>
-        Order Items
-      </h3>
-      <>
-        {/* Column labels — hidden on mobile */}
-        <div className="hidden sm:grid grid-cols-[1fr_auto_auto] gap-4 px-6 pl-0 py-3 text-xs font-semibold uppercase tracking-widest opacity-50 border-b border-primary-text/10">
-          <span>Product</span>
-          <span className="text-center w-28">Quantity</span>
-          <span className="text-right w-24">Price</span>
-        </div>
+      <div className="flex flex-col lg:flex-row items-start gap-10">
+        <div className="left flex-1">
+          <h3 className={`${funnel.className} text-[25px] font-semibold`}>
+            Order Items
+          </h3>
+          <>
+            {/* Column labels — hidden on mobile */}
+            <div className="hidden sm:grid grid-cols-[1fr_auto_auto] gap-4 px-6 pl-0 py-3 text-xs font-semibold uppercase tracking-widest opacity-50 border-b border-primary-text/10">
+              <span>Product</span>
+              <span className="text-center w-28">Quantity</span>
+              <span className="text-right w-24">Price</span>
+            </div>
 
-        {/* Items */}
-        <ul className="divide-y divide-primary-text/10">
-          {orderitems.map((item) => (
-            <li key={item.productId} className="px-4 pl-0 sm:px-6 sm:pl-0 py-4">
-              <div className="flex  gap-3 sm:hidden">
-                {/* Image */}
-                <div className="h-[70px] w-[80px] flex-shrink-0 rounded-xl overflow-hidden">
-                  <img
-                    src={item.image}
-                    alt={item.name}
-                    className="h-full w-full object-cover"
-                  />
-                </div>
+            {/* Items */}
+            <ul className="divide-y divide-primary-text/10">
+              {orderitems.map((item) => (
+                <li
+                  key={item.productId}
+                  className="px-4 pl-0 sm:px-6 sm:pl-0 py-4"
+                >
+                  <div className="flex  gap-3 sm:hidden">
+                    {/* Image */}
+                    <div className="h-[70px] w-[80px] flex-shrink-0 rounded-xl overflow-hidden">
+                      <img
+                        src={item.image}
+                        alt={item.name}
+                        className="h-full w-full object-cover"
+                      />
+                    </div>
 
-                {/* Info */}
-                <div className="flex flex-col flex-1 gap-2 min-w-0">
-                  <p
-                    className={`${funnel.className} font-semibold text-[16px] leading-tight`}
-                  >
-                    {item.name}
-                  </p>
-                  <div className="flex items-center justify-between">
+                    {/* Info */}
+                    <div className="flex flex-col flex-1 gap-2 min-w-0">
+                      <p
+                        className={`${funnel.className} font-semibold text-[16px] leading-tight`}
+                      >
+                        {item.name}
+                      </p>
+                      <div className="flex items-center justify-between">
+                        {/* Qty controls */}
+                        <div className="flex items-center gap-2">
+                          <span className="w-5 text-center text-sm font-semibold">
+                            {item.qty}
+                          </span>
+                        </div>
+
+                        {/* Price */}
+                        <span className="text-[16px] font-bold">
+                          {formatCurrency(item.price)}
+                        </span>
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Desktop layout: grid row */}
+                  <div className="hidden sm:grid grid-cols-[1fr_auto_auto] gap-4 items-center">
+                    {/* Name + image */}
+                    <div className="flex gap-3 items-center min-w-0">
+                      <div className="h-[70px] w-[90px] flex-shrink-0 rounded-xl overflow-hidden">
+                        <img
+                          src={item.image}
+                          alt={item.name}
+                          className="h-full w-full object-cover"
+                        />
+                      </div>
+                      <p
+                        className={`${funnel.className} font-semibold text-[20px] truncate pr-2`}
+                      >
+                        {item.name}
+                      </p>
+                    </div>
+
                     {/* Qty controls */}
-                    <div className="flex items-center gap-2">
-                      <span className="w-5 text-center text-sm font-semibold">
+                    <div className="flex items-center gap-2 w-28 justify-center">
+                      <span className="w-5 text-center text-[17px] font-semibold">
                         {item.qty}
                       </span>
                     </div>
 
                     {/* Price */}
-                    <span className="text-[16px] font-bold">
+                    <span className="text-[18px] font-bold text-right w-24">
                       {formatCurrency(item.price)}
                     </span>
                   </div>
-                </div>
-              </div>
+                </li>
+              ))}
+            </ul>
+          </>
+        </div>
+        <div className="right min-w-[30%]">
+          <div className="border border-primary-text/30 rounded-xl p-5 bg-primary-border mt-5">
+            <h3 className="text-xl font-bold mb-3">Order Summary</h3>
+            <p className="flex justify-between items-center py-2">
+              Items Price:{" "}
+              <span className="font-semibold">
+                {formatCurrency(itemsPrice)}
+              </span>
+            </p>
+            <p className="flex justify-between items-center py-2">
+              Tax Price:{" "}
+              <span className="font-semibold">{formatCurrency(taxPrice)}</span>
+            </p>
+            <p className="flex justify-between items-center py-2">
+              Shipping Price:{" "}
+              <span className="font-semibold">
+                {formatCurrency(shippingPrice)}
+              </span>
+            </p>
+            <p className="flex justify-between items-center py-2">
+              Total Price:{" "}
+              <span className="font-semibold">
+                {formatCurrency(totalPrice)}
+              </span>
+            </p>
 
-              {/* Desktop layout: grid row */}
-              <div className="hidden sm:grid grid-cols-[1fr_auto_auto] gap-4 items-center">
-                {/* Name + image */}
-                <div className="flex gap-3 items-center min-w-0">
-                  <div className="h-[70px] w-[90px] flex-shrink-0 rounded-xl overflow-hidden">
-                    <img
-                      src={item.image}
-                      alt={item.name}
-                      className="h-full w-full object-cover"
-                    />
-                  </div>
-                  <p
-                    className={`${funnel.className} font-semibold text-[20px] truncate pr-2`}
-                  >
-                    {item.name}
-                  </p>
-                </div>
+            {isAdmin && !isPaid && paymentMethod === "CashOnDelivery" && (
+              <MarkAsPaidButton />
+            )}
+            {isAdmin && isPaid && !isDelivered && <MarkAsDeliveredButton />}
+          </div>
+        </div>
+      </div>
 
-                {/* Qty controls */}
-                <div className="flex items-center gap-2 w-28 justify-center">
-                  <span className="w-5 text-center text-[17px] font-semibold">
-                    {item.qty}
-                  </span>
-                </div>
-
-                {/* Price */}
-                <span className="text-[18px] font-bold text-right w-24">
-                  {formatCurrency(item.price)}
-                </span>
-              </div>
-            </li>
-          ))}
-        </ul>
-      </>
       {/* payment-method and shipping address */}
       <div className="grid grid-cols-[1.5fr_2fr] gap-5 mt-10">
         <div className="border rounded-2xl border-primary-text/20 p-5">
@@ -193,9 +233,6 @@ const OrderDetailsTable = ({
           <div className="flex justify-between gap-2 items-center mt-5">
             <p className="text-[17px] font-medium">{paymentMethod}</p>
           </div>
-          {isAdmin && !isPaid && paymentMethod === "CashOnDelivery" && (
-            <MarkAsPaidButton />
-          )}
         </div>
         <div className="shipping-address border rounded-2xl border-primary-text/20 p-5">
           <div className="flex items-center justify-between">
@@ -232,7 +269,6 @@ const OrderDetailsTable = ({
               <span>{shippingAddress.country}</span>
             </p>
           </div>
-          {isAdmin && isPaid && !isDelivered && <MarkAsDeliveredButton />}
         </div>
         {/* fullfilment status */}
         {/* <div className="border rounded-2xl border-primary-text/20 p-5">
