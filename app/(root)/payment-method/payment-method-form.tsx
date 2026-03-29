@@ -35,7 +35,10 @@ const PaymentMethodForm = ({
   const form = useForm<z.infer<typeof paymentMethodSchema>>({
     resolver: zodResolver(paymentMethodSchema),
     defaultValues: {
-      type: prefferedMethodType || DEFAULT_PAYMENT_METHOD,
+      type:
+        prefferedMethodType && PAYMENT_METHODS.includes(prefferedMethodType)
+          ? prefferedMethodType
+          : DEFAULT_PAYMENT_METHOD,
     },
   });
 
@@ -83,7 +86,7 @@ const PaymentMethodForm = ({
                       <RadioGroup
                         className="flex gap-20"
                         onValueChange={field.onChange}
-                        defaultValue={field.value}
+                        value={field.value}
                       >
                         {PAYMENT_METHODS.map((paymentMethod) => (
                           <FormItem

@@ -26,10 +26,10 @@ export const shippingAddressDefaultValues = {
 };
 
 export const PAYMENT_METHODS = process.env.PAYMENT_METHODS
-  ? process.env.PAYMENT_METHODS.split(",")
+  ? process.env.PAYMENT_METHODS.split(",").map((x) => x.trim())
   : ["PhonePe", "CashOnDelivery"];
 
 export const DEFAULT_PAYMENT_METHOD =
-  process.env.DEFAULT_PAYMENT_METHOD || "PhonePe";
+  process.env.DEFAULT_PAYMENT_METHOD?.trim() || "PhonePe";
 
 export const PAGE_SIZE = Number(process.env.PAGE_SIZE) || 10;

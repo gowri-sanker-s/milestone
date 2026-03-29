@@ -95,7 +95,7 @@ export const createOrder = async () => {
     });
     if (!insertedOrderId) throw new Error("Order Not Created");
 
-    if (user.paymentMethod === "PhonePay") {
+    if (user.paymentMethod === "PhonePe") {
       try {
         const phonePeRedirectUrl = await createPhonePePayment(
           insertedOrderId,
@@ -152,7 +152,7 @@ export const verifyOrderPayment = async (orderId: string) => {
 
   if (order.isPaid) return { success: true };
 
-  if (order.paymentMethod === "PhonePay") {
+  if (order.paymentMethod === "PhonePe") {
     const isPaid = await checkPhonePeStatus(order.id);
     if (isPaid) {
       await prisma.order.update({
