@@ -1,12 +1,23 @@
 "use client";
 
+import {
+  updateCODOrderToDelivered,
+  updateCODOrderToPaid,
+} from "@/lib/actions/order.action";
 import { funnel } from "@/lib/fonts";
 import { formatCurrency, formatId } from "@/lib/utils";
 import { Order } from "@/types";
 import Image from "next/image";
-import React, { useState } from "react";
+import React, { useState, useTransition } from "react";
+import { toast } from "sonner";
 
-const OrderDetailsTable = ({ order }: { order: Order }) => {
+const OrderDetailsTable = ({
+  order,
+  isAdmin,
+}: {
+  order: Order;
+  isAdmin: boolean;
+}) => {
   const {
     id,
     createdAt,
@@ -24,6 +35,51 @@ const OrderDetailsTable = ({ order }: { order: Order }) => {
     shippingAddress,
   } = order;
   const [isDeliveredUpdate, setIsDeliveredUpdate] = useState(isDelivered);
+
+  const MarkAsPaidButton = async () => {
+    const [isPending, startTransition] = useTransition();
+    return (
+      <button
+        type="button"
+        disabled={isPending}
+        onClick={() =>
+          startTransition(async () => {
+            const res = await updateCODOrderToPaid(id);
+            if (res.success) {
+              toast.success(res.message);
+            } else {
+              toast.error(res.message);
+            }
+          })
+        }
+        className="w-full bg-primary-text text-white px-4 py-2 rounded-md mt-5"
+      >
+        {isPending ? "Processing" : "Mark as paid"}
+      </button>
+    );
+  };
+  const MarkAsDeliveredButton = async () => {
+    const [isPending, startTransition] = useTransition();
+    return (
+      <button
+        type="button"
+        disabled={isPending}
+        onClick={() =>
+          startTransition(async () => {
+            const res = await updateCODOrderToDelivered(id);
+            if (res.success) {
+              toast.success(res.message);
+            } else {
+              toast.error(res.message);
+            }
+          })
+        }
+        className="w-full bg-primary-text text-white px-4 py-2 rounded-md mt-5"
+      >
+        {isPending ? "Marking as delivered..." : "Mark as delivered"}
+      </button>
+    );
+  };
   return (
     <div className="wrapper py-10">
       <div className="flex gap-3 items-center justify-between mb-10">
@@ -137,6 +193,9 @@ const OrderDetailsTable = ({ order }: { order: Order }) => {
           <div className="flex justify-between gap-2 items-center mt-5">
             <p className="text-[17px] font-medium">{paymentMethod}</p>
           </div>
+          {isAdmin && !isPaid && paymentMethod === "CashOnDelivery" && (
+            <MarkAsPaidButton />
+          )}
         </div>
         <div className="shipping-address border rounded-2xl border-primary-text/20 p-5">
           <div className="flex items-center justify-between">
@@ -173,6 +232,7 @@ const OrderDetailsTable = ({ order }: { order: Order }) => {
               <span>{shippingAddress.country}</span>
             </p>
           </div>
+          {isAdmin && isPaid && !isDelivered && <MarkAsDeliveredButton />}
         </div>
         {/* fullfilment status */}
         {/* <div className="border rounded-2xl border-primary-text/20 p-5">

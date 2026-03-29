@@ -3,6 +3,7 @@ import { Metadata } from "next";
 import { notFound } from "next/navigation";
 import { ShippingAddress } from "@/types";
 import OrderDetailsTable from "./order-details-table";
+import { auth } from "@/auth";
 
 export const metadata: Metadata = {
   title: "Order Details",
@@ -10,7 +11,7 @@ export const metadata: Metadata = {
 
 const OrderDetailsPage = async (props: { params: Promise<{ id: string }> }) => {
   const { id } = await props.params;
-
+  const session = await auth();
   let order = await getOrderById(id);
 
   if (!order) {
@@ -30,10 +31,13 @@ const OrderDetailsPage = async (props: { params: Promise<{ id: string }> }) => {
   return (
     <div>
       <OrderDetailsTable
-        order={{
-          ...order,
-          shippingAddress: order.shippingAddress as ShippingAddress,
-        } as any}
+        order={
+          {
+            ...order,
+            shippingAddress: order.shippingAddress as ShippingAddress,
+          } as any
+        }
+        isAdmin={session?.user?.role === "admin" || false}
       />
     </div>
   );

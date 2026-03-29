@@ -27,8 +27,15 @@ export const getPhonePeToken = async () => {
     throw new Error("Failed to get PhonePe access token");
   }
 
-  const data = await res.json();
-  return data.access_token;
+  const text = await res.text();
+  try {
+    const data = JSON.parse(text);
+    return data.access_token;
+  } catch (parseError) {
+    console.error("PhonePe Token Parse Error:", parseError);
+    console.error("Raw token response:", text);
+    throw new Error("Failed to parse PhonePe access token response");
+  }
 };
 
 // to initiate payment with PhonePe
@@ -73,30 +80,56 @@ export const createPhonePePayment = async (
     throw new Error("Failed to create PhonePe payment");
   }
 
-  const data = await res.json();
-  return data.redirectUrl;
+  const text = await res.text();
+  try {
+    const data = JSON.parse(text);
+    return data.redirectUrl;
+  } catch (parseError) {
+    console.error("PhonePe create payment Parse Error:", parseError);
+    console.error("Raw payment response:", text);
+    throw new Error("Failed to parse PhonePe payment response");
+  }
 };
 
 // to check payment status with PhonePe
 export const checkPhonePeStatus = async (merchantOrderId: string) => {
-  const token = await getPhonePeToken();
+  try {
+    const token = await getPhonePeToken();
 
-  const url = process.env.PHONEPE_ENV === "PROD"
-    ? `https://api.phonepe.com/apis/pg/checkout/v2/order/${merchantOrderId}/status`
-    : `https://api-preprod.phonepe.com/apis/pg-sandbox/checkout/v2/order/${merchantOrderId}/status`;
+    const url = process.env.PHONEPE_ENV === "PROD"
+      ? `https://api.phonepe.com/apis/pg/checkout/v2/order/${merchantOrderId}/status`
+      : `https://api-preprod.phonepe.com/apis/pg-sandbox/checkout/v2/order/${merchantOrderId}/status`;
 
-  const res = await fetch(url, {
-    method: "GET",
-    headers: {
-      "Content-Type": "application/json",
-      Authorization: `O-Bearer ${token}`,
-    },
-  });
+    const res = await fetch(url, {
+      method: "GET",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `O-Bearer ${token}`,
+      },
+      cache: 'no-cache',
+    });
 
-  if (!res.ok) {
+    if (!res.ok) {
+      console.error(`PhonePe status check failed for order ${merchantOrderId}: ${res.status} ${res.statusText}`);
+      return false;
+    }
+
+    const text = await res.text();
+    if (!text) {
+      console.warn(`PhonePe returned empty response for order ${merchantOrderId}`);
+      return false;
+    }
+
+    try {
+      const data = JSON.parse(text);
+      return data.state === "COMPLETED";
+    } catch (parseError) {
+      console.error(`PhonePe JSON parse error for order ${merchantOrderId}:`, parseError);
+      console.error(`Raw response:`, text);
+      return false;
+    }
+  } catch (error) {
+    console.error("Error checking PhonePe status:", error);
     return false;
   }
-
-  const data = await res.json();
-  return data.state === "COMPLETED";
 };
