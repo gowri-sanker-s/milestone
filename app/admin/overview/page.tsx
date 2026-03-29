@@ -10,7 +10,7 @@ import Link from "next/link";
 import { requireAdmin } from "@/lib/auth-guard";
 export const metadata: Metadata = {
   title: "Admin Dashboard",
-};
+}; 
 
 const Overview = async () => {
   await requireAdmin();

@@ -10,6 +10,7 @@ import { CartItem } from "@/types";
 import { formatErrors } from "../utils";
 import { createPhonePePayment, checkPhonePeStatus } from "./phonepe.action";
 import { PAGE_SIZE, SERVER_URL } from "../constants";
+import { revalidatePath } from "next/cache";
 
 type SalesDataType = {
   month: string;
@@ -256,4 +257,43 @@ export const getOrderSummary = async () => {
     monthlySales,
     latestSales,
   };
+};
+
+// get all orders
+export const getAllOrders = async ({
+  limit = PAGE_SIZE,
+  page = 1,
+}: {
+  limit?: number;
+  page?: number;
+}) => {
+  const orders = await prisma.order.findMany({
+    take: limit,
+    skip: (page - 1) * limit,
+    orderBy: { createdAt: "desc" },
+    include: {
+      user: { select: { name: true } },
+    },
+  });
+
+  const dataCount = await prisma.order.count();
+
+  return { orders, totalPages: Math.ceil(dataCount / limit) };
+};
+
+// delete order
+export const deleteOrder = async (id: string) => {
+  try {
+    const order = await prisma.order.findFirst({
+      where: { id },
+    });
+    if (!order) throw new Error("Order not found");
+    await prisma.order.delete({
+      where: { id },
+    });
+    revalidatePath("/admin/orders");
+    return { success: true, message: "Order deleted successfully" };
+  } catch (error) {
+    return { success: false, message: formatErrors(error) };
+  }
 };
