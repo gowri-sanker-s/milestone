@@ -33,3 +33,20 @@ export const DEFAULT_PAYMENT_METHOD =
   process.env.DEFAULT_PAYMENT_METHOD?.trim() || "PhonePe";
 
 export const PAGE_SIZE = Number(process.env.PAGE_SIZE) || 10;
+
+export const productDefaultValues = {
+  name: "",
+  title: "",
+  slug: "",
+  description: "",
+  author: "",
+  language: "",
+  pages: 0,
+  genres: [],
+  price: 0,
+  stock: 0,
+  rating: 0,
+  reviewsCount: 0,
+  images: [],
+  isFeatured: false,
+};

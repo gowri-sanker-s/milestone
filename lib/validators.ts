@@ -20,6 +20,28 @@ export const signUpFormSchema = z
     path: ["confirmPassword"],
   });
 
+export const insertProductSchema = z.object({
+  name: z.string().min(3, "Name must be atleast 3 Charachters"),
+  title: z.string().min(3, "Title must be atleast 3 Charachters"),
+  slug: z.string().min(1, "Slug must be at least 1"),
+  description: z.string().min(1, "Description must be at least 1"),
+  author: z.string().min(3, "Author must be atleast 3 Charachters"),
+  language: z.string().min(3, "Language must be atleast 3 Charachters"),
+  pages: z.number().min(1, "Pages must be at least 1"),
+  genres: z.array(z.string()).min(1, "Genres must be atleast 1"),
+  price: z.number().min(1, "Price must be at least 1"),
+  stock: z.number().min(1, "Stock must be at least 1"),
+  rating: z.number().min(1, "Rating must be at least 1"),
+  reviewsCount: z.number().min(0, "Reviews count must be at least 0"),
+  images: z.array(z.string()).min(1, "Image must be at least 1"),
+  isFeatured: z.boolean().optional(),
+});
+
+// update productschema
+export const updateProductSchema = insertProductSchema.extend({
+  id: z.string().min(1, "ID is required"),
+});
+
 export const cartItemSchema = z.object({
   productId: z.string().min(1, "Product is required"),
   name: z.string().min(1, "Name must be at least 1"),
@@ -83,5 +105,5 @@ export const insertOrderItemSchema = z.object({
 // schema for updation schema profile
 export const updateProfileSchema = z.object({
   name: z.string().min(3, "Name must atleast be 3 charachters"),
-  email: z.string().min(3,"Invalid email"),
+  email: z.string().min(3, "Invalid email"),
 });

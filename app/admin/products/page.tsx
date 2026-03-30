@@ -23,9 +23,14 @@ const AdminProductsPage = async (props: {
     <div>
       <div className="flex items-center justify-between">
         <h1 className="text-2xl font-bold">Products</h1>
-        <button className="bg-primary-text text-primary-bg font-semibold text-[15px] p-2 px-4 rounded-md flex gap-2 items-center">
-          <Plus size={14} strokeWidth={1.5} />
-          Add Product
+        <button>
+          <Link
+            className="bg-primary-text text-primary-bg font-semibold text-[15px] p-2 px-4 rounded-md flex gap-2 items-center"
+            href="/admin/products/create"
+          >
+            <Plus size={14} strokeWidth={1.5} />
+            Add Product
+          </Link>
         </button>
       </div>
       {/* table that displays all the products */}
@@ -52,7 +57,9 @@ const AdminProductsPage = async (props: {
               >
                 <td className="px-4 py-4">{formatId(product.id)}</td>
                 <td className="px-4 py-4">{product.name}</td>
-                <td className="px-4 py-4 capitalize">{String(product.author).toLocaleLowerCase()}</td>
+                <td className="px-4 py-4 capitalize">
+                  {String(product.author).toLocaleLowerCase()}
+                </td>
                 <td className="px-4 py-4">{product.genres.join(", ")}</td>
                 <td className="px-4 py-4">{product.language}</td>
                 <td className="px-4 py-4">{product.stock}</td>

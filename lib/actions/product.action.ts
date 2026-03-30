@@ -2,6 +2,8 @@
 
 import { prisma } from "@/lib/prisma";
 import { revalidatePath } from "next/cache";
+import z from "zod";
+import { insertProductSchema, updateProductSchema } from "../validators";
 
 export async function getFeaturedProducts(options?: {
   isFeatured?: boolean;
@@ -113,5 +115,41 @@ export async function deleteProduct(id: string) {
   } catch (error) {
     console.error("deleteProduct error:", error);
     return { success: false, message: "Failed to delete product" };
+  }
+}
+
+// create product
+export async function createProduct(data: z.infer<typeof insertProductSchema>) {
+  try {
+    const product = insertProductSchema.parse(data);
+    await prisma.product.create({
+      data: product,
+    });
+    revalidatePath("/admin/products");
+    return { success: true, message: "Product created successfully" };
+  } catch (error) {
+    console.error("createProduct error:", error);
+    return { success: false, message: "Failed to create product" };
+  }
+}
+// update product
+export async function updateProduct(data: z.infer<typeof updateProductSchema>) {
+  try {
+    const product = updateProductSchema.parse(data);
+    const productExist = await prisma.product.findFirst({
+      where: { id: product.id },
+    });
+    if (!productExist) {
+      return { success: false, message: "Product not found" };
+    }
+    await prisma.product.update({
+      where: { id: product.id },
+      data: product,
+    });
+    revalidatePath("/admin/products");
+    return { success: true, message: "Product updated successfully" };
+  } catch (error) {
+    console.error("updateProduct error:", error);
+    return { success: false, message: "Failed to update product" };
   }
 }
