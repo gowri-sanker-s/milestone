@@ -1,6 +1,7 @@
 "use server";
 
 import { prisma } from "@/lib/prisma";
+import { revalidatePath } from "next/cache";
 
 export async function getFeaturedProducts(options?: {
   isFeatured?: boolean;
@@ -49,6 +50,7 @@ export async function getAllProducts({
   genre,
   author,
   language,
+  category,
 }: {
   query?: string;
   limit?: number;
@@ -56,6 +58,7 @@ export async function getAllProducts({
   genre?: string;
   author?: string;
   language?: string;
+  category?: string;
 }) {
   try {
     const skipAmount = (Number(page) - 1) * limit;
@@ -65,6 +68,7 @@ export async function getAllProducts({
       ...(genre && { genres: { has: genre } }),
       ...(author && { author }),
       ...(language && { language }),
+      ...(category && { category }),
     };
 
     const data = await prisma.product.findMany({
@@ -89,5 +93,25 @@ export async function getAllProducts({
   } catch (error) {
     console.error("getAllProducts error:", error);
     return { data: [], totalPages: 0, currentPage: 1 };
+  }
+}
+
+// delete a product
+export async function deleteProduct(id: string) {
+  try {
+    const productExists = await prisma.product.findFirst({
+      where: { id },
+    });
+    if (!productExists) {
+      return { success: false, message: "Product not found" };
+    }
+    await prisma.product.delete({
+      where: { id },
+    });
+    revalidatePath("/admin/products");
+    return { success: true, message: "Product deleted successfully" };
+  } catch (error) {
+    console.error("deleteProduct error:", error);
+    return { success: false, message: "Failed to delete product" };
   }
 }

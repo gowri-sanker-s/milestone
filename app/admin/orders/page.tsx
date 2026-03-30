@@ -2,7 +2,7 @@ import { deleteOrder, getAllOrders } from "@/lib/actions/order.action";
 import React from "react";
 import { Metadata } from "next";
 import { auth } from "@/auth";
-import Pagination from "./Pagination";
+import Pagination from "../../../components/shared/Pagination";
 import { funnel } from "@/lib/fonts";
 import { formatCurrency, formatDate, formatId } from "@/lib/utils";
 import Link from "next/link";
