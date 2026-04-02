@@ -27,14 +27,18 @@ export const insertProductSchema = z.object({
   description: z.string().min(1, "Description must be at least 1"),
   author: z.string().min(3, "Author must be atleast 3 Charachters"),
   language: z.string().min(3, "Language must be atleast 3 Charachters"),
-  pages: z.number().min(1, "Pages must be at least 1"),
-  genres: z.array(z.string()).min(1, "Genres must be atleast 1"),
-  price: z.number().min(1, "Price must be at least 1"),
-  stock: z.number().min(1, "Stock must be at least 1"),
-  rating: z.number().min(1, "Rating must be at least 1"),
-  reviewsCount: z.number().min(0, "Reviews count must be at least 0"),
-  images: z.array(z.string()).min(1, "Image must be at least 1"),
-  isFeatured: z.boolean().optional(),
+  pages: z.coerce.number().min(1, "Pages must be at least 1"),
+  genres: z.preprocess(
+    (val) =>
+      typeof val === "string" ? val.split(",").map((s) => s.trim()) : val,
+    z.array(z.string()).min(1, "Genres must be atleast 1"),
+  ),
+  price: z.coerce.number().min(1, "Price must be at least 1"),
+  stock: z.coerce.number().min(1, "Stock must be at least 1"),
+  rating: z.coerce.number().min(0, "Rating must be at least 0"),
+  reviewsCount: z.coerce.number().min(0, "Reviews count must be at least 0"),
+  // images: z.array(z.string()).min(1, "Image must be at least 1"),
+  // isFeatured: z.boolean().optional(),
 });
 
 // update productschema
