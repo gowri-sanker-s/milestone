@@ -26,7 +26,7 @@ const Page = async ({ params }: Props) => {
             <div className="img-wrapper p-10 rounded-3xl bg-primary-border">
               <div className="img-container w-[200px] h-[300px] sm:w-[280px] sm:h-[400px] overflow-clip rounded-2xl">
                 <img
-                  src={product.banner ?? "/placeholder-book.jpg"}
+                  src={product.images[0] ?? "/placeholder-book.jpg"}
                   alt={product.name}
                   className="img aspect-[4/5]"
                 />

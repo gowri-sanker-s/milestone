@@ -37,8 +37,8 @@ export const insertProductSchema = z.object({
   stock: z.coerce.number().min(1, "Stock must be at least 1"),
   rating: z.coerce.number().min(0, "Rating must be at least 0"),
   reviewsCount: z.coerce.number().min(0, "Reviews count must be at least 0"),
-  // images: z.array(z.string()).min(1, "Image must be at least 1"),
-  // isFeatured: z.boolean().optional(),
+  images: z.array(z.string()).min(1, "Image must be at least 1"),
+  isFeatured: z.boolean().optional(),
 });
 
 // update productschema

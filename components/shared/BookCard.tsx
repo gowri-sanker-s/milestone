@@ -17,7 +17,7 @@ const BookCard = ({ data }: BookCardProps) => {
     >
       <div className="img-container rounded-2xl overflow-clip">
         <img
-          src={data.banner ?? "/placeholder-book.jpg"}
+          src={data.images[0] ?? "/placeholder-book.jpg"}
           alt={data.name}
           className="img aspect-[4/5]"
         />
