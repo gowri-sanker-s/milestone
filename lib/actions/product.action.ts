@@ -38,9 +38,36 @@ export async function getProductBySlug(slug: string) {
         slug,
       },
     });
-    return data ? { ...data, price: Number(data.price) } : null;
+    return data
+      ? {
+          ...data,
+          price: Number(data.price),
+          createdAt: data.createdAt.toISOString(),
+        }
+      : null;
   } catch (error) {
     console.error("getProductBySlug error:", error);
+    return null;
+  }
+}
+
+export async function getProductById(id: string) {
+  try {
+    const data = await prisma.product.findUnique({
+      where: {
+        id,
+      },
+    });
+
+    return data
+      ? {
+          ...data,
+          price: Number(data.price),
+          createdAt: data.createdAt.toISOString(),
+        }
+      : null;
+  } catch (error) {
+    console.error("getProductById error:", error);
     return null;
   }
 }

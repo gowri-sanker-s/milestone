@@ -39,6 +39,7 @@ export const insertProductSchema = z.object({
   reviewsCount: z.coerce.number().min(0, "Reviews count must be at least 0"),
   images: z.array(z.string()).min(1, "Image must be at least 1"),
   isFeatured: z.boolean().optional(),
+  banner: z.string().optional(),
 });
 
 // update productschema

@@ -47,9 +47,13 @@ select:-webkit-autofill {
   transition: background-color 5000s ease-in-out 0s;
 }
 
-
-
 /* upload thing */
 .upload-field .text-white {
   color: #442917 !important;
+}
+
+input:focus-visible,
+textarea:focus-visible {
+  outline: none !important;
+  --tw-ring-shadow: none !important;
 }

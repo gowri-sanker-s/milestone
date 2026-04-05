@@ -23,6 +23,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { createProduct, updateProduct } from "@/lib/actions/product.action";
 import { UploadButton } from "@/lib/uploadthing";
 import Image from "next/image";
+import { Checkbox } from "../ui/checkbox";
 type ProductFormValues = z.infer<typeof insertProductSchema>;
 
 const ProductForm = ({
@@ -76,6 +77,8 @@ const ProductForm = ({
     }
   };
   const images = form.watch("images");
+  const isFeatured = form.watch("isFeatured");
+  const banner = form.watch("banner");
   return (
     <Form {...form}>
       <form
@@ -285,9 +288,9 @@ const ProductForm = ({
                 <FormLabel>Images</FormLabel>
                 <div className="border border-primary-text min-h-28 rounded-md">
                   <div className="flex gap-5">
-                    {images?.map((image) => (
+                    {images?.map((image, index) => (
                       <Image
-                        key={image}
+                        key={index}
                         src={image}
                         alt="Product Image"
                         width={100}
@@ -313,8 +316,57 @@ const ProductForm = ({
             )}
           />
           {/* is featured */}
-          
+          <p>Featured Product</p>
+          <FormField
+            control={form.control}
+            name="isFeatured"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>Is Featured</FormLabel>
+
+                <FormControl>
+                  <Checkbox
+                    checked={field.value ?? false}
+                    onCheckedChange={field.onChange}
+                  />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
           {/* Banner */}
+          {isFeatured && banner && (
+            <Image
+              src={banner}
+              alt="Banner"
+              width={100}
+              height={100}
+              className="w-20 h-20 object-cover object-center rounded-sm"
+            />
+          )}
+          {isFeatured && !banner && (
+            <FormField
+              control={form.control}
+              name="banner"
+              render={() => (
+                <FormItem>
+                  <FormLabel>Banner</FormLabel>
+                  <FormControl>
+                    <UploadButton
+                      endpoint="imageUploader"
+                      onClientUploadComplete={(res: { url: string }[]) => {
+                        form.setValue("banner", res[0].url);
+                      }}
+                      onUploadError={(error: Error) => {
+                        toast.error(`Banner Image Upload Failed: ${error}`);
+                      }}
+                    />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+          )}
         </div>
         <div className="">{/* Genres */}</div>
         <div className="">

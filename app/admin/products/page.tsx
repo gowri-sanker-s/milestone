@@ -72,12 +72,12 @@ const AdminProductsPage = async (props: {
                       className="text-blue-600 text-[13px] flex items-center gap-3 px-2 py-1 hover:bg-blue-600/10 border border-blue-600/20 rounded-md"
                     >
                       <Eye size={14} strokeWidth={1.7} />
-                      View
+                      Edit
                     </Link>
-                    <button className="text-green-600 text-[13px] flex items-center gap-3 px-2 py-1 hover:bg-green-600/10 border border-green-600/20 rounded-md">
+                    {/* <button className="text-green-600 text-[13px] flex items-center gap-3 px-2 py-1 hover:bg-green-600/10 border border-green-600/20 rounded-md">
                       <Pencil size={14} strokeWidth={1.7} />
                       Edit
-                    </button>
+                    </button> */}
                     <DeleteDialogue id={product.id} action={deleteProduct} />
                   </div>
                 </td>
