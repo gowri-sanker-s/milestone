@@ -65,55 +65,66 @@ const AdminOrders = async (props: {
             </tr>
           </thead>
           <tbody className="bg-primary-border/50 divide-y divide-primary-text/50">
-            {orders?.orders.map((order) => (
-              <tr key={order.id}>
+            {orders?.orders.length === 0 ? (
+              <tr className="border-b border-primary-text/20 last:border-b-0">
                 <td
-                  className={`px-6 py-4 whitespace-nowrap text-sm font-normal ${funnel.className}`}
+                  colSpan={6}
+                  className={`px-6 py-4 whitespace-nowrap text-sm font-normal text-center ${funnel.className}`}
                 >
-                  {formatId(order.id)}
-                </td>
-                <td
-                  className={`px-6 py-4 whitespace-nowrap text-sm font-normal ${funnel.className}`}
-                >
-                  {formatDate(order.createdAt).dateTime}
-                </td>
-                <td
-                  className={`px-6 py-4 whitespace-nowrap text-sm font-normal ${funnel.className}`}
-                >
-                  {formatCurrency(order.totalPrice)}
-                </td>
-                <td
-                  className={`px-6 py-4 whitespace-nowrap text-sm font-normal ${funnel.className}`}
-                >
-                  {order.isPaid && order?.paidAt
-                    ? formatDate(order.paidAt).dateTime
-                    : "Not Paid"}
-                </td>
-                <td
-                  className={`px-6 py-4 whitespace-nowrap text-sm font-normal ${funnel.className}`}
-                >
-                  {order.isDelivered && order?.deliveredAt
-                    ? formatDate(order.deliveredAt).dateTime
-                    : "Not Delivered"}
-                </td>
-                <td
-                  className={`px-6 py-4 whitespace-nowrap text-sm font-normal ${funnel.className}`}
-                >
-                  <div className="flex gap-3 items-center">
-                    <button className="">
-                      <Link
-                        href={`/order/${order.id}`}
-                        className="text-blue-600 text-[13px] flex items-center gap-3 px-2 py-1 hover:bg-blue-600/10 border border-blue-600/20 rounded-md"
-                      >
-                        <Eye size={14} strokeWidth={1.7} />
-                        View
-                      </Link>
-                    </button>
-                    <DeleteDialogue id={order.id} action={deleteOrder} />
-                  </div>
+                  No orders found
                 </td>
               </tr>
-            ))}
+            ) : (
+              orders?.orders.map((order) => (
+                <tr key={order.id}>
+                  <td
+                    className={`px-6 py-4 whitespace-nowrap text-sm font-normal ${funnel.className}`}
+                  >
+                    {formatId(order.id)}
+                  </td>
+                  <td
+                    className={`px-6 py-4 whitespace-nowrap text-sm font-normal ${funnel.className}`}
+                  >
+                    {formatDate(order.createdAt).dateTime}
+                  </td>
+                  <td
+                    className={`px-6 py-4 whitespace-nowrap text-sm font-normal ${funnel.className}`}
+                  >
+                    {formatCurrency(order.totalPrice)}
+                  </td>
+                  <td
+                    className={`px-6 py-4 whitespace-nowrap text-sm font-normal ${funnel.className}`}
+                  >
+                    {order.isPaid && order?.paidAt
+                      ? formatDate(order.paidAt).dateTime
+                      : "Not Paid"}
+                  </td>
+                  <td
+                    className={`px-6 py-4 whitespace-nowrap text-sm font-normal ${funnel.className}`}
+                  >
+                    {order.isDelivered && order?.deliveredAt
+                      ? formatDate(order.deliveredAt).dateTime
+                      : "Not Delivered"}
+                  </td>
+                  <td
+                    className={`px-6 py-4 whitespace-nowrap text-sm font-normal ${funnel.className}`}
+                  >
+                    <div className="flex gap-3 items-center">
+                      <button className="">
+                        <Link
+                          href={`/order/${order.id}`}
+                          className="text-blue-600 text-[13px] flex items-center gap-3 px-2 py-1 hover:bg-blue-600/10 border border-blue-600/20 rounded-md"
+                        >
+                          <Eye size={14} strokeWidth={1.7} />
+                          View
+                        </Link>
+                      </button>
+                      <DeleteDialogue id={order.id} action={deleteOrder} />
+                    </div>
+                  </td>
+                </tr>
+              ))
+            )}
           </tbody>
         </table>
       </div>

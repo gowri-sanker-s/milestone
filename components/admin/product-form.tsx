@@ -86,243 +86,240 @@ const ProductForm = ({
         onSubmit={form.handleSubmit(onSubmit, (errors) => {
           console.log("Validation Errors:", errors);
         })}
-        className="space-y-8"
+        className="grid grid-cols-1 md:grid-cols-2 items-start gap-4"
       >
-        <div className="">
-          {/* Name */}
-          <FormField
-            control={form.control}
-            name="name"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>Name</FormLabel>
-                <FormControl>
-                  <Input
-                    placeholder="Name"
-                    {...field}
-                    value={field.value ?? ""}
-                  />
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
+        {/* Name */}
+        <FormField
+          control={form.control}
+          name="name"
+          render={({ field }) => (
+            <FormItem>
+              <FormLabel>Name</FormLabel>
+              <FormControl>
+                <Input
+                  placeholder="Name"
+                  {...field}
+                  value={field.value ?? ""}
+                />
+              </FormControl>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
 
-          {/* Title */}
-          <FormField
-            control={form.control}
-            name="title"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>Title</FormLabel>
-                <FormControl>
+        {/* Slug */}
+        <FormField
+          control={form.control}
+          name="slug"
+          render={({ field }) => (
+            <FormItem>
+              <FormLabel>Slug</FormLabel>
+              <FormControl>
+                <div className="flex gap-3 items-center">
                   <Input
-                    placeholder="Title"
+                    placeholder="Slug"
                     {...field}
                     value={field.value ?? ""}
                   />
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
-
-          {/* Slug */}
-          <FormField
-            control={form.control}
-            name="slug"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>Slug</FormLabel>
-                <FormControl>
-                  <div className="flex gap-3 items-center">
-                    <Input
-                      placeholder="Slug"
-                      {...field}
-                      value={field.value ?? ""}
-                    />
-                    <Button
-                      type="button"
-                      className=""
-                      onClick={() => {
-                        form.setValue(
-                          "slug",
-                          slugify(form.getValues("name"), {
-                            lower: true,
-                            strict: true,
-                          }),
-                        );
-                      }}
-                    >
-                      Generate Slug
-                    </Button>
-                  </div>
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
-        </div>
-        <div className="">
-          {/* Price  */}
-          <FormField
-            control={form.control}
-            name="price"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>Price</FormLabel>
-                <FormControl>
-                  <Input
-                    type="number"
-                    placeholder="Price"
-                    {...field}
-                    value={field.value ?? ""}
-                  />
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
-          {/* Stock */}
-          <FormField
-            control={form.control}
-            name="stock"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>Stock</FormLabel>
-                <FormControl>
-                  <Input
-                    type="number"
-                    placeholder="Stock"
-                    {...field}
-                    value={field.value ?? ""}
-                  />
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
-        </div>
-        <div className="">
-          {/* Author */}
-          <FormField
-            control={form.control}
-            name="author"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>Author</FormLabel>
-                <FormControl>
-                  <Input
-                    placeholder="Author Name"
-                    {...field}
-                    value={field.value ?? ""}
-                  />
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
-          {/* Language */}
-          <FormField
-            control={form.control}
-            name="language"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>Language</FormLabel>
-                <FormControl>
-                  <Input
-                    placeholder="Language"
-                    {...field}
-                    value={field.value ?? ""}
-                  />
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
-          {/* Pages */}
-          <FormField
-            control={form.control}
-            name="pages"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>Pages</FormLabel>
-                <FormControl>
-                  <Input
-                    type="number"
-                    placeholder="Page"
-                    {...field}
-                    value={field.value ?? ""}
-                  />
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
-          {/* Genres */}
-          <FormField
-            control={form.control}
-            name="genres"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>Genres (comma-separated)</FormLabel>
-                <FormControl>
-                  <Input
-                    placeholder="Genre1, Genre2"
-                    {...field}
-                    value={field.value ?? ""}
-                  />
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
-        </div>
-        <div className="">
-          {/* Images */}
-          <FormField
-            control={form.control}
-            name="images"
-            render={() => (
-              <FormItem>
-                <FormLabel>Images</FormLabel>
-                <div className="border border-primary-text min-h-28 rounded-md">
-                  <div className="flex gap-5">
-                    {images?.map((image, index) => (
-                      <Image
-                        key={index}
-                        src={image}
-                        alt="Product Image"
-                        width={100}
-                        height={100}
-                        className="w-20 h-20 object-cover object-center rounded-sm"
-                      />
-                    ))}
-                  </div>
-                  <FormControl className="upload-field">
-                    <UploadButton
-                      endpoint="imageUploader"
-                      onClientUploadComplete={(res: { url: string }[]) => {
-                        form.setValue("images", [...images, res[0].url]);
-                      }}
-                      onUploadError={(error: Error) => {
-                        toast.error(`Image Upload Failed: ${error}`);
-                      }}
-                    />
-                  </FormControl>
+                  <Button
+                    type="button"
+                    className="bg-black text-white font-semibold p-2 px-4 rounded-md"
+                    onClick={() => {
+                      form.setValue(
+                        "slug",
+                        slugify(form.getValues("name"), {
+                          lower: true,
+                          strict: true,
+                        }),
+                      );
+                    }}
+                  >
+                    Generate Slug
+                  </Button>
                 </div>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
-          {/* is featured */}
+              </FormControl>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
+
+        {/* Title */}
+        <FormField
+          control={form.control}
+          name="title"
+          render={({ field }) => (
+            <FormItem className="lg:col-span-2">
+              <FormLabel>Title</FormLabel>
+              <FormControl>
+                <Input
+                  placeholder="Title"
+                  {...field}
+                  value={field.value ?? ""}
+                />
+              </FormControl>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
+
+        {/* Price  */}
+        <FormField
+          control={form.control}
+          name="price"
+          render={({ field }) => (
+            <FormItem>
+              <FormLabel>Price</FormLabel>
+              <FormControl>
+                <Input
+                  type="number"
+                  placeholder="Price"
+                  {...field}
+                  value={field.value ?? ""}
+                />
+              </FormControl>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
+        {/* Stock */}
+        <FormField
+          control={form.control}
+          name="stock"
+          render={({ field }) => (
+            <FormItem>
+              <FormLabel>Stock</FormLabel>
+              <FormControl>
+                <Input
+                  type="number"
+                  placeholder="Stock"
+                  {...field}
+                  value={field.value ?? ""}
+                />
+              </FormControl>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
+
+        {/* Author */}
+        <FormField
+          control={form.control}
+          name="author"
+          render={({ field }) => (
+            <FormItem>
+              <FormLabel>Author</FormLabel>
+              <FormControl>
+                <Input
+                  placeholder="Author Name"
+                  {...field}
+                  value={field.value ?? ""}
+                />
+              </FormControl>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
+        {/* Language */}
+        <FormField
+          control={form.control}
+          name="language"
+          render={({ field }) => (
+            <FormItem>
+              <FormLabel>Language</FormLabel>
+              <FormControl>
+                <Input
+                  placeholder="Language"
+                  {...field}
+                  value={field.value ?? ""}
+                />
+              </FormControl>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
+        {/* Pages */}
+        <FormField
+          control={form.control}
+          name="pages"
+          render={({ field }) => (
+            <FormItem>
+              <FormLabel>Pages</FormLabel>
+              <FormControl>
+                <Input
+                  type="number"
+                  placeholder="Page"
+                  {...field}
+                  value={field.value ?? ""}
+                />
+              </FormControl>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
+        {/* Genres */}
+        <FormField
+          control={form.control}
+          name="genres"
+          render={({ field }) => (
+            <FormItem>
+              <FormLabel>Genres (comma-separated)</FormLabel>
+              <FormControl>
+                <Input
+                  placeholder="Genre1, Genre2"
+                  {...field}
+                  value={field.value ?? ""}
+                />
+              </FormControl>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
+
+        {/* Images */}
+        <FormField
+          control={form.control}
+          name="images"
+          render={() => (
+            <FormItem className="lg:col-span-2">
+              <FormLabel>Images</FormLabel>
+              <div className="border border-primary-text/20 min-h-28 rounded-md">
+                <div className="flex gap-5">
+                  {images?.map((image, index) => (
+                    <Image
+                      key={index}
+                      src={image}
+                      alt="Product Image"
+                      width={100}
+                      height={100}
+                      className="w-20 h-20 object-cover object-center rounded-sm"
+                    />
+                  ))}
+                </div>
+                <FormControl className="upload-field">
+                  <UploadButton
+                    endpoint="imageUploader"
+                    onClientUploadComplete={(res: { url: string }[]) => {
+                      form.setValue("images", [...images, res[0].url]);
+                    }}
+                    onUploadError={(error: Error) => {
+                      toast.error(`Image Upload Failed: ${error}`);
+                    }}
+                  />
+                </FormControl>
+              </div>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
+        {/* is featured */}
+        <div className="flex items-center gap-10">
           <p>Featured Product</p>
           <FormField
             control={form.control}
             name="isFeatured"
             render={({ field }) => (
               <FormItem>
-                <FormLabel>Is Featured</FormLabel>
+                {/* <FormLabel>Is Featured</FormLabel> */}
 
                 <FormControl>
                   <Checkbox
@@ -334,65 +331,66 @@ const ProductForm = ({
               </FormItem>
             )}
           />
-          {/* Banner */}
-          {isFeatured && banner && (
-            <Image
-              src={banner}
-              alt="Banner"
-              width={100}
-              height={100}
-              className="w-20 h-20 object-cover object-center rounded-sm"
-            />
-          )}
-          {isFeatured && !banner && (
-            <FormField
-              control={form.control}
-              name="banner"
-              render={() => (
-                <FormItem>
-                  <FormLabel>Banner</FormLabel>
-                  <FormControl>
-                    <UploadButton
-                      endpoint="imageUploader"
-                      onClientUploadComplete={(res: { url: string }[]) => {
-                        form.setValue("banner", res[0].url);
-                      }}
-                      onUploadError={(error: Error) => {
-                        toast.error(`Banner Image Upload Failed: ${error}`);
-                      }}
-                    />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-          )}
         </div>
-        <div className="">{/* Genres */}</div>
-        <div className="">
-          {/* Description */}
+        {/* Banner */}
+        {isFeatured && banner && (
+          <Image
+            src={banner}
+            alt="Banner"
+            width={100}
+            height={100}
+            className="w-20 h-20 object-cover object-center rounded-sm"
+          />
+        )}
+        {isFeatured && !banner && (
           <FormField
             control={form.control}
-            name="description"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>Description</FormLabel>
-                <FormControl>
-                  <Textarea
-                    placeholder="Description"
-                    {...field}
-                    value={field.value ?? ""}
+            name="banner"
+            render={() => (
+              <FormItem className="lg:col-span-2">
+                <FormLabel>Banner</FormLabel>
+                <FormControl className="upload-field border border-primary-text/20 min-h-28 rounded-md">
+                  <UploadButton
+                    endpoint="imageUploader"
+                    onClientUploadComplete={(res: { url: string }[]) => {
+                      form.setValue("banner", res[0].url);
+                    }}
+                    onUploadError={(error: Error) => {
+                      toast.error(`Banner Image Upload Failed: ${error}`);
+                    }}
                   />
                 </FormControl>
                 <FormMessage />
               </FormItem>
             )}
           />
-        </div>
+        )}
+
+        <div className="grid gap-4 items-start">{/* Genres */}</div>
+
+        {/* Description */}
+        <FormField
+          control={form.control}
+          name="description"
+          render={({ field }) => (
+            <FormItem className="lg:col-span-2">
+              <FormLabel>Description</FormLabel>
+              <FormControl className="min-h-48">
+                <Textarea
+                  placeholder="Description"
+                  {...field}
+                  value={field.value ?? ""}
+                />
+              </FormControl>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
+
         <Button
           type="submit"
           disabled={form.formState.isSubmitting}
-          className="bg-primary-text text-primary-bg font-semibold text-[15px] disabled:opacity-50"
+          className="lg:col-span-2 bg-primary-text text-primary-bg font-semibold text-[15px] disabled:opacity-50"
         >
           {form.formState.isSubmitting ? "Saving..." : `${type} Product`}
         </Button>
