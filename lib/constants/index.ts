@@ -50,3 +50,7 @@ export const productDefaultValues = {
   images: [],
   isFeatured: false,
 };
+
+export const USER_ROLES = process.env.USER_ROLES
+  ? process.env.USER_ROLES.split(", ").map((x) => x.trim())
+  : ["user", "admin"];

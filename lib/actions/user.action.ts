@@ -6,6 +6,7 @@ import {
   signUpFormSchema,
   paymentMethodSchema,
   updateProfileSchema,
+  updateUserSchema,
 } from "../validators";
 import { auth, signIn, signOut } from "@/auth";
 import { isRedirectError } from "next/dist/client/components/redirect-error";
@@ -15,6 +16,8 @@ import { prisma } from "../../lib/prisma";
 import { formatErrors } from "../utils";
 import { ShippingAddress } from "@/types";
 import z from "zod";
+import { PAGE_SIZE } from "../constants";
+import { revalidatePath } from "next/cache";
 
 // sign in with user credentials
 export async function signInWithCredentials(
@@ -209,3 +212,79 @@ export async function updateProfile(data: z.infer<typeof updateProfileSchema>) {
     };
   }
 }
+
+export async function getAllUsers({
+  limit = PAGE_SIZE,
+  page = 1,
+}: {
+  limit?: number;
+  page?: number;
+}) {
+  try {
+    const users = await prisma.user.findMany({
+      orderBy: { createdAt: "desc" },
+      take: limit,
+      skip: (page - 1) * limit,
+    });
+    const totalUsers = await prisma.user.count();
+    return { users, totalPages: Math.ceil(totalUsers / limit) };
+  } catch (error) {
+    return {
+      success: false,
+      message: formatErrors(error),
+    };
+  }
+}
+
+export async function deleteUser(id: string) {
+  try {
+    const user = await prisma.user.findFirst({
+      where: { id },
+    });
+    if (!user) throw new Error("User not found");
+    await prisma.user.delete({
+      where: { id },
+    });
+    revalidatePath("/admin/users");
+    return {
+      success: true,
+      message: "User deleted successfully",
+    };
+  } catch (error) {
+    return {
+      success: false,
+      message: formatErrors(error),
+    };
+  }
+}
+
+// update user
+export async function updateUser(data: z.infer<typeof updateUserSchema>) {
+  try {
+    const user = await prisma.user.findFirst({
+      where: { id: data.id },
+    });
+    if (!user) throw new Error("User not found");
+
+    await prisma.user.update({
+      where: { id: data.id },
+      data: {
+        name: data.name,
+        role: data.role,
+      },
+    });
+
+    revalidatePath("/admin/users");
+
+    return {
+      success: true,
+      message: "User updated successfully",
+    };
+  } catch (error) {
+    return {
+      success: false,
+      message: formatErrors(error),
+    };
+  }
+}
+
