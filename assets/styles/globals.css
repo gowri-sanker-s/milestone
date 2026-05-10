@@ -56,14 +56,15 @@ input:focus-visible,
 textarea:focus-visible {
   outline: none !important;
   --tw-ring-shadow: none !important;
-  border: 1px solid #44291773
+  border: 1px solid #44291773;
 }
 
 input,
-textarea {
+textarea,
+select {
   @apply border border-primary-text/20;
 }
 
-.text-destructive{
+.text-destructive {
   color: rgb(187, 1, 1) !important;
 }

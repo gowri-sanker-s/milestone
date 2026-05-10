@@ -19,7 +19,7 @@ const AdminUserUpdatePage = async (props: {
     return <div>User not found</div>;
   }
   return (
-    <div>
+    <div className="max-w-[50%] mx-auto">
       <h1 className="text-2xl font-bold">Update User</h1>
       <div className="my-6">
         <UpdateUserForm user={user} />

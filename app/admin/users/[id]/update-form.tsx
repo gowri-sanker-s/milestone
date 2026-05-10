@@ -27,6 +27,7 @@ import { updateUser } from "@/lib/actions/user.action";
 import { toast } from "sonner";
 
 import { useRouter } from "next/navigation";
+import { funnel } from "@/lib/fonts";
 
 const UpdateUserForm = ({
   user,
@@ -92,16 +93,23 @@ const UpdateUserForm = ({
               <FormLabel>Role</FormLabel>
               <Select
                 onValueChange={field.onChange}
-                defaultValue={field.value || ""}
+                defaultValue={field.value?.toString() || ""}
               >
                 <FormControl>
-                  <SelectTrigger>
+                  <SelectTrigger className="w-full border border-primary-text/20">
                     <SelectValue placeholder="Select a role" />
                   </SelectTrigger>
                 </FormControl>
-                <SelectContent>
+                <SelectContent
+                  position="popper"
+                  className="w-full border border-primary-text/20 bg-primary-bg"
+                >
                   {USER_ROLES.map((role) => (
-                    <SelectItem key={role} value={role}>
+                    <SelectItem
+                      key={role}
+                      value={role}
+                      className="hover:bg-primary-border cursor-pointer"
+                    >
                       {role.charAt(0).toUpperCase() + role.slice(1)}
                     </SelectItem>
                   ))}
@@ -115,7 +123,7 @@ const UpdateUserForm = ({
         <div className="flex-between mt-6">
           <Button
             type="submit"
-            className="w-full"
+            className={`w-full bg-primary-text text-white ${funnel.className}`}
             disabled={form.formState.isSubmitting}
           >
             {form.formState.isSubmitting ? "Updating..." : "Update User"}

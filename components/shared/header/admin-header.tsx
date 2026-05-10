@@ -5,11 +5,12 @@ import Link from "next/link";
 import { oleo } from "@/lib/fonts";
 import UserButton from "./user-button";
 import { Input } from "@/components/ui/input";
+import AdminSearch from "@/app/admin/admin-search";
 
 const AdminHeader = () => {
   return (
     <header className=" text-primary-text bg-primary-bg  border-b border-primary-border py-1 sticky top-0 z-2">
-      <div className="flex justify-between items-center wrapper">
+      <div className="grid grid-cols-3 items-center wrapper">
         {/* open toggle */}
         <AdminSidebar />
         {/* logo */}
@@ -20,14 +21,8 @@ const AdminHeader = () => {
           milestone books
         </Link>
         {/* empty */}
-        <div className="flex gap-5 items-center">
-          <>
-            <Input
-              type="search"
-              placeholder="Search"
-              className="w-[200px] rounded-full border border-primary-text/20 shadow-lg"
-            />
-          </>
+        <div className="flex gap-5 items-center justify-self-end">
+          <AdminSearch />
           <UserButton />
         </div>
         {/* <ModeToggle /> */}
