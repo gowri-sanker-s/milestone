@@ -34,6 +34,7 @@ const AdminSearch = () => {
           }
         }}
       />
+      <button className="sr-only">Search</button>
     </form>
   );
 };

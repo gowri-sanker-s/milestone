@@ -45,6 +45,11 @@ const AdminOrders = async (props: {
               <th
                 className={`px-6 py-3 text-left text-sm font-semibold ${funnel.className} uppercase tracking-wider`}
               >
+                User
+              </th>
+              <th
+                className={`px-6 py-3 text-left text-sm font-semibold ${funnel.className} uppercase tracking-wider`}
+              >
                 Total
               </th>
               <th
@@ -86,6 +91,11 @@ const AdminOrders = async (props: {
                     className={`px-6 py-4 whitespace-nowrap text-sm font-normal ${funnel.className}`}
                   >
                     {formatDate(order.createdAt).dateTime}
+                  </td>
+                  <td
+                    className={`px-6 py-4 whitespace-nowrap text-sm font-normal ${funnel.className}`}
+                  >
+                    {order.user?.name}
                   </td>
                   <td
                     className={`px-6 py-4 whitespace-nowrap text-sm font-normal ${funnel.className}`}
