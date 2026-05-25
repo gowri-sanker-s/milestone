@@ -14,18 +14,29 @@ export const metadata: Metadata = {
 };
 
 const AdminOrders = async (props: {
-  searchParams: Promise<{ page: string }>;
+  searchParams: Promise<{ page: string; query: string }>;
 }) => {
-  const { page = "1" } = await props.searchParams;
+  const { page = "1", query: searchText } = await props.searchParams;
   const session = await auth();
   if (session?.user?.role !== "admin") throw new Error("Unauthorized");
 
-  const orders = await getAllOrders({ page: Number(page), limit: 10 });
+  const orders = await getAllOrders({
+    page: Number(page),
+    limit: 10,
+    query: searchText,
+  });
 
   console.log(orders);
   return (
     <div className="">
-      <h2 className="font-bold text-2xl mb-6">Orders</h2>
+      <div className="flex gap-2 items-center mb-2">
+        <h2 className="font-bold text-2xl ">Orders</h2>
+        {searchText && (
+          <p className="text-md text-primary-text/70">
+            <sub>Showing results for "{searchText}"</sub>
+          </p>
+        )}
+      </div>
 
       {/* table to display the orders - table with head - id date total paid delivered actions */}
       <div className="overflow-x-auto rounded-2xl overflow-scroll border border-primary-text/20">
@@ -73,10 +84,10 @@ const AdminOrders = async (props: {
             {orders?.orders.length === 0 ? (
               <tr className="border-b border-primary-text/20 last:border-b-0">
                 <td
-                  colSpan={6}
+                  colSpan={7}
                   className={`px-6 py-4 whitespace-nowrap text-sm font-normal text-center ${funnel.className}`}
                 >
-                  No orders found
+                  No orders found {searchText && `for "${searchText}"`}
                 </td>
               </tr>
             ) : (

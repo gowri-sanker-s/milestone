@@ -11,6 +11,7 @@ import { formatErrors } from "../utils";
 import { createPhonePePayment, checkPhonePeStatus } from "./phonepe.action";
 import { PAGE_SIZE, SERVER_URL } from "../constants";
 import { revalidatePath } from "next/cache";
+import { Prisma } from "../generated/prisma/client";
 
 type SalesDataType = {
   month: string;
@@ -263,11 +264,25 @@ export const getOrderSummary = async () => {
 export const getAllOrders = async ({
   limit = PAGE_SIZE,
   page = 1,
+  query,
 }: {
   limit?: number;
   page?: number;
+  query?: string;
 }) => {
+  const queryFilter: Prisma.OrderWhereInput =
+    query && query !== "all"
+      ? {
+          user: {
+            name: {
+              contains: query,
+              mode: "insensitive",
+            } as Prisma.StringFilter,
+          },
+        }
+      : {};
   const orders = await prisma.order.findMany({
+    where: { ...queryFilter },
     take: limit,
     skip: (page - 1) * limit,
     orderBy: { createdAt: "desc" },
