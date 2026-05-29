@@ -76,7 +76,11 @@ const CartTable = ({ cart }: { cart?: Cart }) => {
                                 const res = await removeItemFromCart(
                                   item.productId,
                                 );
-                                if (!res.success) toast.error(res.message);
+                                if (!res.success) {
+                                  toast.error(res.message);
+                                } else {
+                                  window.dispatchEvent(new Event("cart-updated"));
+                                }
                               })
                             }
                             className="w-8 h-8 rounded-full border border-primary-text/10 flex items-center justify-center hover:bg-neutral-100 transition disabled:opacity-40"
@@ -96,7 +100,11 @@ const CartTable = ({ cart }: { cart?: Cart }) => {
                             onClick={() =>
                               startTransition(async () => {
                                 const res = await addItemToCart(item);
-                                if (!res.success) toast.error(res.message);
+                                if (!res.success) {
+                                  toast.error(res.message);
+                                } else {
+                                  window.dispatchEvent(new Event("cart-updated"));
+                                }
                               })
                             }
                             className="w-8 h-8 rounded-full border border-primary-text/10 flex items-center justify-center hover:bg-neutral-100 transition disabled:opacity-40"
@@ -145,7 +153,11 @@ const CartTable = ({ cart }: { cart?: Cart }) => {
                             const res = await removeItemFromCart(
                               item.productId,
                             );
-                            if (!res.success) toast.error(res.message);
+                            if (!res.success) {
+                              toast.error(res.message);
+                            } else {
+                              window.dispatchEvent(new Event("cart-updated"));
+                            }
                           })
                         }
                         className="w-9 h-9 rounded-full border border-primary-text/10 flex items-center justify-center hover:bg-neutral-100 hover:border-neutral-300 transition disabled:opacity-40"
@@ -165,7 +177,11 @@ const CartTable = ({ cart }: { cart?: Cart }) => {
                         onClick={() =>
                           startTransition(async () => {
                             const res = await addItemToCart(item);
-                            if (!res.success) toast.error(res.message);
+                            if (!res.success) {
+                              toast.error(res.message);
+                            } else {
+                              window.dispatchEvent(new Event("cart-updated"));
+                            }
                           })
                         }
                         className="w-9 h-9 rounded-full border border-primary-text/10 flex items-center justify-center hover:bg-neutral-100 hover:border-neutral-300 transition disabled:opacity-40"

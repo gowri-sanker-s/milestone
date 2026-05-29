@@ -2,6 +2,7 @@ import { getFeaturedProducts } from "@/lib/actions/product.action";
 import Image from "next/image";
 import React from "react";
 import type { ProductType } from "@/types/product";
+import { getMyCart } from "@/lib/actions/cart.action";
 
 import BookCard from "@/components/shared/BookCard";
 const Featured = async () => {
@@ -9,6 +10,7 @@ const Featured = async () => {
     isFeatured: true,
   });
 
+  const cart = await getMyCart();
 
   return (
     <>
@@ -25,7 +27,7 @@ const Featured = async () => {
         <div className="grid xs:grid-cols-2 lg:grid-cols-4 gap-6 pt-5">
           {latestProducts &&
             latestProducts.map((data, index) => {
-              return <BookCard key={data.id} data={data} />;
+              return <BookCard key={data.id} data={data} cart={cart} />;
             })}
         </div>
       </div>
@@ -34,3 +36,4 @@ const Featured = async () => {
 };
 
 export default Featured;
+

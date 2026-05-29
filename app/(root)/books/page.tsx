@@ -4,6 +4,7 @@ import BookCard from "@/components/shared/BookCard";
 import { getAllProducts } from "@/lib/actions/product.action";
 import { ProductType } from "@/types/product";
 import React from "react";
+import { getMyCart } from "@/lib/actions/cart.action";
 
 const page = async (props: {
   searchParams: Promise<{ [key: string]: string | undefined }>;
@@ -24,6 +25,8 @@ const page = async (props: {
     language,
   });
 
+  const cart = await getMyCart();
+
   return (
     <div>
       <div className="top bg-primary-border p-5 min-h-[150px] w-full grid place-items-center">
@@ -34,7 +37,7 @@ const page = async (props: {
         <div className="grid xs:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6 pt-5">
           {latestProducts &&
             latestProducts.map((data, index) => {
-              return <BookCard key={data.id} data={data} />;
+              return <BookCard key={data.id} data={data} cart={cart} />;
             })}
         </div>
       </div>
@@ -43,3 +46,4 @@ const page = async (props: {
 };
 
 export default page;
+
