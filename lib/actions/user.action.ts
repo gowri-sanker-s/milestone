@@ -18,6 +18,7 @@ import { ShippingAddress } from "@/types";
 import z from "zod";
 import { PAGE_SIZE } from "../constants";
 import { revalidatePath } from "next/cache";
+import { Prisma } from "../generated/prisma/client";
 
 // sign in with user credentials
 export async function signInWithCredentials(
@@ -216,12 +217,26 @@ export async function updateProfile(data: z.infer<typeof updateProfileSchema>) {
 export async function getAllUsers({
   limit = PAGE_SIZE,
   page = 1,
+  query,
 }: {
   limit?: number;
   page?: number;
+  query?: string;
 }) {
+  const queryFilter: Prisma.UserWhereInput =
+    query && query !== "all"
+      ? {
+          name: {
+            contains: query,
+            mode: "insensitive",
+          } as Prisma.StringFilter,
+        }
+      : {};
   try {
     const users = await prisma.user.findMany({
+      where: {
+        ...queryFilter,
+      },
       orderBy: { createdAt: "desc" },
       take: limit,
       skip: (page - 1) * limit,
@@ -287,4 +302,3 @@ export async function updateUser(data: z.infer<typeof updateUserSchema>) {
     };
   }
 }
-

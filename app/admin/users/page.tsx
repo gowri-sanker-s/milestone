@@ -13,20 +13,28 @@ export const metadata: Metadata = {
   description: "Admin Users",
 };
 
-const UserPage = async (props: { searchParams: Promise<{ page: string }> }) => {
-  const { page = "1" } = await props.searchParams;
+const UserPage = async (props: {
+  searchParams: Promise<{ page: string; query: string }>;
+}) => {
+  const { page = "1", query: searchText } = await props.searchParams;
   const session = await auth();
   if (session?.user?.role !== "admin") throw new Error("Unauthorized");
   const { users, totalPages } = await getAllUsers({
     page: Number(page),
     limit: 10,
+    query: searchText,
   });
-  console.log(users);
-  console.log(totalPages);
 
   return (
     <div>
-      <h2 className="font-bold text-2xl mb-6">Users</h2>
+      <div className="flex gap-2 items-center mb-2">
+        <h2 className="font-bold text-2xl ">Users</h2>
+        {searchText && (
+          <p className="text-md text-primary-text/70">
+            <sub>Showing results for "{searchText}"</sub>
+          </p>
+        )}
+      </div>
 
       {/* table to display the users - table with head - id name email role actions */}
       <div className="overflow-x-auto rounded-2xl overflow-scroll border border-primary-text/20">
