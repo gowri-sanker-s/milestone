@@ -5,7 +5,23 @@ import React, { useState, useEffect } from "react";
 import PillSelector from "./PillSelector";
 import { useRouter, useSearchParams, usePathname } from "next/navigation";
 
-const FilterComponent = () => {
+interface FilterComponentProps {
+  genres?: string[];
+  authors?: string[];
+  languages?: string[];
+}
+
+const FilterComponent = ({
+  genres = ["Fiction", "Non-Fiction", "Science Fiction", "Fantasy", "Mystery"],
+  authors = [
+    "J.K. Rowling",
+    "George R.R. Martin",
+    "Agatha Christie",
+    "Dan Brown",
+    "Stephen King",
+  ],
+  languages = ["English", "Spanish", "French", "German", "Hindi"],
+}: FilterComponentProps) => {
   const router = useRouter();
   const pathname = usePathname();
   const searchParams = useSearchParams();
@@ -54,10 +70,7 @@ const FilterComponent = () => {
   }, [selectedGenres, selectedAuthors, selectedLanguages, pathname, router]);
 
   return (
-    <div className="filter-section flex w-full justify-between relative">
-      <div className="left">
-        <h2 className={`font-extrabold text-[30px]`}>Explore Our Library</h2>
-      </div>
+    <div className="filter-section flex w-full justify-end relative">
       <button
         type="button"
         onClick={() => setFilterOpen((prev) => !prev)}
@@ -77,33 +90,21 @@ const FilterComponent = () => {
       >
         <PillSelector
           title="Genres"
-          options={[
-            "Fiction",
-            "Non-Fiction",
-            "Science Fiction",
-            "Fantasy",
-            "Mystery",
-          ]}
+          options={genres}
           selected={selectedGenres}
           setSelected={setSelectedGenres}
         />
 
         <PillSelector
           title="Authors"
-          options={[
-            "J.K. Rowling",
-            "George R.R. Martin",
-            "Agatha Christie",
-            "Dan Brown",
-            "Stephen King",
-          ]}
+          options={authors}
           selected={selectedAuthors}
           setSelected={setSelectedAuthors}
         />
 
         <PillSelector
           title="Languages"
-          options={["English", "Spanish", "French", "German", "Hindi"]}
+          options={languages}
           selected={selectedLanguages}
           setSelected={setSelectedLanguages}
         />

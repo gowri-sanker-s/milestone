@@ -92,13 +92,22 @@ export async function getAllProducts({
   try {
     const skipAmount = (Number(page) - 1) * limit;
 
-    const condition = {
+    const condition: any = {
       ...(query && { name: { contains: query, mode: "insensitive" as const } }),
       ...(genre && { genres: { has: genre } }),
       ...(author && { author }),
       ...(language && { language }),
-      ...(category && { category }),
     };
+
+    if (category) {
+      if (category === "featured") {
+        condition.isFeatured = true;
+      } else if (category === "best-sellers") {
+        condition.rating = { gte: 4.5 };
+      } else if (category === "combo-offers") {
+        condition.price = { gte: 250 };
+      }
+    }
 
     const data = await prisma.product.findMany({
       where: condition,
@@ -180,3 +189,102 @@ export async function updateProduct(data: z.infer<typeof updateProductSchema>) {
     return { success: false, message: "Failed to update product" };
   }
 }
+
+// Get unique genres with counts
+export async function getUniqueGenresWithCount() {
+  try {
+    const products = await prisma.product.findMany({
+      select: {
+        genres: true,
+      },
+    });
+
+    const counts: Record<string, number> = {};
+    products.forEach((product) => {
+      product.genres.forEach((genre) => {
+        counts[genre] = (counts[genre] || 0) + 1;
+      });
+    });
+
+    return Object.entries(counts).map(([name, count]) => ({
+      name,
+      count,
+    })).sort((a, b) => b.count - a.count);
+  } catch (error) {
+    console.error("getUniqueGenresWithCount error:", error);
+    return [];
+  }
+}
+
+// Get unique authors with counts and sample images
+export async function getUniqueAuthorsWithCount() {
+  try {
+    const products = await prisma.product.findMany({
+      select: {
+        author: true,
+        images: true,
+      },
+    });
+
+    const authorsData: Record<string, { count: number; image: string | null }> = {};
+    products.forEach((product) => {
+      const author = product.author;
+      if (!authorsData[author]) {
+        authorsData[author] = { count: 0, image: product.images[0] || null };
+      }
+      authorsData[author].count += 1;
+    });
+
+    return Object.entries(authorsData).map(([name, data]) => ({
+      name,
+      count: data.count,
+      image: data.image,
+    })).sort((a, b) => a.name.localeCompare(b.name));
+  } catch (error) {
+    console.error("getUniqueAuthorsWithCount error:", error);
+    return [];
+  }
+}
+
+// Get unique languages
+export async function getUniqueLanguages() {
+  try {
+    const products = await prisma.product.findMany({
+      select: {
+        language: true,
+      },
+    });
+
+    const uniqueLanguages = Array.from(
+      new Set(products.map((product) => product.language).filter(Boolean))
+    );
+
+    return uniqueLanguages.sort();
+  } catch (error) {
+    console.error("getUniqueLanguages error:", error);
+    return [];
+  }
+}
+
+// Get dynamic counts for the promotional categories
+export async function getCategoryCounts() {
+  try {
+    const [featured, newArrivals, bestSellers, comboOffers] = await Promise.all([
+      prisma.product.count({ where: { isFeatured: true } }),
+      prisma.product.count(),
+      prisma.product.count({ where: { rating: { gte: 4.5 } } }),
+      prisma.product.count({ where: { price: { gte: 250 } } }),
+    ]);
+
+    return {
+      featured,
+      newArrivals,
+      bestSellers,
+      comboOffers,
+    };
+  } catch (error) {
+    console.error("getCategoryCounts error:", error);
+    return { featured: 0, newArrivals: 0, bestSellers: 0, comboOffers: 0 };
+  }
+}
+
