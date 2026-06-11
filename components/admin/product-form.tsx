@@ -5,8 +5,12 @@ import { ProductType } from "@/types/product";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useRouter } from "next/navigation";
 import slugify from "slugify";
-import React, { useState } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import { ControllerRenderProps, SubmitHandler, useForm } from "react-hook-form";
+import { getAuthorsList } from "@/lib/actions/author.action";
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import AuthorForm from "@/components/admin/author-form";
+import { Search, Plus, ChevronsUpDown, Check } from "lucide-react";
 import {
   Form,
   FormControl,
@@ -36,6 +40,30 @@ const ProductForm = ({
   productId?: string;
 }) => {
   const router = useRouter();
+  const [authors, setAuthors] = useState<{ id: string; name: string }[]>([]);
+  const [isAuthorDropdownOpen, setIsAuthorDropdownOpen] = useState(false);
+  const [authorSearchQuery, setAuthorSearchQuery] = useState("");
+  const [showAddAuthorModal, setShowAddAuthorModal] = useState(false);
+  const dropdownRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    const fetchAuthors = async () => {
+      const res = await getAuthorsList();
+      setAuthors(res);
+    };
+    fetchAuthors();
+  }, []);
+
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (dropdownRef.current && !dropdownRef.current.contains(event.target as Node)) {
+        setIsAuthorDropdownOpen(false);
+      }
+    };
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => document.removeEventListener("mousedown", handleClickOutside);
+  }, []);
+
   const form = useForm<ProductFormValues>({
     resolver: zodResolver(insertProductSchema) as any,
     defaultValues:
@@ -80,7 +108,8 @@ const ProductForm = ({
   const isFeatured = form.watch("isFeatured");
   const banner = form.watch("banner");
   return (
-    <Form {...form}>
+    <>
+      <Form {...form}>
       <form
         method="POST"
         onSubmit={form.handleSubmit(onSubmit, (errors) => {
@@ -205,19 +234,89 @@ const ProductForm = ({
         <FormField
           control={form.control}
           name="author"
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel>Author</FormLabel>
-              <FormControl>
-                <Input
-                  placeholder="Author Name"
-                  {...field}
-                  value={field.value ?? ""}
-                />
-              </FormControl>
-              <FormMessage />
-            </FormItem>
-          )}
+          render={({ field }) => {
+            const filteredAuthors = authors.filter((author) =>
+              author.name.toLowerCase().includes(authorSearchQuery.toLowerCase())
+            );
+
+            return (
+              <FormItem className="relative flex flex-col">
+                <FormLabel>Author</FormLabel>
+                <div ref={dropdownRef} className="relative w-full">
+                  <FormControl>
+                    <button
+                      type="button"
+                      onClick={() => setIsAuthorDropdownOpen(!isAuthorDropdownOpen)}
+                      className="flex h-10 w-full items-center justify-between rounded-md border border-primary-text/20 bg-background px-3 py-2 text-sm text-left focus:outline-none focus:border-primary-text transition-colors"
+                    >
+                      {field.value ? (
+                        <span className="capitalize">{field.value.toLowerCase()}</span>
+                      ) : (
+                        <span className="text-primary-text/45">Select author...</span>
+                      )}
+                      <ChevronsUpDown className="h-4 w-4 opacity-50 shrink-0" />
+                    </button>
+                  </FormControl>
+
+                  {isAuthorDropdownOpen && (
+                    <div className="absolute z-50 mt-1 max-h-60 w-full overflow-hidden rounded-md border border-primary-text/20 bg-primary-bg shadow-lg flex flex-col">
+                      <div className="flex items-center border-b border-primary-text/10 px-3 py-2">
+                        <Search className="mr-2 h-4 w-4 opacity-50 shrink-0" />
+                        <input
+                          type="text"
+                          placeholder="Search author..."
+                          value={authorSearchQuery}
+                          onChange={(e) => setAuthorSearchQuery(e.target.value)}
+                          className="flex h-8 w-full rounded-md bg-transparent py-1 text-sm outline-none placeholder:text-primary-text/45"
+                        />
+                      </div>
+                      
+                      <div className="overflow-y-auto flex-1 py-1 max-h-40">
+                        {filteredAuthors.length === 0 ? (
+                          <div className="relative flex select-none items-center px-4 py-2 text-sm text-primary-text/50 italic">
+                            No authors found
+                          </div>
+                        ) : (
+                          filteredAuthors.map((author) => (
+                            <button
+                              key={author.id}
+                              type="button"
+                              onClick={() => {
+                                field.onChange(author.name);
+                                setIsAuthorDropdownOpen(false);
+                                setAuthorSearchQuery("");
+                              }}
+                              className="relative flex w-full select-none items-center justify-between rounded-sm px-4 py-2 text-sm hover:bg-primary-border/60 text-left capitalize transition-colors"
+                            >
+                              <span>{author.name.toLowerCase()}</span>
+                              {field.value?.toLowerCase() === author.name.toLowerCase() && (
+                                <Check className="h-4 w-4 text-primary-text" />
+                              )}
+                            </button>
+                          ))
+                        )}
+                      </div>
+
+                      <div className="border-t border-primary-text/10 pt-1 pb-1 bg-primary-border/20">
+                        <button
+                          type="button"
+                          onClick={() => {
+                            setIsAuthorDropdownOpen(false);
+                            setShowAddAuthorModal(true);
+                          }}
+                          className="relative flex w-full select-none items-center gap-2 rounded-sm px-4 py-2 text-sm font-semibold text-primary-text hover:bg-primary-border/60 text-left transition-colors"
+                        >
+                          <Plus className="h-4 w-4" />
+                          Add New Author...
+                        </button>
+                      </div>
+                    </div>
+                  )}
+                </div>
+                <FormMessage />
+              </FormItem>
+            );
+          }}
         />
         {/* Language */}
         <FormField
@@ -396,6 +495,27 @@ const ProductForm = ({
         </Button>
       </form>
     </Form>
+      <Dialog open={showAddAuthorModal} onOpenChange={setShowAddAuthorModal}>
+        <DialogContent className="bg-primary-bg max-w-2xl max-h-[90vh] overflow-y-auto border border-primary-text/20">
+          <DialogHeader>
+            <DialogTitle>Add New Author</DialogTitle>
+          </DialogHeader>
+          <div className="py-2">
+            <AuthorForm
+              type="Create"
+              onSuccess={async (newAuthorName) => {
+                setShowAddAuthorModal(false);
+                const res = await getAuthorsList();
+                setAuthors(res);
+                form.setValue("author", newAuthorName);
+                toast.success(`Author "${newAuthorName}" added and selected.`);
+              }}
+              onCancel={() => setShowAddAuthorModal(false)}
+            />
+          </div>
+        </DialogContent>
+      </Dialog>
+    </>
   );
 };
 

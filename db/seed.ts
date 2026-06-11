@@ -18,12 +18,30 @@ async function main() {
 
 
     // Delete existing products
+    await prisma.author.deleteMany();
     await prisma.product.deleteMany();
     await prisma.user.deleteMany();
     await prisma.account.deleteMany();
     await prisma.session.deleteMany();
     await prisma.verificationToken.deleteMany();
 
+    // Derive and insert unique authors
+    const authorsMap = new Map<string, string | null>();
+    sampleData.products.forEach((product) => {
+      if (!authorsMap.has(product.author)) {
+        authorsMap.set(product.author, product.images[0] || null);
+      }
+    });
+
+    const authorsData = Array.from(authorsMap.entries()).map(([name, image]) => ({
+      name,
+      image,
+      bio: `Writer of standard literary works, including publications featured in Milestone Books.`,
+    }));
+
+    await prisma.author.createMany({
+      data: authorsData,
+    });
 
     // Insert sample data
     await prisma.product.createMany({

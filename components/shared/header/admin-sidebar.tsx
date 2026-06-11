@@ -4,6 +4,7 @@ import {
   BookA,
   BookHeadphones,
   BookUser,
+  Feather,
   Headset,
   Home,
   LibraryBig,
@@ -15,6 +16,7 @@ import { motion, AnimatePresence, Variants } from "framer-motion";
 const menuItems = [
   { href: "/admin/overview", label: "Overview", icon: Home },
   { href: "/admin/products", label: "Products", icon: LibraryBig },
+  { href: "/admin/authors", label: "Authors", icon: Feather },
   { href: "/admin/orders", label: "Orders", icon: BookA },
   { href: "/admin/users", label: "Users", icon: BookUser },
 ];

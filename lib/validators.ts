@@ -118,3 +118,14 @@ export const updateUserSchema = updateProfileSchema.extend({
   id: z.string().min(1, "ID is required"),
   role: z.string().min(1, "Role is required").nullable(),
 });
+
+// schemas for author CRUD
+export const insertAuthorSchema = z.object({
+  name: z.string().min(3, "Name must be at least 3 characters"),
+  bio: z.string().optional().nullable(),
+  image: z.string().optional().nullable(),
+});
+
+export const updateAuthorSchema = insertAuthorSchema.extend({
+  id: z.string().min(1, "ID is required"),
+});

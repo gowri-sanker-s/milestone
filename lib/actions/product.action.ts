@@ -226,13 +226,41 @@ export async function getUniqueAuthorsWithCount() {
       },
     });
 
+    const dbAuthors = await prisma.author.findMany();
+    const dbAuthorsMap = new Map(dbAuthors.map((a) => [a.name.toLowerCase(), a]));
+
     const authorsData: Record<string, { count: number; image: string | null }> = {};
+    
+    // Add counts and default images from products
     products.forEach((product) => {
       const author = product.author;
+      const matchedAuthor = dbAuthorsMap.get(author.toLowerCase());
+      const customImage = matchedAuthor?.image;
+
       if (!authorsData[author]) {
-        authorsData[author] = { count: 0, image: product.images[0] || null };
+        authorsData[author] = { 
+          count: 0, 
+          image: customImage || product.images[0] || null 
+        };
       }
       authorsData[author].count += 1;
+    });
+
+    // Ensure all database-registered authors are represented (even if they have 0 books)
+    dbAuthors.forEach((dbAuthor) => {
+      const existingKey = Object.keys(authorsData).find(
+        (k) => k.toLowerCase() === dbAuthor.name.toLowerCase()
+      );
+      
+      if (!existingKey) {
+        authorsData[dbAuthor.name] = { 
+          count: 0, 
+          image: dbAuthor.image || null 
+        };
+      } else if (dbAuthor.image) {
+        // Prefer database author profile image over standard product cover image
+        authorsData[existingKey].image = dbAuthor.image;
+      }
     });
 
     return Object.entries(authorsData).map(([name, data]) => ({

@@ -153,3 +153,12 @@ model Account {
   @@id([orderId, productId], map: "orderitems_orderId_productId_pk")
   
  }
+
+model Author {
+  id        String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  name      String   @unique
+  bio       String?
+  image     String?
+  createdAt DateTime @default(now()) @db.Timestamp(6)
+  updatedAt DateTime @updatedAt
+}
