@@ -43,7 +43,13 @@ interface AuthorFormProps {
   onCancel?: () => void;
 }
 
-const AuthorForm = ({ type, author, authorId, onSuccess, onCancel }: AuthorFormProps) => {
+const AuthorForm = ({
+  type,
+  author,
+  authorId,
+  onSuccess,
+  onCancel,
+}: AuthorFormProps) => {
   const router = useRouter();
 
   const form = useForm<AuthorFormValues>({
@@ -109,7 +115,7 @@ const AuthorForm = ({ type, author, authorId, onSuccess, onCancel }: AuthorFormP
         onSubmit={form.handleSubmit(onSubmit, (errors) => {
           console.log("Validation Errors:", errors);
         })}
-        className="space-y-6 max-w-3xl"
+        className="space-y-6 "
       >
         {/* Name */}
         <FormField
@@ -159,9 +165,11 @@ const AuthorForm = ({ type, author, authorId, onSuccess, onCancel }: AuthorFormP
                     No Image
                   </div>
                 )}
-                
+
                 <div className="grid gap-2">
-                  <span className="text-xs opacity-75">Upload a profile picture for the author. Max size 4MB.</span>
+                  <span className="text-xs opacity-75">
+                    Upload a profile picture for the author. Max size 4MB.
+                  </span>
                   <FormControl className="upload-field">
                     <UploadButton
                       endpoint="imageUploader"
@@ -201,14 +209,7 @@ const AuthorForm = ({ type, author, authorId, onSuccess, onCancel }: AuthorFormP
           )}
         />
 
-        <div className="flex gap-4 pt-2">
-          <Button
-            type="submit"
-            disabled={form.formState.isSubmitting}
-            className="bg-primary-text text-primary-bg font-semibold text-[15px] px-6 py-2 rounded-lg disabled:opacity-50 transition-opacity"
-          >
-            {form.formState.isSubmitting ? "Saving..." : `${type} Author`}
-          </Button>
+        <div className="w-full flex justify-end gap-4 pt-2">
           <Button
             type="button"
             variant="outline"
@@ -216,6 +217,13 @@ const AuthorForm = ({ type, author, authorId, onSuccess, onCancel }: AuthorFormP
             className="border border-primary-text/20 hover:bg-primary-border/20 text-[15px] px-6 py-2 rounded-lg"
           >
             Cancel
+          </Button>
+          <Button
+            type="submit"
+            disabled={form.formState.isSubmitting}
+            className="bg-primary-text text-primary-bg font-semibold text-[15px] px-6 py-2 rounded-lg disabled:opacity-50 transition-opacity"
+          >
+            {form.formState.isSubmitting ? "Saving..." : `${type} Author`}
           </Button>
         </div>
       </form>

@@ -129,3 +129,12 @@ export const insertAuthorSchema = z.object({
 export const updateAuthorSchema = insertAuthorSchema.extend({
   id: z.string().min(1, "ID is required"),
 });
+
+// schemas for genre CRUD
+export const insertGenreSchema = z.object({
+  name: z.string().min(3, "Name must be at least 3 characters"),
+});
+
+export const updateGenreSchema = insertGenreSchema.extend({
+  id: z.string().min(1, "ID is required"),
+});

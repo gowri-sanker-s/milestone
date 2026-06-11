@@ -17,6 +17,7 @@ const menuItems = [
   { href: "/admin/overview", label: "Overview", icon: Home },
   { href: "/admin/products", label: "Products", icon: LibraryBig },
   { href: "/admin/authors", label: "Authors", icon: Feather },
+  { href: "/admin/genres", label: "Genres", icon: NotebookText },
   { href: "/admin/orders", label: "Orders", icon: BookA },
   { href: "/admin/users", label: "Users", icon: BookUser },
 ];

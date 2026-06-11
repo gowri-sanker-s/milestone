@@ -8,8 +8,10 @@ import slugify from "slugify";
 import React, { useState, useEffect, useRef } from "react";
 import { ControllerRenderProps, SubmitHandler, useForm } from "react-hook-form";
 import { getAuthorsList } from "@/lib/actions/author.action";
+import { getGenresList } from "@/lib/actions/genre.action";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import AuthorForm from "@/components/admin/author-form";
+import GenreForm from "@/components/admin/genre-form";
 import { Search, Plus, ChevronsUpDown, Check } from "lucide-react";
 import {
   Form,
@@ -46,18 +48,32 @@ const ProductForm = ({
   const [showAddAuthorModal, setShowAddAuthorModal] = useState(false);
   const dropdownRef = useRef<HTMLDivElement>(null);
 
+  const [genresList, setGenresList] = useState<{ id: string; name: string }[]>([]);
+  const [isGenreDropdownOpen, setIsGenreDropdownOpen] = useState(false);
+  const [genreSearchQuery, setGenreSearchQuery] = useState("");
+  const [showAddGenreModal, setShowAddGenreModal] = useState(false);
+  const genreDropdownRef = useRef<HTMLDivElement>(null);
+
   useEffect(() => {
     const fetchAuthors = async () => {
       const res = await getAuthorsList();
       setAuthors(res);
     };
+    const fetchGenres = async () => {
+      const res = await getGenresList();
+      setGenresList(res);
+    };
     fetchAuthors();
+    fetchGenres();
   }, []);
 
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
       if (dropdownRef.current && !dropdownRef.current.contains(event.target as Node)) {
         setIsAuthorDropdownOpen(false);
+      }
+      if (genreDropdownRef.current && !genreDropdownRef.current.contains(event.target as Node)) {
+        setIsGenreDropdownOpen(false);
       }
     };
     document.addEventListener("mousedown", handleClickOutside);
@@ -359,19 +375,120 @@ const ProductForm = ({
         <FormField
           control={form.control}
           name="genres"
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel>Genres (comma-separated)</FormLabel>
-              <FormControl>
-                <Input
-                  placeholder="Genre1, Genre2"
-                  {...field}
-                  value={field.value ?? ""}
-                />
-              </FormControl>
-              <FormMessage />
-            </FormItem>
-          )}
+          render={({ field }) => {
+            const currentGenres: string[] = Array.isArray(field.value)
+              ? field.value
+              : typeof field.value === "string"
+                ? (field.value as string).split(",").map((s) => s.trim()).filter(Boolean)
+                : [];
+
+            const toggleGenre = (genreName: string) => {
+              const exists = currentGenres.some(
+                (g) => g.toLowerCase() === genreName.toLowerCase()
+              );
+              let updated: string[];
+              if (exists) {
+                updated = currentGenres.filter(
+                  (g) => g.toLowerCase() !== genreName.toLowerCase()
+                );
+              } else {
+                updated = [...currentGenres, genreName];
+              }
+              field.onChange(updated);
+            };
+
+            const filteredGenres = genresList.filter((g) =>
+              g.name.toLowerCase().includes(genreSearchQuery.toLowerCase())
+            );
+
+            return (
+              <FormItem className="relative flex flex-col">
+                <FormLabel>Genres</FormLabel>
+                <div ref={genreDropdownRef} className="relative w-full">
+                  <FormControl>
+                    <button
+                      type="button"
+                      onClick={() => setIsGenreDropdownOpen(!isGenreDropdownOpen)}
+                      className="flex min-h-10 w-full items-center justify-between rounded-md border border-primary-text/20 bg-background px-3 py-2 text-sm text-left focus:outline-none focus:border-primary-text transition-all"
+                    >
+                      {currentGenres.length > 0 ? (
+                        <div className="flex flex-wrap gap-1.5 capitalize text-primary-text">
+                          {currentGenres.map((g) => (
+                            <span
+                              key={g}
+                              className="bg-primary-border text-[12px] px-2 py-0.5 rounded-md border border-primary-text/10 flex items-center gap-1 font-semibold"
+                            >
+                              {g.toLowerCase()}
+                            </span>
+                          ))}
+                        </div>
+                      ) : (
+                        <span className="text-primary-text/45">Select genres...</span>
+                      )}
+                      <ChevronsUpDown className="h-4 w-4 opacity-50 shrink-0 ml-2" />
+                    </button>
+                  </FormControl>
+
+                  {isGenreDropdownOpen && (
+                    <div className="absolute z-50 mt-1 max-h-60 w-full overflow-hidden rounded-md border border-primary-text/20 bg-primary-bg shadow-lg flex flex-col">
+                      <div className="flex items-center border-b border-primary-text/10 px-3 py-2">
+                        <Search className="mr-2 h-4 w-4 opacity-50 shrink-0" />
+                        <input
+                          type="text"
+                          placeholder="Search genre..."
+                          value={genreSearchQuery}
+                          onChange={(e) => setGenreSearchQuery(e.target.value)}
+                          className="flex h-8 w-full rounded-md bg-transparent py-1 text-sm outline-none placeholder:text-primary-text/45"
+                        />
+                      </div>
+                      
+                      <div className="overflow-y-auto flex-1 py-1 max-h-40">
+                        {filteredGenres.length === 0 ? (
+                          <div className="relative flex select-none items-center px-4 py-2 text-sm text-primary-text/50 italic">
+                            No genres found
+                          </div>
+                        ) : (
+                          filteredGenres.map((g) => {
+                            const isSelected = currentGenres.some(
+                              (cg) => cg.toLowerCase() === g.name.toLowerCase()
+                            );
+                            return (
+                              <button
+                                key={g.id}
+                                type="button"
+                                onClick={() => toggleGenre(g.name)}
+                                className="relative flex w-full select-none items-center justify-between rounded-sm px-4 py-2 text-sm hover:bg-primary-border/60 text-left capitalize transition-colors"
+                              >
+                                <span>{g.name.toLowerCase()}</span>
+                                {isSelected && (
+                                  <Check className="h-4 w-4 text-primary-text" />
+                                )}
+                              </button>
+                            );
+                          })
+                        )}
+                      </div>
+
+                      <div className="border-t border-primary-text/10 pt-1 pb-1 bg-primary-border/20">
+                        <button
+                          type="button"
+                          onClick={() => {
+                            setIsGenreDropdownOpen(false);
+                            setShowAddGenreModal(true);
+                          }}
+                          className="relative flex w-full select-none items-center gap-2 rounded-sm px-4 py-2 text-sm font-semibold text-primary-text hover:bg-primary-border/60 text-left transition-colors"
+                        >
+                          <Plus className="h-4 w-4" />
+                          Add New Genre...
+                        </button>
+                      </div>
+                    </div>
+                  )}
+                </div>
+                <FormMessage />
+              </FormItem>
+            );
+          }}
         />
 
         {/* Images */}
@@ -511,6 +628,32 @@ const ProductForm = ({
                 toast.success(`Author "${newAuthorName}" added and selected.`);
               }}
               onCancel={() => setShowAddAuthorModal(false)}
+            />
+          </div>
+        </DialogContent>
+      </Dialog>
+
+      <Dialog open={showAddGenreModal} onOpenChange={setShowAddGenreModal}>
+        <DialogContent className="bg-primary-bg max-w-xl border border-primary-text/20">
+          <DialogHeader>
+            <DialogTitle>Add New Genre</DialogTitle>
+          </DialogHeader>
+          <div className="py-2">
+            <GenreForm
+              type="Create"
+              onSuccess={async (newGenreName) => {
+                setShowAddGenreModal(false);
+                const res = await getGenresList();
+                setGenresList(res);
+
+                const currentGenres = form.getValues("genres") || [];
+                const updated = Array.isArray(currentGenres)
+                  ? [...currentGenres, newGenreName]
+                  : [newGenreName];
+                form.setValue("genres", updated);
+                toast.success(`Genre "${newGenreName}" added and selected.`);
+              }}
+              onCancel={() => setShowAddGenreModal(false)}
             />
           </div>
         </DialogContent>

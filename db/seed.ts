@@ -19,6 +19,7 @@ async function main() {
 
     // Delete existing products
     await prisma.author.deleteMany();
+    await prisma.genre.deleteMany();
     await prisma.product.deleteMany();
     await prisma.user.deleteMany();
     await prisma.account.deleteMany();
@@ -41,6 +42,20 @@ async function main() {
 
     await prisma.author.createMany({
       data: authorsData,
+    });
+
+    // Derive and insert unique genres
+    const genresSet = new Set<string>();
+    sampleData.products.forEach((product) => {
+      product.genres.forEach((genre) => genresSet.add(genre));
+    });
+
+    const genresData = Array.from(genresSet).map((name) => ({
+      name,
+    }));
+
+    await prisma.genre.createMany({
+      data: genresData,
     });
 
     // Insert sample data

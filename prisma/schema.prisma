@@ -162,3 +162,10 @@ model Author {
   createdAt DateTime @default(now()) @db.Timestamp(6)
   updatedAt DateTime @updatedAt
 }
+
+model Genre {
+  id        String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  name      String   @unique
+  createdAt DateTime @default(now()) @db.Timestamp(6)
+  updatedAt DateTime @updatedAt
+}
