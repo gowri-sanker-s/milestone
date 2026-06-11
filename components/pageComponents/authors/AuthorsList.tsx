@@ -89,8 +89,8 @@ const AuthorsList = ({ authors }: AuthorsListProps) => {
 
                   {/* Name and Count */}
                   <div>
-                    <h3 className="font-extrabold text-lg text-primary-text leading-tight group-hover:text-primary-text/90 capitalize">
-                      {author.name.toLowerCase()}
+                    <h3 className="font-extrabold text-lg text-primary-text leading-tight group-hover:text-primary-text/90">
+                      {author.name}
                     </h3>
                     <div className="flex items-center gap-1.5 mt-1.5 text-xs font-semibold opacity-70">
                       <BookUser size={13} />
