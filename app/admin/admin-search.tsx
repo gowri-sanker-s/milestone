@@ -10,7 +10,11 @@ const AdminSearch = () => {
     ? "/admin/orders"
     : pathname.includes("/admin/users")
       ? "/admin/users"
-      : "/admin/products";
+      : pathname.includes("/admin/authors")
+        ? "/admin/authors"
+        : pathname.includes("/admin/genres")
+          ? "/admin/genres"
+          : "/admin/products";
 
   const searchParams = useSearchParams();
   const [queryValue, setQueryValue] = useState(searchParams.get("query") || "");

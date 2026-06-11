@@ -9,7 +9,12 @@ import React, { useState, useEffect, useRef } from "react";
 import { ControllerRenderProps, SubmitHandler, useForm } from "react-hook-form";
 import { getAuthorsList } from "@/lib/actions/author.action";
 import { getGenresList } from "@/lib/actions/genre.action";
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
 import AuthorForm from "@/components/admin/author-form";
 import GenreForm from "@/components/admin/genre-form";
 import { Search, Plus, ChevronsUpDown, Check } from "lucide-react";
@@ -48,7 +53,9 @@ const ProductForm = ({
   const [showAddAuthorModal, setShowAddAuthorModal] = useState(false);
   const dropdownRef = useRef<HTMLDivElement>(null);
 
-  const [genresList, setGenresList] = useState<{ id: string; name: string }[]>([]);
+  const [genresList, setGenresList] = useState<{ id: string; name: string }[]>(
+    [],
+  );
   const [isGenreDropdownOpen, setIsGenreDropdownOpen] = useState(false);
   const [genreSearchQuery, setGenreSearchQuery] = useState("");
   const [showAddGenreModal, setShowAddGenreModal] = useState(false);
@@ -69,10 +76,16 @@ const ProductForm = ({
 
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
-      if (dropdownRef.current && !dropdownRef.current.contains(event.target as Node)) {
+      if (
+        dropdownRef.current &&
+        !dropdownRef.current.contains(event.target as Node)
+      ) {
         setIsAuthorDropdownOpen(false);
       }
-      if (genreDropdownRef.current && !genreDropdownRef.current.contains(event.target as Node)) {
+      if (
+        genreDropdownRef.current &&
+        !genreDropdownRef.current.contains(event.target as Node)
+      ) {
         setIsGenreDropdownOpen(false);
       }
     };
@@ -126,492 +139,522 @@ const ProductForm = ({
   return (
     <>
       <Form {...form}>
-      <form
-        method="POST"
-        onSubmit={form.handleSubmit(onSubmit, (errors) => {
-          console.log("Validation Errors:", errors);
-        })}
-        className="grid grid-cols-1 md:grid-cols-2 items-start gap-4"
-      >
-        {/* Name */}
-        <FormField
-          control={form.control}
-          name="name"
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel>Name</FormLabel>
-              <FormControl>
-                <Input
-                  placeholder="Name"
-                  {...field}
-                  value={field.value ?? ""}
-                />
-              </FormControl>
-              <FormMessage />
-            </FormItem>
-          )}
-        />
-
-        {/* Slug */}
-        <FormField
-          control={form.control}
-          name="slug"
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel>Slug</FormLabel>
-              <FormControl>
-                <div className="flex gap-3 items-center">
+        <form
+          method="POST"
+          onSubmit={form.handleSubmit(onSubmit, (errors) => {
+            console.log("Validation Errors:", errors);
+          })}
+          className="grid grid-cols-1 md:grid-cols-2 items-start gap-4"
+        >
+          {/* Name */}
+          <FormField
+            control={form.control}
+            name="name"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>Name</FormLabel>
+                <FormControl>
                   <Input
-                    placeholder="Slug"
+                    placeholder="Name"
                     {...field}
                     value={field.value ?? ""}
                   />
-                  <Button
-                    type="button"
-                    className="bg-black text-white font-semibold p-2 px-4 rounded-md"
-                    onClick={() => {
-                      form.setValue(
-                        "slug",
-                        slugify(form.getValues("name"), {
-                          lower: true,
-                          strict: true,
-                        }),
-                      );
-                    }}
-                  >
-                    Generate Slug
-                  </Button>
-                </div>
-              </FormControl>
-              <FormMessage />
-            </FormItem>
-          )}
-        />
-
-        {/* Title */}
-        <FormField
-          control={form.control}
-          name="title"
-          render={({ field }) => (
-            <FormItem className="lg:col-span-2">
-              <FormLabel>Title</FormLabel>
-              <FormControl>
-                <Input
-                  placeholder="Title"
-                  {...field}
-                  value={field.value ?? ""}
-                />
-              </FormControl>
-              <FormMessage />
-            </FormItem>
-          )}
-        />
-
-        {/* Price  */}
-        <FormField
-          control={form.control}
-          name="price"
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel>Price</FormLabel>
-              <FormControl>
-                <Input
-                  type="number"
-                  placeholder="Price"
-                  {...field}
-                  value={field.value ?? ""}
-                />
-              </FormControl>
-              <FormMessage />
-            </FormItem>
-          )}
-        />
-        {/* Stock */}
-        <FormField
-          control={form.control}
-          name="stock"
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel>Stock</FormLabel>
-              <FormControl>
-                <Input
-                  type="number"
-                  placeholder="Stock"
-                  {...field}
-                  value={field.value ?? ""}
-                />
-              </FormControl>
-              <FormMessage />
-            </FormItem>
-          )}
-        />
-
-        {/* Author */}
-        <FormField
-          control={form.control}
-          name="author"
-          render={({ field }) => {
-            const filteredAuthors = authors.filter((author) =>
-              author.name.toLowerCase().includes(authorSearchQuery.toLowerCase())
-            );
-
-            return (
-              <FormItem className="relative flex flex-col">
-                <FormLabel>Author</FormLabel>
-                <div ref={dropdownRef} className="relative w-full">
-                  <FormControl>
-                    <button
-                      type="button"
-                      onClick={() => setIsAuthorDropdownOpen(!isAuthorDropdownOpen)}
-                      className="flex h-10 w-full items-center justify-between rounded-md border border-primary-text/20 bg-background px-3 py-2 text-sm text-left focus:outline-none focus:border-primary-text transition-colors"
-                    >
-                      {field.value ? (
-                        <span className="capitalize">{field.value.toLowerCase()}</span>
-                      ) : (
-                        <span className="text-primary-text/45">Select author...</span>
-                      )}
-                      <ChevronsUpDown className="h-4 w-4 opacity-50 shrink-0" />
-                    </button>
-                  </FormControl>
-
-                  {isAuthorDropdownOpen && (
-                    <div className="absolute z-50 mt-1 max-h-60 w-full overflow-hidden rounded-md border border-primary-text/20 bg-primary-bg shadow-lg flex flex-col">
-                      <div className="flex items-center border-b border-primary-text/10 px-3 py-2">
-                        <Search className="mr-2 h-4 w-4 opacity-50 shrink-0" />
-                        <input
-                          type="text"
-                          placeholder="Search author..."
-                          value={authorSearchQuery}
-                          onChange={(e) => setAuthorSearchQuery(e.target.value)}
-                          className="flex h-8 w-full rounded-md bg-transparent py-1 text-sm outline-none placeholder:text-primary-text/45"
-                        />
-                      </div>
-                      
-                      <div className="overflow-y-auto flex-1 py-1 max-h-40">
-                        {filteredAuthors.length === 0 ? (
-                          <div className="relative flex select-none items-center px-4 py-2 text-sm text-primary-text/50 italic">
-                            No authors found
-                          </div>
-                        ) : (
-                          filteredAuthors.map((author) => (
-                            <button
-                              key={author.id}
-                              type="button"
-                              onClick={() => {
-                                field.onChange(author.name);
-                                setIsAuthorDropdownOpen(false);
-                                setAuthorSearchQuery("");
-                              }}
-                              className="relative flex w-full select-none items-center justify-between rounded-sm px-4 py-2 text-sm hover:bg-primary-border/60 text-left capitalize transition-colors"
-                            >
-                              <span>{author.name.toLowerCase()}</span>
-                              {field.value?.toLowerCase() === author.name.toLowerCase() && (
-                                <Check className="h-4 w-4 text-primary-text" />
-                              )}
-                            </button>
-                          ))
-                        )}
-                      </div>
-
-                      <div className="border-t border-primary-text/10 pt-1 pb-1 bg-primary-border/20">
-                        <button
-                          type="button"
-                          onClick={() => {
-                            setIsAuthorDropdownOpen(false);
-                            setShowAddAuthorModal(true);
-                          }}
-                          className="relative flex w-full select-none items-center gap-2 rounded-sm px-4 py-2 text-sm font-semibold text-primary-text hover:bg-primary-border/60 text-left transition-colors"
-                        >
-                          <Plus className="h-4 w-4" />
-                          Add New Author...
-                        </button>
-                      </div>
-                    </div>
-                  )}
-                </div>
+                </FormControl>
                 <FormMessage />
               </FormItem>
-            );
-          }}
-        />
-        {/* Language */}
-        <FormField
-          control={form.control}
-          name="language"
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel>Language</FormLabel>
-              <FormControl>
-                <Input
-                  placeholder="Language"
-                  {...field}
-                  value={field.value ?? ""}
-                />
-              </FormControl>
-              <FormMessage />
-            </FormItem>
-          )}
-        />
-        {/* Pages */}
-        <FormField
-          control={form.control}
-          name="pages"
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel>Pages</FormLabel>
-              <FormControl>
-                <Input
-                  type="number"
-                  placeholder="Page"
-                  {...field}
-                  value={field.value ?? ""}
-                />
-              </FormControl>
-              <FormMessage />
-            </FormItem>
-          )}
-        />
-        {/* Genres */}
-        <FormField
-          control={form.control}
-          name="genres"
-          render={({ field }) => {
-            const currentGenres: string[] = Array.isArray(field.value)
-              ? field.value
-              : typeof field.value === "string"
-                ? (field.value as string).split(",").map((s) => s.trim()).filter(Boolean)
-                : [];
+            )}
+          />
 
-            const toggleGenre = (genreName: string) => {
-              const exists = currentGenres.some(
-                (g) => g.toLowerCase() === genreName.toLowerCase()
-              );
-              let updated: string[];
-              if (exists) {
-                updated = currentGenres.filter(
-                  (g) => g.toLowerCase() !== genreName.toLowerCase()
-                );
-              } else {
-                updated = [...currentGenres, genreName];
-              }
-              field.onChange(updated);
-            };
-
-            const filteredGenres = genresList.filter((g) =>
-              g.name.toLowerCase().includes(genreSearchQuery.toLowerCase())
-            );
-
-            return (
-              <FormItem className="relative flex flex-col">
-                <FormLabel>Genres</FormLabel>
-                <div ref={genreDropdownRef} className="relative w-full">
-                  <FormControl>
-                    <button
+          {/* Slug */}
+          <FormField
+            control={form.control}
+            name="slug"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>Slug</FormLabel>
+                <FormControl>
+                  <div className="flex gap-3 items-center">
+                    <Input
+                      placeholder="Slug"
+                      {...field}
+                      value={field.value ?? ""}
+                    />
+                    <Button
                       type="button"
-                      onClick={() => setIsGenreDropdownOpen(!isGenreDropdownOpen)}
-                      className="flex min-h-10 w-full items-center justify-between rounded-md border border-primary-text/20 bg-background px-3 py-2 text-sm text-left focus:outline-none focus:border-primary-text transition-all"
+                      className="bg-black text-white font-semibold p-2 px-4 rounded-md"
+                      onClick={() => {
+                        form.setValue(
+                          "slug",
+                          slugify(form.getValues("name"), {
+                            lower: true,
+                            strict: true,
+                          }),
+                        );
+                      }}
                     >
-                      {currentGenres.length > 0 ? (
-                        <div className="flex flex-wrap gap-1.5 capitalize text-primary-text">
-                          {currentGenres.map((g) => (
-                            <span
-                              key={g}
-                              className="bg-primary-border text-[12px] px-2 py-0.5 rounded-md border border-primary-text/10 flex items-center gap-1 font-semibold"
-                            >
-                              {g.toLowerCase()}
-                            </span>
-                          ))}
-                        </div>
-                      ) : (
-                        <span className="text-primary-text/45">Select genres...</span>
-                      )}
-                      <ChevronsUpDown className="h-4 w-4 opacity-50 shrink-0 ml-2" />
-                    </button>
-                  </FormControl>
+                      Generate Slug
+                    </Button>
+                  </div>
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
 
-                  {isGenreDropdownOpen && (
-                    <div className="absolute z-50 mt-1 max-h-60 w-full overflow-hidden rounded-md border border-primary-text/20 bg-primary-bg shadow-lg flex flex-col">
-                      <div className="flex items-center border-b border-primary-text/10 px-3 py-2">
-                        <Search className="mr-2 h-4 w-4 opacity-50 shrink-0" />
-                        <input
-                          type="text"
-                          placeholder="Search genre..."
-                          value={genreSearchQuery}
-                          onChange={(e) => setGenreSearchQuery(e.target.value)}
-                          className="flex h-8 w-full rounded-md bg-transparent py-1 text-sm outline-none placeholder:text-primary-text/45"
-                        />
-                      </div>
-                      
-                      <div className="overflow-y-auto flex-1 py-1 max-h-40">
-                        {filteredGenres.length === 0 ? (
-                          <div className="relative flex select-none items-center px-4 py-2 text-sm text-primary-text/50 italic">
-                            No genres found
-                          </div>
+          {/* Title */}
+          <FormField
+            control={form.control}
+            name="title"
+            render={({ field }) => (
+              <FormItem className="lg:col-span-2">
+                <FormLabel>Title</FormLabel>
+                <FormControl>
+                  <Input
+                    placeholder="Title"
+                    {...field}
+                    value={field.value ?? ""}
+                  />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+
+          {/* Price  */}
+          <FormField
+            control={form.control}
+            name="price"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>Price</FormLabel>
+                <FormControl>
+                  <Input
+                    type="number"
+                    placeholder="Price"
+                    {...field}
+                    value={field.value ?? ""}
+                  />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+          {/* Stock */}
+          <FormField
+            control={form.control}
+            name="stock"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>Stock</FormLabel>
+                <FormControl>
+                  <Input
+                    type="number"
+                    placeholder="Stock"
+                    {...field}
+                    value={field.value ?? ""}
+                  />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+
+          {/* Author */}
+          <FormField
+            control={form.control}
+            name="author"
+            render={({ field }) => {
+              const filteredAuthors = authors.filter((author) =>
+                author.name
+                  .toLowerCase()
+                  .includes(authorSearchQuery.toLowerCase()),
+              );
+
+              return (
+                <FormItem className="relative flex flex-col">
+                  <FormLabel>Author</FormLabel>
+                  <div ref={dropdownRef} className="relative w-full">
+                    <FormControl>
+                      <button
+                        type="button"
+                        onClick={() =>
+                          setIsAuthorDropdownOpen(!isAuthorDropdownOpen)
+                        }
+                        className="flex h-10 w-full items-center justify-between rounded-md border border-primary-text/20 bg-background px-3 py-2 text-sm text-left focus:outline-none focus:border-primary-text transition-colors"
+                      >
+                        {field.value ? (
+                          <span className="capitalize">
+                            {field.value.toLowerCase()}
+                          </span>
                         ) : (
-                          filteredGenres.map((g) => {
-                            const isSelected = currentGenres.some(
-                              (cg) => cg.toLowerCase() === g.name.toLowerCase()
-                            );
-                            return (
+                          <span className="text-primary-text/45">
+                            Select author...
+                          </span>
+                        )}
+                        <ChevronsUpDown className="h-4 w-4 opacity-50 shrink-0" />
+                      </button>
+                    </FormControl>
+
+                    {isAuthorDropdownOpen && (
+                      <div className="absolute z-50 mt-1 max-h-60 w-full overflow-hidden rounded-md border border-primary-text/20 bg-primary-bg shadow-lg flex flex-col">
+                        <div className="flex items-center border-b border-primary-text/10 px-3 py-2">
+                          <Search className="mr-2 h-4 w-4 opacity-50 shrink-0" />
+                          <input
+                            type="text"
+                            placeholder="Search author..."
+                            value={authorSearchQuery}
+                            onChange={(e) =>
+                              setAuthorSearchQuery(e.target.value)
+                            }
+                            className="flex h-8 w-full rounded-md bg-transparent py-1 text-sm outline-none placeholder:text-primary-text/45"
+                          />
+                        </div>
+
+                        <div className="overflow-y-auto flex-1 py-1 max-h-40">
+                          {filteredAuthors.length === 0 ? (
+                            <div className="relative flex select-none items-center px-4 py-2 text-sm text-primary-text/50 italic">
+                              No authors found
+                            </div>
+                          ) : (
+                            filteredAuthors.map((author) => (
                               <button
-                                key={g.id}
+                                key={author.id}
                                 type="button"
-                                onClick={() => toggleGenre(g.name)}
+                                onClick={() => {
+                                  field.onChange(author.name);
+                                  setIsAuthorDropdownOpen(false);
+                                  setAuthorSearchQuery("");
+                                }}
                                 className="relative flex w-full select-none items-center justify-between rounded-sm px-4 py-2 text-sm hover:bg-primary-border/60 text-left capitalize transition-colors"
                               >
-                                <span>{g.name.toLowerCase()}</span>
-                                {isSelected && (
+                                <span>{author.name.toLowerCase()}</span>
+                                {field.value?.toLowerCase() ===
+                                  author.name.toLowerCase() && (
                                   <Check className="h-4 w-4 text-primary-text" />
                                 )}
                               </button>
-                            );
-                          })
-                        )}
-                      </div>
+                            ))
+                          )}
+                        </div>
 
-                      <div className="border-t border-primary-text/10 pt-1 pb-1 bg-primary-border/20">
-                        <button
-                          type="button"
-                          onClick={() => {
-                            setIsGenreDropdownOpen(false);
-                            setShowAddGenreModal(true);
-                          }}
-                          className="relative flex w-full select-none items-center gap-2 rounded-sm px-4 py-2 text-sm font-semibold text-primary-text hover:bg-primary-border/60 text-left transition-colors"
-                        >
-                          <Plus className="h-4 w-4" />
-                          Add New Genre...
-                        </button>
+                        <div className="border-t border-primary-text/10 pt-1 pb-1 bg-primary-border/20">
+                          <button
+                            type="button"
+                            onClick={() => {
+                              setIsAuthorDropdownOpen(false);
+                              setShowAddAuthorModal(true);
+                            }}
+                            className="relative flex w-full select-none items-center gap-2 rounded-sm px-4 py-2 text-sm font-semibold text-primary-text hover:bg-primary-border/60 text-left transition-colors"
+                          >
+                            <Plus className="h-4 w-4" />
+                            Add New Author...
+                          </button>
+                        </div>
                       </div>
-                    </div>
-                  )}
-                </div>
-                <FormMessage />
-              </FormItem>
-            );
-          }}
-        />
-
-        {/* Images */}
-        <FormField
-          control={form.control}
-          name="images"
-          render={() => (
-            <FormItem className="lg:col-span-2">
-              <FormLabel>Images</FormLabel>
-              <div className="border border-primary-text/20 min-h-28 rounded-md">
-                <div className="flex gap-5">
-                  {images?.map((image, index) => (
-                    <Image
-                      key={index}
-                      src={image}
-                      alt="Product Image"
-                      width={100}
-                      height={100}
-                      className="w-20 h-20 object-cover object-center rounded-sm"
-                    />
-                  ))}
-                </div>
-                <FormControl className="upload-field">
-                  <UploadButton
-                    endpoint="imageUploader"
-                    onClientUploadComplete={(res: { url: string }[]) => {
-                      form.setValue("images", [...images, res[0].url]);
-                    }}
-                    onUploadError={(error: Error) => {
-                      toast.error(`Image Upload Failed: ${error}`);
-                    }}
-                  />
-                </FormControl>
-              </div>
-              <FormMessage />
-            </FormItem>
-          )}
-        />
-        {/* is featured */}
-        <div className="flex items-center gap-10">
-          <p>Featured Product</p>
+                    )}
+                  </div>
+                  <FormMessage />
+                </FormItem>
+              );
+            }}
+          />
+          {/* Language */}
           <FormField
             control={form.control}
-            name="isFeatured"
+            name="language"
             render={({ field }) => (
               <FormItem>
-                {/* <FormLabel>Is Featured</FormLabel> */}
-
+                <FormLabel>Language</FormLabel>
                 <FormControl>
-                  <Checkbox
-                    checked={field.value ?? false}
-                    onCheckedChange={field.onChange}
+                  <Input
+                    placeholder="Language"
+                    {...field}
+                    value={field.value ?? ""}
                   />
                 </FormControl>
                 <FormMessage />
               </FormItem>
             )}
           />
-        </div>
-        {/* Banner */}
-        {isFeatured && banner && (
-          <Image
-            src={banner}
-            alt="Banner"
-            width={100}
-            height={100}
-            className="w-20 h-20 object-cover object-center rounded-sm"
-          />
-        )}
-        {isFeatured && !banner && (
+          {/* Pages */}
           <FormField
             control={form.control}
-            name="banner"
-            render={() => (
-              <FormItem className="lg:col-span-2">
-                <FormLabel>Banner</FormLabel>
-                <FormControl className="upload-field border border-primary-text/20 min-h-28 rounded-md">
-                  <UploadButton
-                    endpoint="imageUploader"
-                    onClientUploadComplete={(res: { url: string }[]) => {
-                      form.setValue("banner", res[0].url);
-                    }}
-                    onUploadError={(error: Error) => {
-                      toast.error(`Banner Image Upload Failed: ${error}`);
-                    }}
+            name="pages"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>Pages</FormLabel>
+                <FormControl>
+                  <Input
+                    type="number"
+                    placeholder="Page"
+                    {...field}
+                    value={field.value ?? ""}
                   />
                 </FormControl>
                 <FormMessage />
               </FormItem>
             )}
           />
-        )}
+          {/* Genres */}
+          <FormField
+            control={form.control}
+            name="genres"
+            render={({ field }) => {
+              const currentGenres: string[] = Array.isArray(field.value)
+                ? field.value
+                : typeof field.value === "string"
+                  ? (field.value as string)
+                      .split(",")
+                      .map((s) => s.trim())
+                      .filter(Boolean)
+                  : [];
 
-        <div className="grid gap-4 items-start">{/* Genres */}</div>
+              const toggleGenre = (genreName: string) => {
+                const exists = currentGenres.some(
+                  (g) => g.toLowerCase() === genreName.toLowerCase(),
+                );
+                let updated: string[];
+                if (exists) {
+                  updated = currentGenres.filter(
+                    (g) => g.toLowerCase() !== genreName.toLowerCase(),
+                  );
+                } else {
+                  updated = [...currentGenres, genreName];
+                }
+                field.onChange(updated);
+              };
 
-        {/* Description */}
-        <FormField
-          control={form.control}
-          name="description"
-          render={({ field }) => (
-            <FormItem className="lg:col-span-2">
-              <FormLabel>Description</FormLabel>
-              <FormControl className="min-h-48">
-                <Textarea
-                  placeholder="Description"
-                  {...field}
-                  value={field.value ?? ""}
-                />
-              </FormControl>
-              <FormMessage />
-            </FormItem>
+              const filteredGenres = genresList.filter((g) =>
+                g.name.toLowerCase().includes(genreSearchQuery.toLowerCase()),
+              );
+
+              return (
+                <FormItem className="relative flex flex-col">
+                  <FormLabel>Genres</FormLabel>
+                  <div ref={genreDropdownRef} className="relative w-full">
+                    <FormControl>
+                      <button
+                        type="button"
+                        onClick={() =>
+                          setIsGenreDropdownOpen(!isGenreDropdownOpen)
+                        }
+                        className="flex min-h-10 w-full items-center justify-between rounded-md border border-primary-text/20 bg-background px-3 py-2 text-sm text-left focus:outline-none focus:border-primary-text transition-all"
+                      >
+                        {currentGenres.length > 0 ? (
+                          <div className="flex flex-wrap gap-1.5 capitalize text-primary-text">
+                            {currentGenres.map((g) => (
+                              <span
+                                key={g}
+                                className="bg-primary-border text-[12px] px-2 py-0.5 rounded-md border border-primary-text/10 flex items-center gap-1 font-semibold"
+                              >
+                                {g.toLowerCase()}
+                              </span>
+                            ))}
+                          </div>
+                        ) : (
+                          <span className="text-primary-text/45">
+                            Select genres...
+                          </span>
+                        )}
+                        <ChevronsUpDown className="h-4 w-4 opacity-50 shrink-0 ml-2" />
+                      </button>
+                    </FormControl>
+
+                    {isGenreDropdownOpen && (
+                      <div className="absolute z-50 mt-1 max-h-60 w-full overflow-hidden rounded-md border border-primary-text/20 bg-primary-bg shadow-lg flex flex-col">
+                        <div className="flex items-center border-b border-primary-text/10 px-3 py-2">
+                          <Search className="mr-2 h-4 w-4 opacity-50 shrink-0" />
+                          <input
+                            type="text"
+                            placeholder="Search genre..."
+                            value={genreSearchQuery}
+                            onChange={(e) =>
+                              setGenreSearchQuery(e.target.value)
+                            }
+                            className="flex h-8 w-full rounded-md bg-transparent py-1 text-sm outline-none placeholder:text-primary-text/45"
+                          />
+                        </div>
+
+                        <div className="overflow-y-auto flex-1 py-1 max-h-40">
+                          {filteredGenres.length === 0 ? (
+                            <div className="relative flex select-none items-center px-4 py-2 text-sm text-primary-text/50 italic">
+                              No genres found
+                            </div>
+                          ) : (
+                            filteredGenres.map((g) => {
+                              const isSelected = currentGenres.some(
+                                (cg) =>
+                                  cg.toLowerCase() === g.name.toLowerCase(),
+                              );
+                              return (
+                                <button
+                                  key={g.id}
+                                  type="button"
+                                  onClick={() => toggleGenre(g.name)}
+                                  className="relative flex w-full select-none items-center justify-between rounded-sm px-4 py-2 text-sm hover:bg-primary-border/60 text-left capitalize transition-colors"
+                                >
+                                  <span>{g.name.toLowerCase()}</span>
+                                  {isSelected && (
+                                    <Check className="h-4 w-4 text-primary-text" />
+                                  )}
+                                </button>
+                              );
+                            })
+                          )}
+                        </div>
+
+                        <div className="border-t border-primary-text/10 pt-1 pb-1 bg-primary-border/20">
+                          <button
+                            type="button"
+                            onClick={() => {
+                              setIsGenreDropdownOpen(false);
+                              setShowAddGenreModal(true);
+                            }}
+                            className="relative flex w-full select-none items-center gap-2 rounded-sm px-4 py-2 text-sm font-semibold text-primary-text hover:bg-primary-border/60 text-left transition-colors"
+                          >
+                            <Plus className="h-4 w-4" />
+                            Add New Genre...
+                          </button>
+                        </div>
+                      </div>
+                    )}
+                  </div>
+                  <FormMessage />
+                </FormItem>
+              );
+            }}
+          />
+
+          {/* Images */}
+          <FormField
+            control={form.control}
+            name="images"
+            render={() => (
+              <FormItem className="lg:col-span-2">
+                <FormLabel>Images</FormLabel>
+                <div className="border border-primary-text/20 min-h-28 rounded-md">
+                  <div className="flex gap-5">
+                    {images?.map((image, index) => (
+                      <Image
+                        key={index}
+                        src={image}
+                        alt="Product Image"
+                        width={100}
+                        height={100}
+                        className="w-20 h-20 object-cover object-center rounded-sm"
+                      />
+                    ))}
+                  </div>
+                  <FormControl className="upload-field">
+                    <UploadButton
+                      endpoint="imageUploader"
+                      onClientUploadComplete={(res: { url: string }[]) => {
+                        form.setValue("images", [...images, res[0].url]);
+                      }}
+                      onUploadError={(error: Error) => {
+                        toast.error(`Image Upload Failed: ${error}`);
+                      }}
+                    />
+                  </FormControl>
+                </div>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+          {/* is featured */}
+          <div className="flex items-center gap-10">
+            <p>Featured Product</p>
+            <FormField
+              control={form.control}
+              name="isFeatured"
+              render={({ field }) => (
+                <FormItem>
+                  {/* <FormLabel>Is Featured</FormLabel> */}
+
+                  <FormControl>
+                    <Checkbox
+                      checked={field.value ?? false}
+                      onCheckedChange={field.onChange}
+                    />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+          </div>
+          {/* Banner */}
+          {isFeatured && banner && (
+            <Image
+              src={banner}
+              alt="Banner"
+              width={100}
+              height={100}
+              className="w-20 h-20 object-cover object-center rounded-sm"
+            />
           )}
-        />
+          {isFeatured && !banner && (
+            <FormField
+              control={form.control}
+              name="banner"
+              render={() => (
+                <FormItem className="lg:col-span-2">
+                  <FormLabel>Banner</FormLabel>
+                  <FormControl className="upload-field border border-primary-text/20 min-h-28 rounded-md">
+                    <UploadButton
+                      endpoint="imageUploader"
+                      onClientUploadComplete={(res: { url: string }[]) => {
+                        form.setValue("banner", res[0].url);
+                      }}
+                      onUploadError={(error: Error) => {
+                        toast.error(`Banner Image Upload Failed: ${error}`);
+                      }}
+                    />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+          )}
 
-        <Button
-          type="submit"
-          disabled={form.formState.isSubmitting}
-          className="lg:col-span-2 bg-primary-text text-primary-bg font-semibold text-[15px] disabled:opacity-50"
-        >
-          {form.formState.isSubmitting ? "Saving..." : `${type} Product`}
-        </Button>
-      </form>
-    </Form>
+          <div className="grid gap-4 items-start">{/* Genres */}</div>
+
+          {/* Description */}
+          <FormField
+            control={form.control}
+            name="description"
+            render={({ field }) => (
+              <FormItem className="lg:col-span-2">
+                <FormLabel>Description</FormLabel>
+                <FormControl className="min-h-48">
+                  <Textarea
+                    placeholder="Description"
+                    {...field}
+                    value={field.value ?? ""}
+                  />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+          <div className="md:col-span-2 w-full flex justify-end gap-4 pt-2">
+            <Button
+              type="button"
+              variant="outline"
+              onClick={() => router.push("/admin/products")}
+              className="border border-primary-text/20 hover:bg-primary-border/20 text-[15px] px-6 py-2 rounded-lg"
+            >
+              Cancel
+            </Button>
+            <Button
+              type="submit"
+              disabled={form.formState.isSubmitting}
+              className="lg:col-span-2 bg-primary-text text-primary-bg font-semibold text-[15px] disabled:opacity-50"
+            >
+              {form.formState.isSubmitting ? "Saving..." : `${type} Product`}
+            </Button>
+          </div>
+        </form>
+      </Form>
       <Dialog open={showAddAuthorModal} onOpenChange={setShowAddAuthorModal}>
         <DialogContent className="bg-primary-bg max-w-2xl max-h-[90vh] overflow-y-auto border border-primary-text/20">
           <DialogHeader>
