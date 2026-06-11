@@ -8,31 +8,31 @@ import quote from "@/assets/images/quote.svg"
 import 'swiper/css';
 import 'swiper/css/pagination';
 import Image from 'next/image';
+import { getAllTestimonials } from '@/lib/actions/testimonial.action';
 
-const testimonials = [
-    {
-        name: "Anjali Menon",
-        description: "Absolutely loved the collection! The books are handpicked and the quality is top-notch."
-    },
-    {
-        name: "Rajeev Nair",
-        description: "A wonderful experience browsing through their latest arrivals. Highly recommended!"
-    },
-    {
-        name: "Sreelal Krishnan",
-        description: "The featured books section is perfect for discovering hidden gems. I found my new favorite here!"
-    },
-    {
-        name: "Shyam Sundar",
-        description: "Fast delivery, excellent packaging, and a fantastic selection. Can't ask for more."
-    },
-    {
-        name: "Nimna Vijay",
-        description: "A delightful reading experience. The descriptions helped me choose exactly what I wanted."
-    }
-];
+interface TestimonialItem {
+    id: string;
+    name: string;
+    description: string;
+}
 
 const Testimonial = () => {
+    const [testimonials, setTestimonials] = React.useState<TestimonialItem[]>([]);
+
+    React.useEffect(() => {
+        const fetchTestimonials = async () => {
+            const res = await getAllTestimonials({ page: 1, limit: 20 });
+            if (res.success && res.testimonials) {
+                setTestimonials(res.testimonials as any);
+            }
+        };
+        fetchTestimonials();
+    }, []);
+
+    if (testimonials.length === 0) {
+        return null; // hide if not loaded or empty
+    }
+
     return (
         <section className="wrapper py-16">
             <h2 className="font-extrabold text-[30px] text-center">
@@ -58,8 +58,8 @@ const Testimonial = () => {
                 }}
 
             >
-                {testimonials.map((item, index) => (
-                    <SwiperSlide key={index}>
+                {testimonials.map((item) => (
+                    <SwiperSlide key={item.id}>
                         <div className="bg-primary-border p-6 rounded-2xl grid items-center ">
                             <Image
                                 src={quote}

@@ -9,6 +9,7 @@ import {
   Home,
   LibraryBig,
   NotebookText,
+  MessageSquare,
 } from "lucide-react";
 import Link from "next/link";
 import { useState } from "react";
@@ -18,6 +19,7 @@ const menuItems = [
   { href: "/admin/products", label: "Products", icon: LibraryBig },
   { href: "/admin/authors", label: "Authors", icon: Feather },
   { href: "/admin/genres", label: "Genres", icon: NotebookText },
+  { href: "/admin/testimonials", label: "Testimonials", icon: MessageSquare },
   { href: "/admin/orders", label: "Orders", icon: BookA },
   { href: "/admin/users", label: "Users", icon: BookUser },
 ];

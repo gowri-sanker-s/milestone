@@ -4,6 +4,8 @@ import { prisma } from "@/lib/prisma";
 import { revalidatePath } from "next/cache";
 import z from "zod";
 import { insertProductSchema, updateProductSchema } from "../validators";
+import { syncAuthorsFromProducts } from "./author.action";
+import { syncGenresFromProducts } from "./genre.action";
 
 export async function getFeaturedProducts(options?: {
   isFeatured?: boolean;
@@ -95,7 +97,12 @@ export async function getAllProducts({
     const condition: any = {
       ...(query && { name: { contains: query, mode: "insensitive" as const } }),
       ...(genre && { genres: { has: genre } }),
-      ...(author && { author }),
+      ...(author && {
+        author: {
+          equals: author,
+          mode: "insensitive" as const,
+        },
+      }),
       ...(language && { language }),
     };
 
@@ -193,6 +200,12 @@ export async function updateProduct(data: z.infer<typeof updateProductSchema>) {
 // Get unique genres with counts
 export async function getUniqueGenresWithCount() {
   try {
+    await syncGenresFromProducts();
+
+    const dbGenres = await prisma.genre.findMany({
+      orderBy: { name: "asc" },
+    });
+
     const products = await prisma.product.findMany({
       select: {
         genres: true,
@@ -202,14 +215,18 @@ export async function getUniqueGenresWithCount() {
     const counts: Record<string, number> = {};
     products.forEach((product) => {
       product.genres.forEach((genre) => {
-        counts[genre] = (counts[genre] || 0) + 1;
+        const key = genre.trim();
+        counts[key.toLowerCase()] = (counts[key.toLowerCase()] || 0) + 1;
       });
     });
 
-    return Object.entries(counts).map(([name, count]) => ({
-      name,
-      count,
-    })).sort((a, b) => b.count - a.count);
+    return dbGenres.map((genre) => {
+      const lowerName = genre.name.trim().toLowerCase();
+      return {
+        name: genre.name,
+        count: counts[lowerName] || 0,
+      };
+    }).sort((a, b) => b.count - a.count);
   } catch (error) {
     console.error("getUniqueGenresWithCount error:", error);
     return [];
@@ -219,6 +236,12 @@ export async function getUniqueGenresWithCount() {
 // Get unique authors with counts and sample images
 export async function getUniqueAuthorsWithCount() {
   try {
+    await syncAuthorsFromProducts();
+
+    const dbAuthors = await prisma.author.findMany({
+      orderBy: { name: "asc" },
+    });
+
     const products = await prisma.product.findMany({
       select: {
         author: true,
@@ -226,48 +249,26 @@ export async function getUniqueAuthorsWithCount() {
       },
     });
 
-    const dbAuthors = await prisma.author.findMany();
-    const dbAuthorsMap = new Map(dbAuthors.map((a) => [a.name.toLowerCase(), a]));
+    const counts: Record<string, number> = {};
+    const firstProductImages: Record<string, string | null> = {};
 
-    const authorsData: Record<string, { count: number; image: string | null }> = {};
-    
-    // Add counts and default images from products
     products.forEach((product) => {
-      const author = product.author;
-      const matchedAuthor = dbAuthorsMap.get(author.toLowerCase());
-      const customImage = matchedAuthor?.image;
-
-      if (!authorsData[author]) {
-        authorsData[author] = { 
-          count: 0, 
-          image: customImage || product.images[0] || null 
-        };
-      }
-      authorsData[author].count += 1;
-    });
-
-    // Ensure all database-registered authors are represented (even if they have 0 books)
-    dbAuthors.forEach((dbAuthor) => {
-      const existingKey = Object.keys(authorsData).find(
-        (k) => k.toLowerCase() === dbAuthor.name.toLowerCase()
-      );
-      
-      if (!existingKey) {
-        authorsData[dbAuthor.name] = { 
-          count: 0, 
-          image: dbAuthor.image || null 
-        };
-      } else if (dbAuthor.image) {
-        // Prefer database author profile image over standard product cover image
-        authorsData[existingKey].image = dbAuthor.image;
+      const key = product.author.trim();
+      const lowerKey = key.toLowerCase();
+      counts[lowerKey] = (counts[lowerKey] || 0) + 1;
+      if (!firstProductImages[lowerKey] && product.images.length > 0) {
+        firstProductImages[lowerKey] = product.images[0];
       }
     });
 
-    return Object.entries(authorsData).map(([name, data]) => ({
-      name,
-      count: data.count,
-      image: data.image,
-    })).sort((a, b) => a.name.localeCompare(b.name));
+    return dbAuthors.map((author) => {
+      const lowerName = author.name.trim().toLowerCase();
+      return {
+        name: author.name,
+        image: author.image || firstProductImages[lowerName] || null,
+        count: counts[lowerName] || 0,
+      };
+    }).sort((a, b) => a.name.localeCompare(b.name));
   } catch (error) {
     console.error("getUniqueAuthorsWithCount error:", error);
     return [];
