@@ -2,16 +2,20 @@
 
 import React, { useState } from "react";
 import { useRouter, usePathname, useSearchParams } from "next/navigation";
-import { Eye, Plus, Search } from "lucide-react";
+import { Eye, Plus } from "lucide-react";
 import { formatId } from "@/lib/utils";
 import { funnel } from "@/lib/fonts";
 import DeleteDialogue from "@/components/shared/delete-dialogue";
 import Pagination from "@/components/shared/Pagination";
 import Image from "next/image";
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
 import AuthorForm from "@/components/admin/author-form";
 import { deleteAuthor } from "@/lib/actions/author.action";
-import { Input } from "@/components/ui/input";
 
 interface Author {
   id: string;
@@ -41,23 +45,7 @@ const AuthorsTable = ({
 
   const [isCreateOpen, setIsCreateOpen] = useState(false);
   const [editingAuthor, setEditingAuthor] = useState<Author | null>(null);
-  const [searchVal, setSearchVal] = useState(initialSearchText);
-
-  // Handle live search with query parameters
-  const handleSearchSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
-    const params = new URLSearchParams(searchParams.toString());
-    if (searchVal) {
-      params.set("query", searchVal);
-    } else {
-      params.delete("query");
-    }
-    params.set("page", "1");
-    router.push(`${pathname}?${params.toString()}`);
-  };
-
   const handleClearFilters = () => {
-    setSearchVal("");
     const params = new URLSearchParams(searchParams.toString());
     params.delete("query");
     params.set("page", "1");
@@ -76,39 +64,28 @@ const AuthorsTable = ({
 
   return (
     <div>
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-        {/* Search & Filter bar */}
-        <form onSubmit={handleSearchSubmit} className="flex gap-2 items-center flex-1 max-w-md">
-          <div className="relative w-full">
-            <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 opacity-50" />
-            <Input
-              type="text"
-              placeholder="Search authors..."
-              value={searchVal}
-              onChange={(e) => setSearchVal(e.target.value)}
-              className="pl-9 pr-4"
-            />
-          </div>
-          <button
-            type="submit"
-            className="bg-primary-text text-primary-bg font-semibold text-[14px] p-2 px-4 rounded-md hover:opacity-90 transition shrink-0"
-          >
-            Search
-          </button>
+      <div className="flex items-center justify-between gap-4">
+        <div className="flex gap-2 items-center">
+          <h1 className="text-2xl font-bold  text-primary-text">Authors</h1>
           {initialSearchText && (
-            <button
-              type="button"
-              onClick={handleClearFilters}
-              className="text-xs border border-primary-text/30 p-2 px-3 rounded-md hover:bg-primary-border/20 transition shrink-0 whitespace-nowrap"
-            >
-              Clear
-            </button>
+            <>
+              <p className="text-md text-primary-text/70">
+                <sub>Showing results for "{initialSearchText}"</sub>
+              </p>
+              <button
+                type="button"
+                onClick={handleClearFilters}
+                className="text-xs border border-primary-text/30 p-1 px-2 rounded-full hover:bg-primary-border/20 transition"
+              >
+                Clear Filters
+              </button>
+            </>
           )}
-        </form>
+        </div>
 
         <button
           onClick={() => setIsCreateOpen(true)}
-          className="bg-primary-text text-primary-bg font-semibold text-[15px] p-2 px-4 rounded-md flex gap-2 items-center hover:opacity-90 transition self-end sm:self-auto"
+          className="bg-primary-text text-primary-bg font-semibold text-[15px] p-2 px-4 rounded-md flex gap-2 items-center hover:opacity-90 transition"
         >
           <Plus size={14} strokeWidth={1.5} />
           Add Author
@@ -120,11 +97,21 @@ const AuthorsTable = ({
         <table className="w-full border-collapse">
           <thead className="bg-primary-border">
             <tr>
-              <th className="px-6 py-3 text-left text-sm font-semibold uppercase tracking-wider">Image</th>
-              <th className="px-6 py-3 text-left text-sm font-semibold uppercase tracking-wider">Author ID</th>
-              <th className="px-6 py-3 text-left text-sm font-semibold uppercase tracking-wider">Name</th>
-              <th className="px-6 py-3 text-left text-sm font-semibold uppercase tracking-wider">Biography</th>
-              <th className="px-6 py-3 text-left text-sm font-semibold uppercase tracking-wider">Actions</th>
+              <th className="px-6 py-3 text-left text-sm font-semibold uppercase tracking-wider">
+                Image
+              </th>
+              <th className="px-6 py-3 text-left text-sm font-semibold uppercase tracking-wider">
+                Author ID
+              </th>
+              <th className="px-6 py-3 text-left text-sm font-semibold uppercase tracking-wider">
+                Name
+              </th>
+              <th className="px-6 py-3 text-left text-sm font-semibold uppercase tracking-wider">
+                Biography
+              </th>
+              <th className="px-6 py-3 text-left text-sm font-semibold uppercase tracking-wider">
+                Actions
+              </th>
             </tr>
           </thead>
           <tbody className="divide-y divide-primary-text/10">
@@ -166,7 +153,11 @@ const AuthorsTable = ({
                     {author.name.toLowerCase()}
                   </td>
                   <td className="px-6 py-4 text-sm text-primary-text/80 max-w-md truncate">
-                    {author.bio || <span className="italic text-primary-text/40">No biography provided.</span>}
+                    {author.bio || (
+                      <span className="italic text-primary-text/40">
+                        No biography provided.
+                      </span>
+                    )}
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap text-sm font-normal">
                     <div className="flex gap-2 items-center">
@@ -189,7 +180,11 @@ const AuthorsTable = ({
 
       {totalPages > 1 && (
         <div className="mt-6">
-          <Pagination page={currentPage} totalPages={totalPages} urlParamName="page" />
+          <Pagination
+            page={currentPage}
+            totalPages={totalPages}
+            urlParamName="page"
+          />
         </div>
       )}
 
@@ -210,7 +205,10 @@ const AuthorsTable = ({
       </Dialog>
 
       {/* EDIT AUTHOR MODAL */}
-      <Dialog open={!!editingAuthor} onOpenChange={(open) => !open && setEditingAuthor(null)}>
+      <Dialog
+        open={!!editingAuthor}
+        onOpenChange={(open) => !open && setEditingAuthor(null)}
+      >
         <DialogContent className="bg-primary-bg max-w-2xl max-h-[90vh] overflow-y-auto border border-primary-text/20">
           <DialogHeader>
             <DialogTitle>Update Author</DialogTitle>

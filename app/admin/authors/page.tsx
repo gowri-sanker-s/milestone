@@ -1,6 +1,9 @@
 import React from "react";
 import { Metadata } from "next";
-import { getAllAuthors, syncAuthorsFromProducts } from "@/lib/actions/author.action";
+import {
+  getAllAuthors,
+  syncAuthorsFromProducts,
+} from "@/lib/actions/author.action";
 import AuthorsTable from "@/components/admin/authors-table";
 
 export const metadata: Metadata = {
@@ -28,7 +31,6 @@ const AdminAuthorsPage = async (props: AuthorsPageProps) => {
 
   return (
     <div>
-      <h1 className="text-2xl font-bold mb-6 text-primary-text">Authors</h1>
       <AuthorsTable
         authors={authors as any}
         totalPages={totalPages}

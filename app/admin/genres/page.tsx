@@ -28,7 +28,6 @@ const AdminGenresPage = async (props: GenresPageProps) => {
 
   return (
     <div>
-      <h1 className="text-2xl font-bold mb-6 text-primary-text">Genres</h1>
       <GenresTable
         genres={genres as any}
         totalPages={totalPages}
