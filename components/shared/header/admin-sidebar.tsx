@@ -11,6 +11,7 @@ import {
   NotebookText,
   MessageSquare,
   Bookmark,
+  Sparkles,
 } from "lucide-react";
 import Link from "next/link";
 import { useState } from "react";
@@ -19,6 +20,7 @@ const menuItems = [
   { href: "/admin/overview", label: "Overview", icon: Home },
   { href: "/admin/products", label: "Products", icon: LibraryBig },
   { href: "/admin/bookmarks", label: "Bookmarks", icon: Bookmark },
+  { href: "/admin/combos", label: "Combo Offers", icon: Sparkles },
   { href: "/admin/authors", label: "Authors", icon: Feather },
   { href: "/admin/genres", label: "Genres", icon: NotebookText },
   { href: "/admin/testimonials", label: "Testimonials", icon: MessageSquare },

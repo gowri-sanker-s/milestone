@@ -35,6 +35,7 @@ model Product {
   kind   String @default("book")
   height Float?
   width  Float?
+  bookIds String[]
 
   createdAt DateTime @default(now()) @db.Timestamp(6)
   orderItem OrderItem[]

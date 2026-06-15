@@ -28,7 +28,15 @@ export async function addItemToCart(data: CartItem) {
     if (!sessionCartId) throw new Error("Cart Session not found");
 
     const session = await auth();
-    const userId = session?.user?.id;
+    let userId = session?.user?.id;
+    if (userId) {
+      const userExists = await prisma.user.findUnique({
+        where: { id: userId },
+      });
+      if (!userExists) {
+        userId = undefined;
+      }
+    }
 
     const item = cartItemSchema.parse(data);
 
@@ -237,7 +245,15 @@ export async function getMyCart() {
 
     // get session and user ID
     const session = await auth();
-    const userId = session?.user?.id ? (session.user.id as string) : undefined;
+    let userId = session?.user?.id ? (session.user.id as string) : undefined;
+    if (userId) {
+      const userExists = await prisma.user.findUnique({
+        where: { id: userId },
+      });
+      if (!userExists) {
+        userId = undefined;
+      }
+    }
 
     // get user cart from db
     const cart = await prisma.cart.findFirst({

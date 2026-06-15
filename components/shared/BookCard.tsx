@@ -25,7 +25,7 @@ const BookCard = ({ data, cart }: BookCardProps) => {
       </div>
       <div className="details grid pt-4 flex-1">
         <p className="text-[13px] capitalize leading-tight">
-          {String(data.author).toLocaleLowerCase()}
+          {data.author ? String(data.author).toLocaleLowerCase() : (data.kind === "combo" ? "combo offer" : "")}
         </p>
         <h3 className="font-extrabold text-[19px] leading-tight">
           {data.name}

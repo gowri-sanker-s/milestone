@@ -169,3 +169,22 @@ export const insertBookmarkSchema = z.object({
 export const updateBookmarkSchema = insertBookmarkSchema.extend({
   id: z.string().min(1, "ID is required"),
 });
+
+// schemas for combo CRUD
+export const insertComboSchema = z.object({
+  name: z.string().min(3, "Name must be at least 3 characters"),
+  title: z.string().min(3, "Title must be at least 3 characters"),
+  slug: z.string().min(1, "Slug must be at least 1"),
+  description: z.string().min(1, "Description must be at least 1"),
+  price: z.coerce.number().min(1, "Price must be at least 1"),
+  stock: z.coerce.number().min(0, "Stock must be at least 0"),
+  images: z.array(z.string()).min(1, "Image must be at least 1"),
+  bookIds: z.array(z.string()).default([]),
+  kind: z.literal("combo").default("combo"),
+  isFeatured: z.boolean().optional(),
+  banner: z.string().optional().nullable(),
+});
+
+export const updateComboSchema = insertComboSchema.extend({
+  id: z.string().min(1, "ID is required"),
+});

@@ -117,7 +117,7 @@ export async function getAllProducts({
       } else if (category === "best-sellers") {
         condition.rating = { gte: 4.5 };
       } else if (category === "combo-offers") {
-        condition.price = { gte: 250 };
+        condition.kind = "combo";
       }
     }
 
@@ -320,7 +320,7 @@ export async function getCategoryCounts() {
       prisma.product.count({ where: { isFeatured: true } }),
       prisma.product.count(),
       prisma.product.count({ where: { rating: { gte: 4.5 } } }),
-      prisma.product.count({ where: { price: { gte: 250 } } }),
+      prisma.product.count({ where: { kind: "combo" } }),
     ]);
 
     return {

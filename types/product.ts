@@ -23,5 +23,6 @@
     kind?: string;
     height?: number | null;
     width?: number | null;
+    bookIds?: string[];
   };
   
