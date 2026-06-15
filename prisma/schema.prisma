@@ -20,10 +20,10 @@ model Product {
   images String[]
   genres String[]
 
-  author   String
-  language String
+  author   String?
+  language String?
 
-  pages Int
+  pages Int?
   stock Int
 
   rating       Float @default(0)
@@ -31,6 +31,10 @@ model Product {
 
   isFeatured Boolean @default(false)
   banner     String?
+
+  kind   String @default("book")
+  height Float?
+  width  Float?
 
   createdAt DateTime @default(now()) @db.Timestamp(6)
   orderItem OrderItem[]

@@ -40,6 +40,7 @@ export const insertProductSchema = z.object({
   images: z.array(z.string()).min(1, "Image must be at least 1"),
   isFeatured: z.boolean().optional(),
   banner: z.string().optional(),
+  kind: z.literal("book").default("book").optional(),
 });
 
 // update productschema
@@ -146,5 +147,25 @@ export const insertTestimonialSchema = z.object({
 });
 
 export const updateTestimonialSchema = insertTestimonialSchema.extend({
+  id: z.string().min(1, "ID is required"),
+});
+
+// schemas for bookmark CRUD
+export const insertBookmarkSchema = z.object({
+  name: z.string().min(3, "Name must be at least 3 characters"),
+  title: z.string().min(3, "Title must be at least 3 characters"),
+  slug: z.string().min(1, "Slug must be at least 1"),
+  description: z.string().min(1, "Description must be at least 1"),
+  price: z.coerce.number().min(1, "Price must be at least 1"),
+  stock: z.coerce.number().min(0, "Stock must be at least 0"),
+  images: z.array(z.string()).min(1, "Image must be at least 1"),
+  height: z.coerce.number().min(0.1, "Height must be positive"),
+  width: z.coerce.number().min(0.1, "Width must be positive"),
+  kind: z.literal("bookmark").default("bookmark"),
+  isFeatured: z.boolean().optional(),
+  banner: z.string().optional(),
+});
+
+export const updateBookmarkSchema = insertBookmarkSchema.extend({
   id: z.string().min(1, "ID is required"),
 });

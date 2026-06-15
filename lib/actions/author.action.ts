@@ -222,6 +222,10 @@ export async function deleteAuthor(id: string) {
 export async function syncAuthorsFromProducts() {
   try {
     const products = await prisma.product.findMany({
+      where: {
+        kind: "book",
+        author: { not: null },
+      },
       select: {
         author: true,
         images: true,
@@ -230,7 +234,7 @@ export async function syncAuthorsFromProducts() {
 
     const uniqueAuthors = new Map<string, string | null>();
     products.forEach((product) => {
-      if (!uniqueAuthors.has(product.author)) {
+      if (product.author && !uniqueAuthors.has(product.author)) {
         uniqueAuthors.set(product.author, product.images[0] || null);
       }
     });

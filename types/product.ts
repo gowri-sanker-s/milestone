@@ -11,14 +11,17 @@
     price: number;   
     images: string[];
     genres: string[];
-    author: string;
-    language: string;
-    pages: number;
+    author: string | null;
+    language: string | null;
+    pages: number | null;
     stock: number;
     rating: number;
     reviewsCount: number;
     isFeatured: boolean;
     banner: string | null;
     createdAt: string; // or Date if you parse it
+    kind?: string;
+    height?: number | null;
+    width?: number | null;
   };
   

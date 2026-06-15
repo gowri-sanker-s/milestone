@@ -8,6 +8,7 @@ import {
   Home,
   LibraryBig,
   NotebookText,
+  Bookmark,
 } from "lucide-react";
 import Link from "next/link";
 import { useState } from "react";
@@ -15,6 +16,7 @@ import { motion, AnimatePresence, Variants } from "framer-motion";
 const menuItems = [
   { href: "/", label: "Home", icon: Home },
   { href: "/books", label: "All Books", icon: LibraryBig },
+  { href: "/bookmarks", label: "Bookmarks", icon: Bookmark },
   {
     href: "/books/genres",
     label: "Browse Books by Genre",

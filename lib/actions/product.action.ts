@@ -10,10 +10,12 @@ import { syncGenresFromProducts } from "./genre.action";
 export async function getFeaturedProducts(options?: {
   isFeatured?: boolean;
   take?: number;
+  kind?: string;
 }) {
   try {
     const data = await prisma.product.findMany({
       where: {
+        kind: options?.kind ?? "book",
         ...(options?.isFeatured !== undefined && {
           isFeatured: options.isFeatured,
         }),
@@ -82,6 +84,7 @@ export async function getAllProducts({
   author,
   language,
   category,
+  kind = "book",
 }: {
   query?: string;
   limit?: number;
@@ -90,11 +93,13 @@ export async function getAllProducts({
   author?: string;
   language?: string;
   category?: string;
+  kind?: string;
 }) {
   try {
     const skipAmount = (Number(page) - 1) * limit;
 
     const condition: any = {
+      kind,
       ...(query && { name: { contains: query, mode: "insensitive" as const } }),
       ...(genre && { genres: { has: genre } }),
       ...(author && {
@@ -243,6 +248,10 @@ export async function getUniqueAuthorsWithCount() {
     });
 
     const products = await prisma.product.findMany({
+      where: {
+        kind: "book",
+        author: { not: null },
+      },
       select: {
         author: true,
         images: true,
@@ -253,6 +262,7 @@ export async function getUniqueAuthorsWithCount() {
     const firstProductImages: Record<string, string | null> = {};
 
     products.forEach((product) => {
+      if (!product.author) return;
       const key = product.author.trim();
       const lowerKey = key.toLowerCase();
       counts[lowerKey] = (counts[lowerKey] || 0) + 1;
@@ -279,13 +289,21 @@ export async function getUniqueAuthorsWithCount() {
 export async function getUniqueLanguages() {
   try {
     const products = await prisma.product.findMany({
+      where: {
+        kind: "book",
+        language: { not: null },
+      },
       select: {
         language: true,
       },
     });
 
     const uniqueLanguages = Array.from(
-      new Set(products.map((product) => product.language).filter(Boolean))
+      new Set(
+        products
+          .map((product) => product.language)
+          .filter((l): l is string => !!l)
+      )
     );
 
     return uniqueLanguages.sort();
