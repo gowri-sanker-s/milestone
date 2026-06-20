@@ -174,23 +174,27 @@ const Page = async ({ params }: Props) => {
             </div>
           )}
 
-          <p className=" py-5 text-[15px] font-semibold opacity-60 leading-1 text-primary-bg uppercase">
-            Product Images
-          </p>
-          <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6 pt-5">
-            {product.images.map((image, index) => (
-              <div
-                key={index}
-                className="img-container rounded-2xl overflow-clip w-[250px] h-[400px]"
-              >
-                <img
-                  src={image}
-                  alt={product.name}
-                  className="img aspect-[9/16]"
-                />
+          {product.kind !== "combo" && (
+            <>
+              <p className=" py-5 text-[15px] font-semibold opacity-60 leading-1 text-primary-bg uppercase">
+                Product Images
+              </p>
+              <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6 pt-5">
+                {product.images.map((image, index) => (
+                  <div
+                    key={index}
+                    className="img-container rounded-2xl overflow-clip w-[250px] h-[400px]"
+                  >
+                    <img
+                      src={image}
+                      alt={product.name}
+                      className="img aspect-[9/16]"
+                    />
+                  </div>
+                ))}
               </div>
-            ))}
-          </div>
+            </>
+          )}
         </div>
       </div>
     </div>

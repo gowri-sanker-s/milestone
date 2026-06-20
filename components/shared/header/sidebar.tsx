@@ -1,7 +1,6 @@
 "use client";
 
 import {
-  BookA,
   BookHeadphones,
   BookUser,
   Headset,
@@ -9,9 +8,13 @@ import {
   LibraryBig,
   NotebookText,
   Bookmark,
+  Sparkles,
+  BookOpen,
+  Heart,
+  Compass,
 } from "lucide-react";
 import Link from "next/link";
-import { useState } from "react";
+import { useState, useEffect, useRef } from "react";
 import { motion, AnimatePresence, Variants } from "framer-motion";
 const menuItems = [
   { href: "/", label: "Home", icon: Home },
@@ -22,7 +25,10 @@ const menuItems = [
     label: "Browse Books by Genre",
     icon: BookHeadphones,
   },
-  { href: "/books/categories", label: "Browse Books by Category", icon: BookA },
+  { href: "/featured", label: "Featured Books", icon: Sparkles },
+  { href: "/new-arrivals", label: "New Arrivals", icon: BookOpen },
+  { href: "/best-sellers", label: "Best Sellers", icon: Heart },
+  { href: "/combos", label: "Combo Offers", icon: Compass },
   { href: "/books/authors", label: "Browse Books by Author", icon: BookUser },
   { href: "/about-us", label: "About", icon: NotebookText },
   { href: "/contact-us", label: "Contact", icon: Headset },
@@ -67,10 +73,34 @@ const itemVariants: Variants = {
 
 const Sidebar = () => {
   const [openSidebar, setOpenSidebar] = useState(false);
+  const sidebarRef = useRef<HTMLElement>(null);
+  const buttonRef = useRef<HTMLButtonElement>(null);
+
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (
+        sidebarRef.current &&
+        !sidebarRef.current.contains(event.target as Node) &&
+        buttonRef.current &&
+        !buttonRef.current.contains(event.target as Node)
+      ) {
+        setOpenSidebar(false);
+      }
+    };
+
+    if (openSidebar) {
+      document.addEventListener("mousedown", handleClickOutside);
+    }
+
+    return () => {
+      document.removeEventListener("mousedown", handleClickOutside);
+    };
+  }, [openSidebar]);
 
   return (
     <div className="">
       <button
+        ref={buttonRef}
         type="button"
         aria-label="Toggle menu"
         onClick={() => setOpenSidebar((prev) => !prev)}
@@ -99,13 +129,24 @@ const Sidebar = () => {
       </button>
       <AnimatePresence>
         {openSidebar && (
-          <motion.aside
-            variants={sidebarVariants}
-            initial="hidden"
-            animate="visible"
-            exit="exit"
-            className="fixed top-[61.5px] left-0 z-50 h-full w-full md:w-[40%] lg:w-1/4 bg-primary-border"
-          >
+          <>
+            {/* Backdrop */}
+            <motion.div
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              transition={{ duration: 0.2 }}
+              className="fixed inset-0 top-[61.5px] bg-black/20 backdrop-blur-xs z-40"
+              onClick={() => setOpenSidebar(false)}
+            />
+            <motion.aside
+              ref={sidebarRef}
+              variants={sidebarVariants}
+              initial="hidden"
+              animate="visible"
+              exit="exit"
+              className="fixed top-[61.5px] left-0 z-50 h-full w-full md:w-[40%] lg:w-1/4 bg-primary-border"
+            >
             <div className="grid place-items-center py-16">
               <motion.ul className="grid gap-10 text-[15px] sm:text-[16px] lg:text-[18px] font-semibold">
                 {menuItems.map((item) => {
@@ -130,6 +171,7 @@ const Sidebar = () => {
               </motion.ul>
             </div>
           </motion.aside>
+          </>
         )}
       </AnimatePresence>
     </div>

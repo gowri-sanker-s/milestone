@@ -68,3 +68,9 @@ select {
 .text-destructive {
   color: rgb(187, 1, 1) !important;
 }
+
+/* Modern browsers */
+::selection {
+  background-color: #442917; /* Highlights background */
+  color: #ffffff; /* Changes text color */
+}
