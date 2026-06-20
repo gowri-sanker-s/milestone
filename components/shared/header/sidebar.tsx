@@ -136,7 +136,7 @@ const Sidebar = () => {
               animate={{ opacity: 1 }}
               exit={{ opacity: 0 }}
               transition={{ duration: 0.2 }}
-              className="fixed inset-0 top-[61.5px] bg-black/20 backdrop-blur-xs z-40"
+              className="fixed inset-0 top-[61.5px] h-[calc(100vh-61px)] bg-black/20 backdrop-blur-xs z-40"
               onClick={() => setOpenSidebar(false)}
             />
             <motion.aside
@@ -145,32 +145,32 @@ const Sidebar = () => {
               initial="hidden"
               animate="visible"
               exit="exit"
-              className="fixed top-[61.5px] left-0 z-50 h-full w-full md:w-[40%] lg:w-1/4 bg-primary-border"
+              className="fixed top-[61.5px] h-[calc(100vh-61px)] left-0 z-50 w-full md:w-[40%] lg:w-1/4 bg-primary-border overflow-scroll"
             >
-            <div className="grid place-items-center py-16">
-              <motion.ul className="grid gap-10 text-[15px] sm:text-[16px] lg:text-[18px] font-semibold">
-                {menuItems.map((item) => {
-                  const Icon = item.icon;
-                  return (
-                    <motion.li
-                      key={item.href}
-                      variants={itemVariants}
-                      whileHover={{ x: 6 }}
-                    >
-                      <Link
-                        href={item.href}
-                        onClick={() => setOpenSidebar(false)}
-                        className="flex items-center gap-2 font-normal"
+              <div className="grid place-items-center py-16">
+                <motion.ul className="grid gap-10 text-[15px] sm:text-[16px] lg:text-[18px] font-semibold">
+                  {menuItems.map((item) => {
+                    const Icon = item.icon;
+                    return (
+                      <motion.li
+                        key={item.href}
+                        variants={itemVariants}
+                        whileHover={{ x: 6 }}
                       >
-                        <Icon size={22} strokeWidth={1.5} />
-                        {item.label}
-                      </Link>
-                    </motion.li>
-                  );
-                })}
-              </motion.ul>
-            </div>
-          </motion.aside>
+                        <Link
+                          href={item.href}
+                          onClick={() => setOpenSidebar(false)}
+                          className="flex items-center gap-2 font-normal"
+                        >
+                          <Icon size={22} strokeWidth={1.5} />
+                          {item.label}
+                        </Link>
+                      </motion.li>
+                    );
+                  })}
+                </motion.ul>
+              </div>
+            </motion.aside>
           </>
         )}
       </AnimatePresence>
