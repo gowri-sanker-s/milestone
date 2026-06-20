@@ -19,12 +19,12 @@ const ShippingAddressPage = async () => {
 
   const session = await auth();
   if (!session?.user?.id) {
-    throw new Error("No User ID");
+    redirect("/sign-in?callbackUrl=/shipping-address");
   }
 
   const user = await getUserById(session.user.id);
   if (!user) {
-    throw new Error("No User");
+    redirect("/sign-in?callbackUrl=/shipping-address");
   }
 
   return (

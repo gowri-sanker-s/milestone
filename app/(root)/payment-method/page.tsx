@@ -11,9 +11,13 @@ export const metadata: Metadata = {
 };
 const PaymentMethodPage = async () => {
   const session = await auth();
-  if (!session?.user?.id) throw new Error("User Not Found");
+  if (!session?.user?.id) {
+    redirect("/sign-in?callbackUrl=/payment-method");
+  }
   const user = await getUserById(session.user.id);
-  if (!user) throw new Error("User Not Found");
+  if (!user) {
+    redirect("/sign-in?callbackUrl=/payment-method");
+  }
 
   return (
     <div className="wrapper my-10 w-[75%] mx-auto">

@@ -5,6 +5,7 @@ import { redirect } from "next/navigation";
 import { SignUpForm } from "./SignUpForm";
 import Image from "next/image";
 import signUp from "@/assets/images/sign-up.png";
+import { getUserById } from "@/lib/actions/user.action";
 
 export const metadata: Metadata = {
   title: `Sign Up`,
@@ -15,8 +16,11 @@ const page = async (props: {
 }) => {
   const session = await auth();
   const { callbackUrl } = await props.searchParams;
-  if (session) {
-    redirect(callbackUrl || "/");
+  if (session?.user?.id) {
+    const user = await getUserById(session.user.id);
+    if (user) {
+      redirect(callbackUrl || "/");
+    }
   }
   return (
     <div>

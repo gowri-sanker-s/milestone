@@ -19,9 +19,14 @@ const PlaceOrderPage = async () => {
   const cart = await getMyCart();
   const session = await auth();
 
-  if (!session?.user?.id) throw new Error("User Not Found");
+  if (!session?.user?.id) {
+    redirect("/sign-in?callbackUrl=/place-order");
+  }
 
   const user = await getUserById(session.user.id);
+  if (!user) {
+    redirect("/sign-in?callbackUrl=/place-order");
+  }
 
   if (!cart || cart?.items.length === 0) redirect("/cart");
   if (!user?.address) redirect("/shipping-address");
