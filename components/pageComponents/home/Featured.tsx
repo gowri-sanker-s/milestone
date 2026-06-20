@@ -7,7 +7,7 @@ import { getMyCart } from "@/lib/actions/cart.action";
 import BookCard from "@/components/shared/BookCard";
 const Featured = async () => {
   const latestProducts: ProductType[] = await getFeaturedProducts({
-    isFeatured: true,
+    isFeatured: false,
   });
 
   const cart = await getMyCart();
@@ -16,7 +16,7 @@ const Featured = async () => {
     <>
       <div className="wrapper py-10">
         <h2 className="font-extrabold text-[30px] text-center">
-          Featured Books
+          Books Collection
         </h2>
         <p className="md:max-w-[70%] mx-auto text-center py-3">
           Explore our handpicked collection of bestsellers, latest arrivals, and
@@ -36,4 +36,3 @@ const Featured = async () => {
 };
 
 export default Featured;
-
