@@ -1,15 +1,25 @@
 "use client";
 
-import {
-  updateCODOrderToDelivered,
-  updateCODOrderToPaid,
-} from "@/lib/actions/order.action";
+import { updateCODOrderToPaid } from "@/lib/actions/order.action";
 import { funnel } from "@/lib/fonts";
 import { formatCurrency, formatDate, formatId } from "@/lib/utils";
 import { Order } from "@/types";
 import Image from "next/image";
+import truck from "@/assets/icons/deliveryTruck.svg";
 import React, { useState, useTransition } from "react";
 import { toast } from "sonner";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from "@/components/ui/dialog";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Button } from "@/components/ui/button";
 
 const OrderDetailsTable = ({
   order,
@@ -35,6 +45,24 @@ const OrderDetailsTable = ({
     shippingAddress,
   } = order;
   const [isDeliveredUpdate, setIsDeliveredUpdate] = useState(isDelivered);
+  const [trackingNumber, setTrackingNumber] = useState("");
+  const [orderNumber, setOrderNumber] = useState(id);
+  const [isTrackingModalOpen, setIsTrackingModalOpen] = useState(false);
+  const [isTrackingPending, setIsTrackingPending] = useState(false);
+
+  const handleTrackOrder = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!trackingNumber.trim()) {
+      toast.error("Please enter a tracking number");
+      return;
+    }
+    setIsTrackingPending(true);
+    setTimeout(() => {
+      setIsTrackingPending(false);
+      setIsTrackingModalOpen(false);
+      toast.success("Tracking query sent. Clickpost integration coming soon!");
+    }, 1200);
+  };
 
   const MarkAsPaidButton = () => {
     const [isPending, startTransition] = useTransition();
@@ -55,28 +83,6 @@ const OrderDetailsTable = ({
         className="w-fit bg-primary-text text-white px-4 py-2 rounded-md mt-5"
       >
         {isPending ? "Processing" : "Mark as paid"}
-      </button>
-    );
-  };
-  const MarkAsDeliveredButton = () => {
-    const [isPending, startTransition] = useTransition();
-    return (
-      <button
-        type="button"
-        disabled={isPending}
-        onClick={() =>
-          startTransition(async () => {
-            const res = await updateCODOrderToDelivered(id);
-            if (res.success) {
-              toast.success(res.message);
-            } else {
-              toast.error(res.message);
-            }
-          })
-        }
-        className="w-fit bg-primary-text text-white px-4 py-2 rounded-md mt-5"
-      >
-        {isPending ? "processing..." : "Mark as delivered"}
       </button>
     );
   };
@@ -210,7 +216,81 @@ const OrderDetailsTable = ({
             {isAdmin && !isPaid && paymentMethod === "CashOnDelivery" && (
               <MarkAsPaidButton />
             )}
-            {isAdmin && isPaid && !isDelivered && <MarkAsDeliveredButton />}
+
+            <Dialog
+              open={isTrackingModalOpen}
+              onOpenChange={setIsTrackingModalOpen}
+            >
+              <DialogTrigger asChild>
+                <button
+                  type="button"
+                  className="w-full bg-primary-text text-white px-4 py-2.5 rounded-md mt-4 font-semibold text-center hover:opacity-90 transition-opacity"
+                >
+                  Track your order
+                </button>
+              </DialogTrigger>
+              <DialogContent className="min-w-[80%] max-w-[1440px] min-h-[80vh] bg-primary-bg flex flex-col border-none">
+                <div className="top">
+                  <DialogHeader>
+                    <DialogTitle
+                      className={`${funnel.className} text-xl font-bold`}
+                    >
+                      Track Your Order
+                    </DialogTitle>
+                    <DialogDescription>
+                      Enter your tracking and order details to track your
+                      package delivery status.
+                    </DialogDescription>
+                  </DialogHeader>
+                  <form
+                    onSubmit={handleTrackOrder}
+                    className="space-y-4 py-2 flex items-center gap-3"
+                  >
+                    <div className="space-y-1.5 flex-1">
+                      <Label htmlFor="orderNumber">Order Number</Label>
+                      <Input
+                        id="orderNumber"
+                        type="text"
+                        placeholder="Enter order number"
+                        value={orderNumber}
+                        onChange={(e) => setOrderNumber(e.target.value)}
+                        required
+                      />
+                    </div>
+                    <div className="space-y-1.5 flex-1">
+                      <Label htmlFor="trackingNumber">Tracking Number</Label>
+                      <Input
+                        id="trackingNumber"
+                        type="text"
+                        placeholder="Enter tracking ID"
+                        value={trackingNumber}
+                        onChange={(e) => setTrackingNumber(e.target.value)}
+                        required
+                      />
+                    </div>
+                    <DialogFooter className=" bg-primary-text rounded-md text-primary-bg">
+                      <Button
+                        type="submit"
+                        disabled={isTrackingPending}
+                        className="w-full font-semibold"
+                      >
+                        {isTrackingPending ? "Searching..." : "Track Package"}
+                      </Button>
+                    </DialogFooter>
+                  </form>
+                </div>
+                <div className="flex-1 border border-dashed border-primary-text/30 rounded-md h-full w-full grid place-items-center">
+                  <div className="flex flex-col justify-center items-center">
+                    <div className="img-container h-[90px] w-[90px]">
+                      <Image src={truck} alt="" className="icon" />
+                    </div>
+                    <p className="text-center opacity-50 text-sm">
+                      Enter tracking/order number to view details
+                    </p>
+                  </div>
+                </div>
+              </DialogContent>
+            </Dialog>
           </div>
         </div>
       </div>
