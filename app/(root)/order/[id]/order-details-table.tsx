@@ -43,7 +43,10 @@ const OrderDetailsTable = ({
     totalPrice,
     paymentMethod,
     shippingAddress,
+    paymentResult,
   } = order;
+  const parsedPaymentResult = paymentResult as { state?: string } | null;
+  const isPaymentFailed = parsedPaymentResult?.state === "FAILED";
   const [isDeliveredUpdate, setIsDeliveredUpdate] = useState(isDelivered);
   const [trackingNumber, setTrackingNumber] = useState("");
   const [orderNumber, setOrderNumber] = useState(id);
@@ -296,68 +299,108 @@ const OrderDetailsTable = ({
       </div>
 
       {/* payment-method and shipping address */}
-      <div className="grid grid-cols-[1.5fr_2fr] gap-5 mt-10">
-        <div className="border rounded-2xl border-primary-text/20 p-5 relative">
-          <div className="flex justify-between items-start gap-10">
-            <h3 className={`${funnel.className} text-[25px] font-semibold`}>
-              Payment Method
-            </h3>
-            <div className="flex items-center gap-2">
+      <div className="grid grid-cols-1 md:grid-cols-[1fr_1.5fr] gap-6 mt-10">
+        <div className="border rounded-2xl border-primary-text/20 p-6 flex flex-col justify-between min-h-[220px]">
+          <div>
+            <div className="flex justify-between items-start gap-4 mb-5">
+              <h3 className={`${funnel.className} text-[24px] font-bold`}>
+                Payment Method
+              </h3>
               <span
-                className={` ${funnel.className} text-[14px] font-bold rounded-full px-5 py-1 ${isPaid ? "bg-green-100 text-green-600" : "bg-red-100 text-red-600"}`}
+                className={`${funnel.className} text-[13px] font-bold rounded-full px-4 py-1 ${
+                  isPaid 
+                    ? "bg-green-100 text-green-600" 
+                    : isPaymentFailed 
+                      ? "bg-red-100 text-red-600" 
+                      : "bg-amber-100 text-amber-600"
+                }`}
               >
-                {isPaid ? "Paid" : "Not Paid"}
+                {isPaid ? "Paid" : isPaymentFailed ? "Failed" : "Pending Payment"}
               </span>
             </div>
+            
+            <div className="space-y-1">
+              <span className={`${funnel.className} text-[11px] uppercase tracking-wider text-gray-500 font-semibold block`}>
+                Provider
+              </span>
+              <p className="text-[17px] font-medium">{paymentMethod}</p>
+            </div>
           </div>
-          <div className="flex justify-between gap-2 items-center mt-5">
-            <p className="text-[17px] font-medium">{paymentMethod}</p>
-          </div>
-          <div className="absolute bottom-3 right-3 text-[14px] font-semibold">
-            {isPaid && paidAt && `Paid on ${formatDate(paidAt!).dateTime}`}
-          </div>
-        </div>
-        <div className="shipping-address border rounded-2xl border-primary-text/20 p-5 relative">
-          <div className="flex items-center justify-between">
-            <h3 className={`${funnel.className} text-[25px] font-semibold`}>
-              Shipping Address
-            </h3>
-            <span
-              className={` ${funnel.className} text-[14px] font-bold rounded-full px-5 py-1 ${isDelivered ? "bg-green-100 text-green-600" : "bg-red-100 text-red-600"}`}
-            >
-              {isDelivered ? "Delivered" : "Not Delivered"}
-            </span>
-          </div>
-          <div className="grid grid-cols-2 gap-5 mt-5">
-            <p className="text-[17px] font-medium">
-              <span className={`${funnel.className} font-semibold`}>
-                Full Name:
-              </span>{" "}
-              <span>{shippingAddress.fullName}</span>
-            </p>
-            <p className="text-[17px] font-medium">
-              <span className={`${funnel.className} font-semibold`}>City:</span>{" "}
-              <span>{shippingAddress.city}</span>
-            </p>
-            <p className="text-[17px] font-medium">
-              <span className={`${funnel.className} font-semibold`}>
-                Postal Code:
-              </span>{" "}
-              <span>{shippingAddress.postalCode}</span>
-            </p>
-            <p className="text-[17px] font-medium">
-              <span className={`${funnel.className} font-semibold`}>
-                Country:
-              </span>{" "}
-              <span>{shippingAddress.country}</span>
-            </p>
-          </div>
-          <div className="absolute bottom-3 right-3 text-[14px] font-semibold">
-            {isDelivered &&
-              deliveredAt &&
-              `Delivered on ${formatDate(deliveredAt!).dateTime}`}
+
+          <div className="mt-6 pt-4 border-t border-primary-text/10">
+            {isPaid && paidAt && (
+              <p className="text-[13px] font-semibold text-gray-600">
+                Paid on {formatDate(paidAt!).dateTime}
+              </p>
+            )}
+            {isPaymentFailed && (
+              <p className="text-[13px] font-semibold text-red-600">
+                Payment verification failed. Please check your bank or contact support.
+              </p>
+            )}
+            {!isPaid && !isPaymentFailed && (
+              <p className="text-[13px] font-semibold text-amber-700">
+                Awaiting payment completion.
+              </p>
+            )}
           </div>
         </div>
+
+        <div className="shipping-address border rounded-2xl border-primary-text/20 p-6 flex flex-col justify-between min-h-[220px]">
+          <div>
+            <div className="flex items-center justify-between gap-4 mb-5">
+              <h3 className={`${funnel.className} text-[24px] font-bold`}>
+                Shipping Address
+              </h3>
+              <span
+                className={`${funnel.className} text-[13px] font-bold rounded-full px-4 py-1 ${
+                  isDelivered ? "bg-green-100 text-green-600" : "bg-amber-100 text-amber-600"
+                }`}
+              >
+                {isDelivered ? "Delivered" : "Not Delivered"}
+              </span>
+            </div>
+
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-x-6 gap-y-4">
+              <div className="space-y-1">
+                <span className={`${funnel.className} text-[11px] uppercase tracking-wider text-gray-500 font-semibold block`}>
+                  Full Name
+                </span>
+                <p className="text-[16px] font-medium">{shippingAddress.fullName}</p>
+              </div>
+
+              <div className="space-y-1">
+                <span className={`${funnel.className} text-[11px] uppercase tracking-wider text-gray-500 font-semibold block`}>
+                  City
+                </span>
+                <p className="text-[16px] font-medium">{shippingAddress.city}</p>
+              </div>
+
+              <div className="space-y-1">
+                <span className={`${funnel.className} text-[11px] uppercase tracking-wider text-gray-500 font-semibold block`}>
+                  Postal Code
+                </span>
+                <p className="text-[16px] font-medium">{shippingAddress.postalCode}</p>
+              </div>
+
+              <div className="space-y-1">
+                <span className={`${funnel.className} text-[11px] uppercase tracking-wider text-gray-500 font-semibold block`}>
+                  Country
+                </span>
+                <p className="text-[16px] font-medium">{shippingAddress.country}</p>
+              </div>
+            </div>
+          </div>
+
+          {isDelivered && deliveredAt && (
+            <div className="mt-6 pt-4 border-t border-primary-text/10">
+              <p className="text-[13px] font-semibold text-gray-600">
+                Delivered on {formatDate(deliveredAt!).dateTime}
+              </p>
+            </div>
+          )}
+        </div>
+      </div>
         {/* fullfilment status */}
         {/* <div className="border rounded-2xl border-primary-text/20 p-5">
           <h3 className={`${funnel.className} text-[25px] font-semibold`}>
@@ -372,7 +415,6 @@ const OrderDetailsTable = ({
             <option value="false">Not Delivered</option>
           </select>
         </div> */}
-      </div>
     </div>
   );
 };
