@@ -4,6 +4,7 @@ import { prisma } from "@/lib/prisma";
 import z from "zod";
 import { insertContactMessageSchema } from "../validators";
 import { formatErrors } from "../utils";
+import { sendContactFormEmail } from "@/lib/resend";
 
 export async function createContactMessage(data: z.infer<typeof insertContactMessageSchema>) {
   try {
@@ -11,7 +12,7 @@ export async function createContactMessage(data: z.infer<typeof insertContactMes
     const parsed = insertContactMessageSchema.parse(data);
 
     // Save submission to database
-    await prisma.contactMessage.create({
+    const newMessage = await prisma.contactMessage.create({
       data: {
         name: parsed.name.trim(),
         email: parsed.email.trim(),
@@ -22,6 +23,13 @@ export async function createContactMessage(data: z.infer<typeof insertContactMes
         author: parsed.author ? parsed.author.trim() : null,
       },
     });
+
+    // Trigger contact form emails (non-blocking)
+    try {
+      await sendContactFormEmail(newMessage.id);
+    } catch (emailError) {
+      console.error("Failed to send contact form email:", emailError);
+    }
 
     return {
       success: true,

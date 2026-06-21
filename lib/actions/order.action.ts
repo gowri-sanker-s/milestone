@@ -2,6 +2,7 @@
 
 import { auth } from "@/auth";
 import { isRedirectError } from "next/dist/client/components/redirect-error";
+import { sendOrderConfirmationEmail } from "@/lib/resend";
 import { getMyCart } from "./cart.action";
 import { getUserById } from "./user.action";
 import { prisma } from "../../lib/prisma";
@@ -96,6 +97,15 @@ export const createOrder = async () => {
     });
     if (!insertedOrderId) throw new Error("Order Not Created");
 
+    // Trigger order confirmation and notification emails (non-blocking) for non-PhonePe payments (e.g. CashOnDelivery)
+    if (user.paymentMethod !== "PhonePe") {
+      try {
+        await sendOrderConfirmationEmail(insertedOrderId);
+      } catch (emailError) {
+        console.error("Failed to send order confirmation email:", emailError);
+      }
+    }
+
     if (user.paymentMethod === "PhonePe") {
       try {
         const phonePeRedirectUrl = await createPhonePePayment(
@@ -153,17 +163,48 @@ export const verifyOrderPayment = async (orderId: string) => {
 
   if (order.isPaid) return { success: true };
 
+  // If a failed payment notification has already been processed and email sent, avoid duplicate checks/emails.
+  const paymentResult = order.paymentResult as { state?: string; emailSent?: boolean } | null;
+  if (paymentResult && paymentResult.state === "FAILED" && paymentResult.emailSent) {
+    return { success: false, message: "Payment failed" };
+  }
+
   if (order.paymentMethod === "PhonePe") {
-    const isPaid = await checkPhonePeStatus(order.id);
-    if (isPaid) {
+    const paymentState = await checkPhonePeStatus(order.id);
+    if (paymentState === "COMPLETED") {
       await prisma.order.update({
         where: { id: order.id },
         data: {
           isPaid: true,
           paidAt: new Date(),
+          paymentResult: { state: "COMPLETED" },
         },
       });
+
+      // Trigger order confirmation email (non-blocking)
+      try {
+        await sendOrderConfirmationEmail(order.id, "SUCCESS");
+      } catch (emailError) {
+        console.error("Failed to send order confirmation email:", emailError);
+      }
+
       return { success: true, message: "Payment verified successfully" };
+    } else if (paymentState === "FAILED") {
+      await prisma.order.update({
+        where: { id: order.id },
+        data: {
+          paymentResult: { state: "FAILED", emailSent: true },
+        },
+      });
+
+      // Trigger payment failed email (non-blocking)
+      try {
+        await sendOrderConfirmationEmail(order.id, "FAILED");
+      } catch (emailError) {
+        console.error("Failed to send payment failed email:", emailError);
+      }
+
+      return { success: false, message: "Payment failed" };
     } else {
       return { success: false, message: "Payment not completed" };
     }

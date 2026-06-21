@@ -92,7 +92,7 @@ export const createPhonePePayment = async (
 };
 
 // to check payment status with PhonePe
-export const checkPhonePeStatus = async (merchantOrderId: string) => {
+export const checkPhonePeStatus = async (merchantOrderId: string): Promise<string> => {
   try {
     const token = await getPhonePeToken();
 
@@ -111,25 +111,28 @@ export const checkPhonePeStatus = async (merchantOrderId: string) => {
 
     if (!res.ok) {
       console.error(`PhonePe status check failed for order ${merchantOrderId}: ${res.status} ${res.statusText}`);
-      return false;
+      return "ERROR";
     }
 
     const text = await res.text();
     if (!text) {
       console.warn(`PhonePe returned empty response for order ${merchantOrderId}`);
-      return false;
+      return "ERROR";
     }
 
     try {
       const data = JSON.parse(text);
-      return data.state === "COMPLETED";
+      if (data && typeof data.state === "string") {
+        return data.state;
+      }
+      return "ERROR";
     } catch (parseError) {
       console.error(`PhonePe JSON parse error for order ${merchantOrderId}:`, parseError);
       console.error(`Raw response:`, text);
-      return false;
+      return "ERROR";
     }
   } catch (error) {
     console.error("Error checking PhonePe status:", error);
-    return false;
+    return "ERROR";
   }
 };
