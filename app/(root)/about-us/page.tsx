@@ -265,7 +265,7 @@ const Page = () => {
                     }`}
                   >
                     {/* Circle Dot */}
-                    <div className="absolute left-4 md:left-1/2 w-6 h-6 bg-primary-bg border-[4px] border-primary-text rounded-full transform -translate-x-[11px] md:-translate-x-1/2 z-10 flex items-center justify-center shadow-sm">
+                    <div className="absolute left-4 md:left-1/2 w-6 h-6 bg-primary-bg border-[4px] border-primary-text rounded-full transform -translate-x-[11px] md:-translate-x-1/2 z-1 flex items-center justify-center shadow-sm">
                       <div className="w-1.5 h-1.5 bg-primary-bg rounded-full" />
                     </div>
 
