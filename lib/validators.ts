@@ -188,3 +188,32 @@ export const insertComboSchema = z.object({
 export const updateComboSchema = insertComboSchema.extend({
   id: z.string().min(1, "ID is required"),
 });
+
+// schemas for Contact Message CRUD / submit
+export const insertContactMessageSchema = z.object({
+  name: z.string().min(2, "Name must be at least 2 characters"),
+  email: z.string().email("Please enter a valid email address"),
+  phone: z.string().optional().nullable(),
+  reason: z.enum(["query", "book_request", "other"], {
+    message: "Please select a reason for contact",
+  }),
+  description: z.string().min(10, "Message must be at least 10 characters"),
+  bookName: z.string().optional().nullable(),
+  author: z.string().optional().nullable(),
+}).refine((data) => {
+  if (data.reason === "book_request") {
+    return !!data.bookName && data.bookName.trim().length > 0;
+  }
+  return true;
+}, {
+  message: "Book name is required for book requests",
+  path: ["bookName"],
+}).refine((data) => {
+  if (data.reason === "book_request") {
+    return !!data.author && data.author.trim().length > 0;
+  }
+  return true;
+}, {
+  message: "Author is required for book requests",
+  path: ["author"],
+});

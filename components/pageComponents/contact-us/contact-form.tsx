@@ -37,6 +37,7 @@ import {
 } from "@/components/ui/select";
 import { Button } from "@/components/ui/button";
 import { funnel } from "@/lib/fonts";
+import { createContactMessage } from "@/lib/actions/contact.action";
 
 // Validation schema with conditional requirements using refine
 const contactSchema = z.object({
@@ -91,16 +92,14 @@ export default function ContactForm() {
 
   const onSubmit = (values: ContactFormValues) => {
     startTransition(async () => {
-      // Simulate API submission
-      await new Promise((resolve) => setTimeout(resolve, 1500));
+      const res = await createContactMessage(values);
       
-      console.log("Contact Form Submitted Successfully:", values);
-      
-      toast.success("Message Sent Successfully!", {
-        description: `Thank you, ${values.name}. We've received your request and will get back to you shortly.`,
-      });
-
-      form.reset(defaultValues);
+      if (res.success) {
+        toast.success(res.message);
+        form.reset(defaultValues);
+      } else {
+        toast.error(res.message);
+      }
     });
   };
 
