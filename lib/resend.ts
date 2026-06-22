@@ -451,3 +451,94 @@ export async function sendContactFormEmail(messageId: string) {
     console.error("Critical error in sendContactFormEmail handler:", error);
   }
 }
+
+/**
+ * Sends a restock alert email to the admin for a product whose stock has fallen below 5.
+ */
+export async function sendRestockAlertEmail(productId: string) {
+  if (!resendApiKey) {
+    console.warn("RESEND_API key is not set. Skipping restock alert email.");
+    return;
+  }
+
+  try {
+    const product = await prisma.product.findUnique({
+      where: { id: productId },
+    });
+
+    if (!product) {
+      console.error(`Product not found for restock alert: ${productId}`);
+      return;
+    }
+
+    const currentYear = new Date().getFullYear();
+    const logoUrl = `https://res.cloudinary.com/doaukkerp/image/upload/v1782071677/logo_i8gszq.png`;
+
+    const emailLayout = (title: string, bodyContent: string) => `
+      <div style="font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; background-color: #f9f6f3; padding: 40px 20px; color: #442917; min-height: 100%;">
+        <div style="max-width: 600px; margin: 0 auto; background-color: #ffffff; border-radius: 20px; overflow: hidden; box-shadow: 0 10px 25px -5px rgba(68, 41, 23, 0.05), 0 8px 16px -8px rgba(68, 41, 23, 0.05); border: 1px solid #d6cbc4;">
+          <!-- Header -->
+          <div style="text-align: center; padding: 32px 24px; background-color: #e9dfd9; border-bottom: 1px solid #d6cbc4;">
+            <img src="${logoUrl}" alt="Milestone Books" style="width: 80px; height: 80px; object-fit: cover; display: block; margin: 0 auto; border-radius: 50%; border: 3px solid #ffffff; box-shadow: 0 4px 10px rgba(68, 41, 23, 0.15);" />
+            <h1 style="margin: 16px 0 0 0; font-size: 24px; font-weight: 700; color: #442917; letter-spacing: -0.5px; text-transform: lowercase; font-family: Georgia, serif;">milestone books</h1>
+            <p style="margin: 4px 0 0 0; font-size: 13px; opacity: 0.8; text-transform: uppercase; letter-spacing: 1px; font-weight: 600; color: #442917;">${title}</p>
+          </div>
+          
+          <!-- Content -->
+          <div style="padding: 32px 24px;">
+            ${bodyContent}
+          </div>
+          
+          <!-- Footer -->
+          <div style="background-color: #f9f6f3; padding: 24px; text-align: center; border-top: 1px solid #d6cbc4; font-size: 12px; color: #7a6e65;">
+            <p style="margin: 0 0 8px 0; line-height: 1.5;">This email was automatically generated regarding stock levels at Milestone Books.</p>
+            <p style="margin: 0; font-weight: 600;">&copy; ${currentYear} Milestone Books. All rights reserved.</p>
+          </div>
+        </div>
+      </div>
+    `;
+
+    const adminBody = `
+      <h2 style="margin: 0 0 12px 0; font-size: 20px; font-weight: 700; color: #442917; font-family: Georgia, serif;">Low Stock Alert</h2>
+      <p style="margin: 0 0 24px 0; font-size: 15px; line-height: 1.6; color: #442917; opacity: 0.9;">
+        The stock level for the following product has fallen below 5. Please restock this item soon.
+      </p>
+      
+      <div style="background-color: #f9f6f3; border-radius: 12px; padding: 20px; margin-bottom: 24px; border: 1px solid #d6cbc4; min-height: 80px;">
+        <table style="width: 100%; font-size: 14px; border-collapse: collapse;">
+          <tr>
+            ${product.images[0] ? `<td style="padding: 0 16px 0 0; width: 60px; vertical-align: top;"><img src="${product.images[0]}" alt="${product.name}" style="width: 60px; height: 80px; object-fit: cover; border-radius: 6px; border: 1px solid #d6cbc4;" /></td>` : ""}
+            <td style="vertical-align: top;">
+              <h3 style="margin: 0 0 4px 0; font-size: 17px; font-weight: 700; color: #442917; font-family: Georgia, serif;">${product.name}</h3>
+              <p style="margin: 0; font-size: 14px; color: #7a6e65;">
+                Product Kind: <span style="text-transform: capitalize; font-weight: 600; color: #442917;">${product.kind}</span>
+              </p>
+              <p style="margin: 4px 0 0 0; font-size: 14px; color: #7a6e65;">
+                Current Stock: <span style="font-weight: 700; color: #b04a26;">${product.stock} left</span>
+              </p>
+            </td>
+          </tr>
+        </table>
+      </div>
+      
+      <div style="text-align: center; margin-top: 10px;">
+        <a href="${process.env.NEXT_PUBLIC_SERVER_URL || 'http://localhost:3000'}/admin/products" style="display: inline-block; background-color: #442917; color: #ffffff; padding: 12px 24px; border-radius: 9999px; text-decoration: none; font-weight: 700; font-size: 14px;">Manage Products</a>
+      </div>
+    `;
+
+    try {
+      console.log(`Sending low stock alert for "${product.name}" to admin: ${adminEmail}`);
+      await resend.emails.send({
+        from: "Stock Alert <onboarding@resend.dev>",
+        to: adminEmail,
+        subject: `⚠️ Low Stock Alert: "${product.name}" (${product.stock} left)`,
+        html: emailLayout("Inventory Alert", adminBody),
+      });
+      console.log(`Low stock alert successfully sent for "${product.name}"`);
+    } catch (sendErr) {
+      console.error(`Failed to send low stock alert to admin (${adminEmail}):`, sendErr);
+    }
+  } catch (error) {
+    console.error("Critical error in sendRestockAlertEmail handler:", error);
+  }
+}

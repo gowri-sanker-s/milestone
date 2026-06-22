@@ -2,7 +2,7 @@
 
 import { auth } from "@/auth";
 import { isRedirectError } from "next/dist/client/components/redirect-error";
-import { sendOrderConfirmationEmail } from "@/lib/resend";
+import { sendOrderConfirmationEmail, sendRestockAlertEmail } from "@/lib/resend";
 import { getMyCart } from "./cart.action";
 import { getUserById } from "./user.action";
 import { prisma } from "../../lib/prisma";
@@ -66,10 +66,12 @@ export const createOrder = async () => {
     });
 
     // create a transaction to create an order and order item in database
-    const insertedOrderId = await prisma.$transaction(async (tx) => {
+    const resultData = await prisma.$transaction(async (tx) => {
       const insertedOrder = await tx.order.create({
         data: order,
       });
+      const lowStockProductIds: string[] = [];
+
       for (const item of cart.items as CartItem[]) {
         const product = await tx.product.findUnique({
           where: { id: item.productId },
@@ -82,6 +84,11 @@ export const createOrder = async () => {
 
         if (product.stock < item.qty) {
           throw new Error(`Insufficient stock for ${product.name}. Only ${product.stock} left.`);
+        }
+
+        const newStock = product.stock - item.qty;
+        if (newStock < 5) {
+          lowStockProductIds.push(item.productId);
         }
 
         await tx.orderItem.create({
@@ -115,8 +122,12 @@ export const createOrder = async () => {
         },
       });
 
-      return insertedOrder.id;
+      return { orderId: insertedOrder.id, lowStockProductIds };
     });
+    
+    const insertedOrderId = resultData.orderId;
+    const lowStockProductIds = resultData.lowStockProductIds;
+
     if (!insertedOrderId) throw new Error("Order Not Created");
 
     // Revalidate paths for products in the cart
@@ -128,6 +139,15 @@ export const createOrder = async () => {
     revalidatePath("/bookmarks");
     revalidatePath("/combos");
     revalidatePath("/");
+
+    // Send restock alert emails if any product stock fell below 5
+    if (lowStockProductIds.length > 0) {
+      for (const prodId of lowStockProductIds) {
+        sendRestockAlertEmail(prodId).catch((err) => {
+          console.error(`Failed to send restock alert email for ${prodId}:`, err);
+        });
+      }
+    }
 
     // Trigger order confirmation and notification emails (non-blocking) for non-PhonePe payments (e.g. CashOnDelivery)
     if (user.paymentMethod !== "PhonePe") {
