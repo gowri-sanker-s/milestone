@@ -71,11 +71,33 @@ export const createOrder = async () => {
         data: order,
       });
       for (const item of cart.items as CartItem[]) {
+        const product = await tx.product.findUnique({
+          where: { id: item.productId },
+          select: { stock: true, name: true },
+        });
+
+        if (!product) {
+          throw new Error(`Product ${item.name} not found`);
+        }
+
+        if (product.stock < item.qty) {
+          throw new Error(`Insufficient stock for ${product.name}. Only ${product.stock} left.`);
+        }
+
         await tx.orderItem.create({
           data: {
             ...item,
             price: item.price,
             orderId: insertedOrder.id,
+          },
+        });
+
+        await tx.product.update({
+          where: { id: item.productId },
+          data: {
+            stock: {
+              decrement: item.qty,
+            },
           },
         });
       }
@@ -96,6 +118,16 @@ export const createOrder = async () => {
       return insertedOrder.id;
     });
     if (!insertedOrderId) throw new Error("Order Not Created");
+
+    // Revalidate paths for products in the cart
+    for (const item of cart.items as CartItem[]) {
+      revalidatePath(`/book-details/${item.slug}`);
+      revalidatePath(`/bookmark-details/${item.slug}`);
+    }
+    revalidatePath("/books");
+    revalidatePath("/bookmarks");
+    revalidatePath("/combos");
+    revalidatePath("/");
 
     // Trigger order confirmation and notification emails (non-blocking) for non-PhonePe payments (e.g. CashOnDelivery)
     if (user.paymentMethod !== "PhonePe") {
@@ -342,12 +374,38 @@ export const deleteOrder = async (id: string) => {
   try {
     const order = await prisma.order.findFirst({
       where: { id },
+      include: {
+        orderitems: true,
+      },
     });
     if (!order) throw new Error("Order not found");
-    await prisma.order.delete({
-      where: { id },
+
+    await prisma.$transaction(async (tx) => {
+      for (const item of order.orderitems) {
+        await tx.product.update({
+          where: { id: item.productId },
+          data: {
+            stock: {
+              increment: item.qty,
+            },
+          },
+        });
+      }
+      await tx.order.delete({
+        where: { id },
+      });
     });
+
+    for (const item of order.orderitems) {
+      revalidatePath(`/book-details/${item.slug}`);
+      revalidatePath(`/bookmark-details/${item.slug}`);
+    }
     revalidatePath("/admin/orders");
+    revalidatePath("/books");
+    revalidatePath("/bookmarks");
+    revalidatePath("/combos");
+    revalidatePath("/");
+
     return { success: true, message: "Order deleted successfully" };
   } catch (error) {
     return { success: false, message: formatErrors(error) };

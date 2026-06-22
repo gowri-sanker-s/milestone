@@ -60,9 +60,21 @@ const Page = async ({ params }: Props) => {
               <div className="bg-primary-border p-1 px-4 rounded-full">
                 Dimensions: {bookmark.width && bookmark.height ? `${bookmark.width} x ${bookmark.height} cm` : "Standard Size"}
               </div>
-              <div className="bg-primary-border p-1 px-4 rounded-full">
-                {bookmark.stock > 0 ? `${bookmark.stock} In Stock` : "Out of Stock"}
-              </div>
+              {bookmark.stock > 0 ? (
+                bookmark.stock < 10 ? (
+                  <div className="bg-[#b04a26] text-white p-1 px-4 rounded-full font-bold">
+                    Limited Stock ({bookmark.stock} left)
+                  </div>
+                ) : (
+                  <div className="bg-primary-border p-1 px-4 rounded-full">
+                    {bookmark.stock} In Stock
+                  </div>
+                )
+              ) : (
+                <div className="bg-neutral-700 text-white p-1 px-4 rounded-full font-bold">
+                  Out of Stock
+                </div>
+              )}
             </div>
             
             <p className="text-[13px] pt-8 pb-3 font-semibold opacity-60 leading-none uppercase">

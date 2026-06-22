@@ -22,7 +22,11 @@ const Page = async ({ params }: Props) => {
 
   // Fetch books in the combo if kind is combo
   let comboBooks: any[] = [];
-  if (product.kind === "combo" && product.bookIds && product.bookIds.length > 0) {
+  if (
+    product.kind === "combo" &&
+    product.bookIds &&
+    product.bookIds.length > 0
+  ) {
     comboBooks = await prisma.product.findMany({
       where: {
         id: { in: product.bookIds },
@@ -76,6 +80,21 @@ const Page = async ({ params }: Props) => {
                 </span>
                 {product.rating} ({product.reviewsCount} reviews)
               </div>
+              {product.stock > 0 ? (
+                product.stock < 10 ? (
+                  <div className="bg-[#b04a26] text-white p-1 px-4 rounded-full font-bold">
+                    Limited Stock ({product.stock} left)
+                  </div>
+                ) : (
+                  <div className="bg-primary-border p-1 px-4 rounded-full">
+                    {product.stock} In Stock
+                  </div>
+                )
+              ) : (
+                <div className="bg-neutral-700 text-white p-1 px-4 rounded-full font-bold">
+                  Out of Stock
+                </div>
+              )}
             </div>
             {product.genres && product.genres.length > 0 && (
               <>
@@ -138,7 +157,9 @@ const Page = async ({ params }: Props) => {
           {/* Render books in this combo if it is a combo offer */}
           {comboBooks && comboBooks.length > 0 && (
             <div className="mt-10 mb-10 pt-8 border-t border-primary-bg/10">
-              <h3 className={`${oleo.className} text-[35px] text-primary-bg mb-6 tracking-wide`}>
+              <h3
+                className={`${oleo.className} text-[35px] text-primary-bg mb-6 tracking-wide`}
+              >
                 Books Included in this Combo
               </h3>
               <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-6 font-normal">
