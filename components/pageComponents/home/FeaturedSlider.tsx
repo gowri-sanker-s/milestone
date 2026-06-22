@@ -88,7 +88,7 @@ const FeaturedSlider = ({ products, cart }: FeaturedSliderProps) => {
                           View Details
                         </Link>
 
-                        <div className="scale-105">
+                        <div className="flex flex-wrap gap-5 items-center">
                           <AddToCart cart={cart} item={cartItem} />
                         </div>
                       </div>
