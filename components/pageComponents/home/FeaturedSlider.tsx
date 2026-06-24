@@ -83,7 +83,7 @@ const FeaturedSlider = ({ products, cart }: FeaturedSliderProps) => {
                       <div className="flex items-center gap-4">
                         <Link
                           href={`/book-details/${product.slug}`}
-                          className="px-6 py-2.5 rounded-full border-2 border-primary-text text-primary-text font-bold hover:bg-primary-text hover:text-white transition-all duration-300 shadow-sm"
+                          className="px-6 py-2 rounded-full border-2 border-primary-text text-primary-text font-bold hover:bg-primary-text hover:text-white transition-all duration-300 shadow-sm"
                         >
                           View Details
                         </Link>

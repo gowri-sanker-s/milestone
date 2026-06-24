@@ -23,7 +23,7 @@ const BookCard = ({ data, cart }: BookCardProps) => {
           className="img aspect-[4/5] transition-transform duration-300 group-hover/card:scale-105"
         />
         {data.stock < 10 && data.stock > 0 && (
-          <span className="absolute top-2.5 left-2.5 bg-[#b04a26] text-white text-[10px] font-extrabold px-2.5 py-1 rounded-md shadow-lg uppercase tracking-wider z-10">
+          <span className="absolute top-2.5 left-2.5 bg-[#b04a26] text-white text-[10px] font-extrabold px-2.5 py-1 rounded-md shadow-lg uppercase tracking-wider z-1">
             Limited Stock
           </span>
         )}

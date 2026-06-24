@@ -15,8 +15,8 @@ const Footer = () => {
                     <ul className="">
                         <li className="font-bold text-[20px] mb-2">Quick Links</li>
                         <li className="py-1"><a href="/" >Home</a></li>
-                        <li className="py-1"><a href="/" >About</a></li>
-                        <li className="py-1"><a href="/" >Contact</a></li>
+                        <li className="py-1"><a href="/about-us" >About</a></li>
+                        <li className="py-1"><a href="/contact-us" >Contact</a></li>
                     </ul>
                     <ul className="">
                         <li className="font-bold text-[20px] mb-2 ">Contact</li>

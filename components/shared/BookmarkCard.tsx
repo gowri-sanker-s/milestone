@@ -33,7 +33,7 @@ const BookmarkCard = ({ data, cart }: BookmarkCardProps) => {
           className="img w-full h-full object-cover transition-transform duration-300 group-hover/card:scale-105"
         />
         {data.stock < 10 && data.stock > 0 && (
-          <span className="absolute top-2.5 left-2.5 bg-[#b04a26] text-white text-[10px] font-extrabold px-2.5 py-1 rounded-md shadow-lg uppercase tracking-wider z-10">
+          <span className="absolute top-2.5 left-2.5 bg-[#b04a26] text-white text-[10px] font-extrabold px-2.5 py-1 rounded-md shadow-lg uppercase tracking-wider z-1">
             Limited Stock
           </span>
         )}
@@ -45,7 +45,9 @@ const BookmarkCard = ({ data, cart }: BookmarkCardProps) => {
       </div>
       <div className="details grid pt-4 flex-1">
         <p className="text-[12px] font-bold text-primary-text/60 uppercase tracking-wider leading-tight">
-          {data.width && data.height ? `${data.width} × ${data.height} cm` : "Standard Size"}
+          {data.width && data.height
+            ? `${data.width} × ${data.height} cm`
+            : "Standard Size"}
         </p>
         <h3 className="font-extrabold text-[19px] leading-tight mt-1 text-primary-text">
           {data.name}
