@@ -5,6 +5,9 @@ import { oleo } from "@/lib/fonts";
 import { Heart, Star } from "lucide-react";
 import { notFound } from "next/navigation";
 import { Metadata } from "next";
+import { auth } from "@/auth";
+import { getProductReviews } from "@/lib/actions/review.action";
+import ReviewList from "@/components/shared/product/review-list";
 
 type Props = {
   params: Promise<{ slug: string }>;
@@ -33,6 +36,9 @@ const Page = async ({ params }: Props) => {
   const cart = await getMyCart();
 
   if (!bookmark) return notFound();
+
+  const session = await auth();
+  const reviews = await getProductReviews(bookmark.id);
 
   return (
     <div>
@@ -134,6 +140,14 @@ const Page = async ({ params }: Props) => {
               </div>
             ))}
           </div>
+
+          <ReviewList
+            productId={bookmark.id}
+            userId={session?.user?.id}
+            reviews={reviews}
+            slug={bookmark.slug}
+            kind={bookmark.kind}
+          />
         </div>
       </div>
     </div>

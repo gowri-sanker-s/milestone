@@ -217,3 +217,13 @@ export const insertContactMessageSchema = z.object({
   message: "Author is required for book requests",
   path: ["author"],
 });
+
+// schema for review submissions
+export const insertReviewSchema = z.object({
+  productId: z.string().uuid("Invalid Product ID"),
+  userId: z.string().uuid("Invalid User ID"),
+  rating: z.number().min(1, "Rating must be at least 1").max(5, "Rating must be at most 5"),
+  description: z.string().min(5, "Comment must be at least 5 characters"),
+});
+
+

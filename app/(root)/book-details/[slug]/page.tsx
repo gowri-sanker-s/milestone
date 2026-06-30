@@ -6,6 +6,9 @@ import { Heart, ShoppingCart, Star } from "lucide-react";
 import { notFound } from "next/navigation";
 import { prisma } from "@/lib/prisma";
 import Link from "next/link";
+import { auth } from "@/auth";
+import { getProductReviews } from "@/lib/actions/review.action";
+import ReviewList from "@/components/shared/product/review-list";
 
 type Props = {
   params: Promise<{ slug: string }>;
@@ -19,6 +22,9 @@ const Page = async ({ params }: Props) => {
   const cart = await getMyCart();
 
   if (!product) return notFound();
+
+  const session = await auth();
+  const reviews = await getProductReviews(product.id);
 
   // Fetch books in the combo if kind is combo
   let comboBooks: any[] = [];
@@ -216,6 +222,14 @@ const Page = async ({ params }: Props) => {
               </div>
             </>
           )}
+
+          <ReviewList
+            productId={product.id}
+            userId={session?.user?.id}
+            reviews={reviews}
+            slug={product.slug}
+            kind={product.kind}
+          />
         </div>
       </div>
     </div>
