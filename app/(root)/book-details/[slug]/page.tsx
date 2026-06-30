@@ -9,6 +9,8 @@ import Link from "next/link";
 import { auth } from "@/auth";
 import { getProductReviews } from "@/lib/actions/review.action";
 import ReviewList from "@/components/shared/product/review-list";
+import { checkIsInWishlist } from "@/lib/actions/wishlist.action";
+import WishlistButton from "@/components/shared/product/wishlist-button";
 
 type Props = {
   params: Promise<{ slug: string }>;
@@ -25,6 +27,7 @@ const Page = async ({ params }: Props) => {
 
   const session = await auth();
   const reviews = await getProductReviews(product.id);
+  const isInWishlist = await checkIsInWishlist(product.id);
 
   // Fetch books in the combo if kind is combo
   let comboBooks: any[] = [];
@@ -141,9 +144,14 @@ const Page = async ({ params }: Props) => {
               <button className="flex gap-2 items-center bg-primary-border text-primary-text px-8 py-2 rounded-full font-semibold">
                 Buy Now
               </button>
-              <button className="flex gap-2 items-center bg-primary-border text-primary-text p-2 rounded-full font-semibold">
-                <Heart size={22} strokeWidth={1.5} />
-              </button>
+              <WishlistButton
+                productId={product.id}
+                initialIsInWishlist={isInWishlist}
+                authenticated={!!session?.user?.id}
+                variant="icon-only"
+                slug={product.slug}
+                kind={product.kind}
+              />
             </div>
           </div>
         </div>

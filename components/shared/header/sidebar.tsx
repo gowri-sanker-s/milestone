@@ -20,6 +20,7 @@ const menuItems = [
   { href: "/", label: "Home", icon: Home },
   { href: "/books", label: "All Books", icon: LibraryBig },
   { href: "/bookmarks", label: "Bookmarks", icon: Bookmark },
+  { href: "/wishlist", label: "Wishlist / Saved Items", icon: Heart },
   {
     href: "/books/genres",
     label: "Browse Books by Genre",

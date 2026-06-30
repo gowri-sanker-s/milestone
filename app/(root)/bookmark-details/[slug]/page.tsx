@@ -8,6 +8,9 @@ import { Metadata } from "next";
 import { auth } from "@/auth";
 import { getProductReviews } from "@/lib/actions/review.action";
 import ReviewList from "@/components/shared/product/review-list";
+import { checkIsInWishlist } from "@/lib/actions/wishlist.action";
+import WishlistButton from "@/components/shared/product/wishlist-button";
+
 
 type Props = {
   params: Promise<{ slug: string }>;
@@ -39,6 +42,8 @@ const Page = async ({ params }: Props) => {
 
   const session = await auth();
   const reviews = await getProductReviews(bookmark.id);
+  const isInWishlist = await checkIsInWishlist(bookmark.id);
+
 
   return (
     <div>
@@ -105,9 +110,14 @@ const Page = async ({ params }: Props) => {
               <button className="flex gap-2 items-center bg-primary-border text-primary-text px-8 py-2 rounded-full font-semibold hover:bg-primary-border/80 transition-colors">
                 Buy Now
               </button>
-              <button className="flex gap-2 items-center bg-primary-border text-primary-text p-2 rounded-full font-semibold hover:bg-primary-border/80 transition-colors">
-                <Heart size={22} strokeWidth={1.5} />
-              </button>
+              <WishlistButton
+                productId={bookmark.id}
+                initialIsInWishlist={isInWishlist}
+                authenticated={!!session?.user?.id}
+                variant="icon-only"
+                slug={bookmark.slug}
+                kind={bookmark.kind}
+              />
             </div>
           </div>
         </div>
