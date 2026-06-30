@@ -1,6 +1,6 @@
 "use client";
 
-import { updateCODOrderToPaid } from "@/lib/actions/order.action";
+import { updateCODOrderToPaid, updateCODOrderToDelivered, updateOrderToShipped } from "@/lib/actions/order.action";
 import { funnel } from "@/lib/fonts";
 import { formatCurrency, formatDate, formatId } from "@/lib/utils";
 import { Order } from "@/types";
@@ -20,6 +20,7 @@ import {
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Button } from "@/components/ui/button";
+import { CheckCircle2, Clock, ExternalLink, Truck, Check } from "lucide-react";
 
 const OrderDetailsTable = ({
   order,
@@ -33,8 +34,12 @@ const OrderDetailsTable = ({
     createdAt,
     isPaid,
     paidAt,
+    isShipped,
+    shippedAt,
     isDelivered,
     deliveredAt,
+    trackingNumber,
+    carrier,
     orderitems,
     user,
     itemsPrice,
@@ -48,23 +53,45 @@ const OrderDetailsTable = ({
   const parsedPaymentResult = paymentResult as { state?: string } | null;
   const isPaymentFailed = parsedPaymentResult?.state === "FAILED";
   const [isDeliveredUpdate, setIsDeliveredUpdate] = useState(isDelivered);
-  const [trackingNumber, setTrackingNumber] = useState("");
-  const [orderNumber, setOrderNumber] = useState(id);
+  
+  // Tracking & Fulfillment States
+  const [adminTrackingNumber, setAdminTrackingNumber] = useState(trackingNumber || "");
+  const [adminCarrier, setAdminCarrier] = useState(carrier || "India Post");
+  const [editTrackingMode, setEditTrackingMode] = useState(false);
   const [isTrackingModalOpen, setIsTrackingModalOpen] = useState(false);
-  const [isTrackingPending, setIsTrackingPending] = useState(false);
 
-  const handleTrackOrder = (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!trackingNumber.trim()) {
+  const [isShippingPending, startShippingTransition] = useTransition();
+  const [isDeliveryPending, startDeliveryTransition] = useTransition();
+
+  const handleMarkAsShipped = () => {
+    if (!adminTrackingNumber.trim()) {
       toast.error("Please enter a tracking number");
       return;
     }
-    setIsTrackingPending(true);
-    setTimeout(() => {
-      setIsTrackingPending(false);
-      setIsTrackingModalOpen(false);
-      toast.success("Tracking query sent. Clickpost integration coming soon!");
-    }, 1200);
+    startShippingTransition(async () => {
+      const res = await updateOrderToShipped({
+        id,
+        trackingNumber: adminTrackingNumber,
+        carrier: adminCarrier,
+      });
+      if (res.success) {
+        toast.success(res.message);
+        setEditTrackingMode(false);
+      } else {
+        toast.error(res.message);
+      }
+    });
+  };
+
+  const handleMarkAsDelivered = () => {
+    startDeliveryTransition(async () => {
+      const res = await updateCODOrderToDelivered(id);
+      if (res.success) {
+        toast.success(res.message);
+      } else {
+        toast.error(res.message);
+      }
+    });
   };
 
   const MarkAsPaidButton = () => {
@@ -232,65 +259,160 @@ const OrderDetailsTable = ({
                   Track your order
                 </button>
               </DialogTrigger>
-              <DialogContent className="min-w-[80%] max-w-[1440px] min-h-[80vh] bg-primary-bg flex flex-col border-none">
-                <div className="top">
-                  <DialogHeader>
-                    <DialogTitle
-                      className={`${funnel.className} text-xl font-bold`}
-                    >
-                      Track Your Order
-                    </DialogTitle>
-                    <DialogDescription>
-                      Enter your tracking and order details to track your
-                      package delivery status.
-                    </DialogDescription>
-                  </DialogHeader>
-                  <form
-                    onSubmit={handleTrackOrder}
-                    className="space-y-4 py-2 flex items-center gap-3"
+              <DialogContent className="max-w-[550px] bg-primary-bg flex flex-col border-none p-6 rounded-2xl">
+                <DialogHeader>
+                  <DialogTitle
+                    className={`${funnel.className} text-xl font-bold`}
                   >
-                    <div className="space-y-1.5 flex-1">
-                      <Label htmlFor="orderNumber">Order Number</Label>
-                      <Input
-                        id="orderNumber"
-                        type="text"
-                        placeholder="Enter order number"
-                        value={orderNumber}
-                        onChange={(e) => setOrderNumber(e.target.value)}
-                        required
-                      />
+                    Track Your Order
+                  </DialogTitle>
+                  <DialogDescription>
+                    Real-time status of your package shipment.
+                  </DialogDescription>
+                </DialogHeader>
+
+                <div className="py-4 space-y-6">
+                  {/* Timeline */}
+                  <div className="relative border-l border-primary-text/20 ml-4 space-y-6 pb-2">
+                    {/* Step 1: Placed */}
+                    <div className="relative pl-8">
+                      <div className="absolute -left-[9px] top-1 bg-green-500 rounded-full p-0.5 text-white">
+                        <CheckCircle2 className="h-4 w-4" />
+                      </div>
+                      <div>
+                        <h4 className="font-semibold text-sm">Order Placed</h4>
+                        <p className="text-xs opacity-60">
+                          Your order has been recorded in our system.
+                        </p>
+                        <p className="text-[10px] opacity-40 font-mono mt-0.5">
+                          #{formatId(id)}
+                        </p>
+                      </div>
                     </div>
-                    <div className="space-y-1.5 flex-1">
-                      <Label htmlFor="trackingNumber">Tracking Number</Label>
-                      <Input
-                        id="trackingNumber"
-                        type="text"
-                        placeholder="Enter tracking ID"
-                        value={trackingNumber}
-                        onChange={(e) => setTrackingNumber(e.target.value)}
-                        required
-                      />
-                    </div>
-                    <DialogFooter className=" bg-primary-text rounded-md text-primary-bg">
-                      <Button
-                        type="submit"
-                        disabled={isTrackingPending}
-                        className="w-full font-semibold"
+
+                    {/* Step 2: Paid */}
+                    <div className="relative pl-8">
+                      <div
+                        className={`absolute -left-[9px] top-1 rounded-full p-0.5 text-white ${isPaid ? "bg-green-500" : "bg-amber-500"}`}
                       >
-                        {isTrackingPending ? "Searching..." : "Track Package"}
-                      </Button>
-                    </DialogFooter>
-                  </form>
-                </div>
-                <div className="flex-1 border border-dashed border-primary-text/30 rounded-md h-full w-full grid place-items-center">
-                  <div className="flex flex-col justify-center items-center">
-                    <div className="img-container h-[90px] w-[90px]">
-                      <Image src={truck} alt="" className="icon" />
+                        {isPaid ? (
+                          <CheckCircle2 className="h-4 w-4" />
+                        ) : (
+                          <Clock className="h-4 w-4" />
+                        )}
+                      </div>
+                      <div>
+                        <h4 className="font-semibold text-sm">
+                          Payment Status
+                        </h4>
+                        <p className="text-xs opacity-60">
+                          {isPaid
+                            ? `Confirmed on ${formatDate(paidAt!).dateTime}`
+                            : isPaymentFailed
+                              ? "Payment verification failed"
+                              : "Awaiting payment verification"}
+                        </p>
+                      </div>
                     </div>
-                    <p className="text-center opacity-50 text-sm">
-                      Enter tracking/order number to view details
-                    </p>
+
+                    {/* Step 3: Shipped */}
+                    <div className="relative pl-8">
+                      <div
+                        className={`absolute -left-[9px] top-1 rounded-full p-0.5 text-white ${isShipped ? "bg-green-500" : "bg-gray-300"}`}
+                      >
+                        {isShipped ? (
+                          <CheckCircle2 className="h-4 w-4" />
+                        ) : (
+                          <Truck className="h-4 w-4" />
+                        )}
+                      </div>
+                      <div>
+                        <h4 className="font-semibold text-sm">Shipped</h4>
+                        <p className="text-xs opacity-60 font-medium">
+                          {isShipped
+                            ? `Dispatched via ${carrier || "India Post"} on ${formatDate(shippedAt!).dateTime}`
+                            : "We are packing your books. Dispatches are processed soon."}
+                        </p>
+                        {isShipped && trackingNumber && (
+                          <div className="bg-primary-border/40 border border-primary-text/10 rounded-lg p-2.5 mt-2 flex justify-between items-center max-w-sm">
+                            <div>
+                              <span className="text-[9px] uppercase tracking-wider text-gray-500 block">
+                                Consignment Number
+                              </span>
+                              <span className="font-mono text-sm font-bold text-primary-text">
+                                {trackingNumber}
+                              </span>
+                            </div>
+                            <Button
+                              variant="outline"
+                              size="sm"
+                              className="text-xs h-7 px-2"
+                              onClick={() => {
+                                navigator.clipboard.writeText(trackingNumber);
+                                toast.success("Tracking number copied!");
+                              }}
+                            >
+                              Copy
+                            </Button>
+                          </div>
+                        )}
+                      </div>
+                    </div>
+
+                    {/* Step 4: Delivered */}
+                    <div className="relative pl-8">
+                      <div
+                        className={`absolute -left-[9px] top-1 rounded-full p-0.5 text-white ${isDelivered ? "bg-green-500" : "bg-gray-200"}`}
+                      >
+                        {isDelivered ? (
+                          <Check className="h-4 w-4" />
+                        ) : (
+                          <Clock className="h-4 w-4" />
+                        )}
+                      </div>
+                      <div>
+                        <h4 className="font-semibold text-sm">Delivered</h4>
+                        <p className="text-xs opacity-60">
+                          {isDelivered && deliveredAt
+                            ? `Delivered on ${formatDate(deliveredAt).dateTime}`
+                            : "Awaiting delivery confirmation"}
+                        </p>
+                      </div>
+                    </div>
                   </div>
+
+                  {isShipped && trackingNumber && carrier === "India Post" && (
+                    <div className="bg-amber-500/10 border border-amber-500/20 rounded-xl p-4 text-xs space-y-2">
+                      <p className="font-bold text-amber-900">
+                        How to track your India Post package:
+                      </p>
+                      <ol className="list-decimal pl-4 space-y-1 text-amber-800 font-medium">
+                        <li>
+                          Copy the Consignment Number:{" "}
+                          <code className="font-mono bg-amber-500/20 px-1 rounded font-bold">
+                            {trackingNumber}
+                          </code>
+                        </li>
+                        <li>
+                          Click the button below to open the official India Post
+                          portal.
+                        </li>
+                        <li>
+                          Paste it into the <strong>Consignment Number</strong>{" "}
+                          box, solve the Captcha, and click search.
+                        </li>
+                      </ol>
+                      <a
+                        href="https://www.indiapost.gov.in/"
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="inline-flex gap-1.5 items-center justify-center bg-primary-text text-white px-4 py-2.5 rounded-lg font-bold hover:opacity-90 transition-opacity mt-2 text-xs"
+                      >
+                        Go to India Post Portal
+                        <ExternalLink size={12} />
+                      </a>
+                    </div>
+                  )}
                 </div>
               </DialogContent>
             </Dialog>
@@ -308,19 +430,25 @@ const OrderDetailsTable = ({
               </h3>
               <span
                 className={`${funnel.className} text-[13px] font-bold rounded-full px-4 py-1 ${
-                  isPaid 
-                    ? "bg-green-100 text-green-600" 
-                    : isPaymentFailed 
-                      ? "bg-red-100 text-red-600" 
+                  isPaid
+                    ? "bg-green-100 text-green-600"
+                    : isPaymentFailed
+                      ? "bg-red-100 text-red-600"
                       : "bg-amber-100 text-amber-600"
                 }`}
               >
-                {isPaid ? "Paid" : isPaymentFailed ? "Failed" : "Pending Payment"}
+                {isPaid
+                  ? "Paid"
+                  : isPaymentFailed
+                    ? "Failed"
+                    : "Pending Payment"}
               </span>
             </div>
-            
+
             <div className="space-y-1">
-              <span className={`${funnel.className} text-[11px] uppercase tracking-wider text-gray-500 font-semibold block`}>
+              <span
+                className={`${funnel.className} text-[11px] uppercase tracking-wider text-gray-500 font-semibold block`}
+              >
                 Provider
               </span>
               <p className="text-[17px] font-medium">{paymentMethod}</p>
@@ -335,7 +463,8 @@ const OrderDetailsTable = ({
             )}
             {isPaymentFailed && (
               <p className="text-[13px] font-semibold text-red-600">
-                Payment verification failed. Please check your bank or contact support.
+                Payment verification failed. Please check your bank or contact
+                support.
               </p>
             )}
             {!isPaid && !isPaymentFailed && (
@@ -354,7 +483,9 @@ const OrderDetailsTable = ({
               </h3>
               <span
                 className={`${funnel.className} text-[13px] font-bold rounded-full px-4 py-1 ${
-                  isDelivered ? "bg-green-100 text-green-600" : "bg-amber-100 text-amber-600"
+                  isDelivered
+                    ? "bg-green-100 text-green-600"
+                    : "bg-amber-100 text-amber-600"
                 }`}
               >
                 {isDelivered ? "Delivered" : "Not Delivered"}
@@ -363,31 +494,47 @@ const OrderDetailsTable = ({
 
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-x-6 gap-y-4">
               <div className="space-y-1">
-                <span className={`${funnel.className} text-[11px] uppercase tracking-wider text-gray-500 font-semibold block`}>
+                <span
+                  className={`${funnel.className} text-[11px] uppercase tracking-wider text-gray-500 font-semibold block`}
+                >
                   Full Name
                 </span>
-                <p className="text-[16px] font-medium">{shippingAddress.fullName}</p>
+                <p className="text-[16px] font-medium">
+                  {shippingAddress.fullName}
+                </p>
               </div>
 
               <div className="space-y-1">
-                <span className={`${funnel.className} text-[11px] uppercase tracking-wider text-gray-500 font-semibold block`}>
+                <span
+                  className={`${funnel.className} text-[11px] uppercase tracking-wider text-gray-500 font-semibold block`}
+                >
                   City
                 </span>
-                <p className="text-[16px] font-medium">{shippingAddress.city}</p>
+                <p className="text-[16px] font-medium">
+                  {shippingAddress.city}
+                </p>
               </div>
 
               <div className="space-y-1">
-                <span className={`${funnel.className} text-[11px] uppercase tracking-wider text-gray-500 font-semibold block`}>
+                <span
+                  className={`${funnel.className} text-[11px] uppercase tracking-wider text-gray-500 font-semibold block`}
+                >
                   Postal Code
                 </span>
-                <p className="text-[16px] font-medium">{shippingAddress.postalCode}</p>
+                <p className="text-[16px] font-medium">
+                  {shippingAddress.postalCode}
+                </p>
               </div>
 
               <div className="space-y-1">
-                <span className={`${funnel.className} text-[11px] uppercase tracking-wider text-gray-500 font-semibold block`}>
+                <span
+                  className={`${funnel.className} text-[11px] uppercase tracking-wider text-gray-500 font-semibold block`}
+                >
                   Country
                 </span>
-                <p className="text-[16px] font-medium">{shippingAddress.country}</p>
+                <p className="text-[16px] font-medium">
+                  {shippingAddress.country}
+                </p>
               </div>
             </div>
           </div>
@@ -401,20 +548,166 @@ const OrderDetailsTable = ({
           )}
         </div>
       </div>
-        {/* fullfilment status */}
-        {/* <div className="border rounded-2xl border-primary-text/20 p-5">
-          <h3 className={`${funnel.className} text-[25px] font-semibold`}>
-            Fullfilment Status
+      {/* Admin Fulfillment Panel */}
+      {isAdmin && (
+        <div className="border rounded-2xl border-primary-text/20 p-6 bg-primary-border/20 mt-10">
+          <h3 className={`${funnel.className} text-[24px] font-bold mb-4`}>
+            Admin Fulfillment Panel
           </h3>
-          <select
-            value={isDeliveredUpdate}
-            onChange={(e) => setIsDeliveredUpdate(e.target.value === "true")}
-            className="border rounded-md border-primary-text/20 p-1 w-full mt-5 py-2 focus-visible:outline-none"
-          >
-            <option value="true">Delivered</option>
-            <option value="false">Not Delivered</option>
-          </select>
-        </div> */}
+
+          {!isShipped ? (
+            <div className="space-y-4 max-w-1/2">
+              <p className="text-sm opacity-70">
+                This order has not been shipped yet. Pack the books, visit India
+                Post to ship, and enter the consignment tracking number below to
+                mark the order as shipped.
+              </p>
+              <div className="flex flex-col sm:flex-row gap-4 items-end">
+                <div className="space-y-1.5 flex-1 w-full">
+                  <Label htmlFor="adminTrackingNumber">
+                    Tracking / Consignment Number
+                  </Label>
+                  <Input
+                    id="adminTrackingNumber"
+                    type="text"
+                    placeholder="e.g., RT123456789IN"
+                    value={adminTrackingNumber}
+                    onChange={(e) => setAdminTrackingNumber(e.target.value)}
+                    className="bg-white border-primary-text/20"
+                  />
+                </div>
+                <div className="space-y-1.5 flex-1 w-full">
+                  <Label htmlFor="adminCarrier">Carrier</Label>
+                  <select
+                    id="adminCarrier"
+                    value={adminCarrier}
+                    onChange={(e) => setAdminCarrier(e.target.value)}
+                    className="border rounded-md border-primary-text/20 bg-white p-2.5 w-full focus-visible:outline-none h-[40px] text-sm"
+                  >
+                    <option value="India Post">India Post</option>
+                    <option value="Delhivery">Delhivery</option>
+                    <option value="Shiprocket">Shiprocket</option>
+                    <option value="Other">Other</option>
+                  </select>
+                </div>
+                <Button
+                  onClick={handleMarkAsShipped}
+                  disabled={isShippingPending}
+                  className="bg-primary-text text-white font-semibold px-6 h-[40px]"
+                >
+                  {isShippingPending ? "Saving..." : "Mark as Shipped"}
+                </Button>
+              </div>
+            </div>
+          ) : (
+            <div className="space-y-6">
+              <div className="grid grid-cols-1 sm:grid-cols-3 gap-6">
+                <div className="space-y-1">
+                  <span className="text-[11px] uppercase tracking-wider text-gray-500 font-semibold block">
+                    Shipping Status
+                  </span>
+                  <p className="text-[16px] font-bold text-green-600">
+                    Shipped
+                  </p>
+                </div>
+                <div className="space-y-1">
+                  <span className="text-[11px] uppercase tracking-wider text-gray-500 font-semibold block">
+                    Tracking ID
+                  </span>
+                  <p className="text-[16px] font-mono font-medium">
+                    {trackingNumber}
+                  </p>
+                </div>
+                <div className="space-y-1">
+                  <span className="text-[11px] uppercase tracking-wider text-gray-500 font-semibold block">
+                    Carrier
+                  </span>
+                  <p className="text-[16px] font-medium">{carrier}</p>
+                </div>
+              </div>
+
+              {!isDelivered ? (
+                <div className="pt-4 border-t border-primary-text/10 space-y-4">
+                  <p className="text-sm opacity-70">
+                    The package is in transit. Once confirmed delivered, update
+                    the status below.
+                  </p>
+                  <div className="flex gap-4 items-center">
+                    <Button
+                      onClick={handleMarkAsDelivered}
+                      disabled={isDeliveryPending}
+                      className="bg-green-600 hover:bg-green-700 text-white font-semibold px-6"
+                    >
+                      {isDeliveryPending ? "Updating..." : "Mark as Delivered"}
+                    </Button>
+                    <button
+                      onClick={() => setEditTrackingMode(!editTrackingMode)}
+                      className="text-sm text-blue-600 hover:underline"
+                    >
+                      {editTrackingMode ? "Close editor" : "Edit tracking info"}
+                    </button>
+                  </div>
+
+                  {editTrackingMode && (
+                    <div className="flex flex-col sm:flex-row gap-4 items-end pt-4 border-t border-dashed border-primary-text/10 max-w-xl">
+                      <div className="space-y-1.5 flex-1 w-full">
+                        <Label htmlFor="editTrackingNo">
+                          Update Tracking ID
+                        </Label>
+                        <Input
+                          id="editTrackingNo"
+                          type="text"
+                          value={adminTrackingNumber}
+                          onChange={(e) =>
+                            setAdminTrackingNumber(e.target.value)
+                          }
+                          className="bg-white border-primary-text/20"
+                        />
+                      </div>
+                      <div className="space-y-1.5 flex-1 w-full">
+                        <Label htmlFor="editCarrier">Update Carrier</Label>
+                        <select
+                          id="editCarrier"
+                          value={adminCarrier}
+                          onChange={(e) => setAdminCarrier(e.target.value)}
+                          className="border rounded-md border-primary-text/20 bg-white p-2.5 w-full focus-visible:outline-none h-[40px] text-sm"
+                        >
+                          <option value="India Post">India Post</option>
+                          <option value="Delhivery">Delhivery</option>
+                          <option value="Shiprocket">Shiprocket</option>
+                          <option value="Other">Other</option>
+                        </select>
+                      </div>
+                      <div className="flex gap-2">
+                        <Button
+                          onClick={handleMarkAsShipped}
+                          disabled={isShippingPending}
+                          className="bg-primary-text text-white px-4 h-[40px]"
+                        >
+                          Save
+                        </Button>
+                        <Button
+                          variant="outline"
+                          onClick={() => setEditTrackingMode(false)}
+                          className="h-[40px]"
+                        >
+                          Cancel
+                        </Button>
+                      </div>
+                    </div>
+                  )}
+                </div>
+              ) : (
+                <div className="pt-4 border-t border-primary-text/10">
+                  <p className="text-sm font-semibold text-green-600">
+                    ✓ Order has been successfully delivered.
+                  </p>
+                </div>
+              )}
+            </div>
+          )}
+        </div>
+      )}
     </div>
   );
 };

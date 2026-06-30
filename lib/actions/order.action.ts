@@ -2,7 +2,7 @@
 
 import { auth } from "@/auth";
 import { isRedirectError } from "next/dist/client/components/redirect-error";
-import { sendOrderConfirmationEmail, sendRestockAlertEmail } from "@/lib/resend";
+import { sendOrderConfirmationEmail, sendRestockAlertEmail, sendShippingEmail } from "@/lib/resend";
 import { getMyCart } from "./cart.action";
 import { getUserById } from "./user.action";
 import { prisma } from "../../lib/prisma";
@@ -474,6 +474,51 @@ export const updateCODOrderToDelivered = async (id: string) => {
     });
     revalidatePath(`/order/${id}`);
     return { success: true, message: "Order marked as delivered" };
+  } catch (error) {
+    return { success: false, message: formatErrors(error) };
+  }
+};
+
+// update order to shipped
+export const updateOrderToShipped = async ({
+  id,
+  trackingNumber,
+  carrier = "India Post",
+}: {
+  id: string;
+  trackingNumber: string;
+  carrier?: string;
+}) => {
+  try {
+    const session = await auth();
+    if (session?.user?.role !== "admin") throw new Error("Unauthorized");
+
+    const order = await prisma.order.findFirst({
+      where: { id },
+    });
+    if (!order) throw new Error("Order not found");
+    if (order.isShipped)
+      return { success: false, message: "Order is already shipped" };
+
+    await prisma.order.update({
+      where: { id },
+      data: {
+        isShipped: true,
+        shippedAt: new Date(),
+        trackingNumber,
+        carrier,
+      },
+    });
+
+    // Send shipping confirmation email (non-blocking)
+    try {
+      await sendShippingEmail(id);
+    } catch (emailError) {
+      console.error("Failed to send shipping confirmation email:", emailError);
+    }
+
+    revalidatePath(`/order/${id}`);
+    return { success: true, message: "Order marked as shipped" };
   } catch (error) {
     return { success: false, message: formatErrors(error) };
   }

@@ -132,8 +132,12 @@ model Account {
   totalPrice Int
   isPaid Boolean @default(false)
   paidAt DateTime? @db.Timestamp(6)
+  isShipped Boolean @default(false)
+  shippedAt DateTime? @db.Timestamp(6)
   isDelivered Boolean @default(false)
   deliveredAt DateTime? @db.Timestamp(6)
+  trackingNumber String?
+  carrier String? @default("India Post")
   createdAt DateTime @default(now()) @db.Timestamp(6)
   updatedAt DateTime @updatedAt
   orderitems OrderItem[]

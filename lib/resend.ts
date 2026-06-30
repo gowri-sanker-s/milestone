@@ -542,3 +542,119 @@ export async function sendRestockAlertEmail(productId: string) {
     console.error("Critical error in sendRestockAlertEmail handler:", error);
   }
 }
+
+/**
+ * Sends a shipping confirmation email to the user when their order is marked as shipped.
+ */
+export async function sendShippingEmail(orderId: string) {
+  if (!resendApiKey) {
+    console.warn("RESEND_API key is not set. Skipping shipping email.");
+    return;
+  }
+
+  try {
+    const order = await prisma.order.findUnique({
+      where: { id: orderId },
+      include: {
+        orderitems: true,
+        user: { select: { name: true, email: true } },
+      },
+    });
+
+    if (!order) {
+      console.error(`Order not found for shipping email: ${orderId}`);
+      return;
+    }
+
+    const { user, orderitems, trackingNumber, carrier } = order;
+    const currentYear = new Date().getFullYear();
+
+    let itemsHtml = "";
+    for (const item of orderitems) {
+      itemsHtml += `
+        <tr style="border-bottom: 1px solid #d6cbc4;">
+          <td style="padding: 16px 0; font-size: 14px; color: #442917; font-weight: 500;">
+            <div style="display: flex; align-items: center;">
+              ${item.image ? `<img src="${item.image}" alt="${item.name}" style="width: 44px; height: 56px; object-fit: cover; border-radius: 6px; margin-right: 16px; border: 1px solid #d6cbc4;" />` : ""}
+              <div style="display: inline-block; vertical-align: middle;">
+                <span style="font-weight: 700; color: #442917; font-size: 15px; display: block; font-family: Georgia, serif;">${item.name}</span>
+              </div>
+            </div>
+          </td>
+          <td style="padding: 16px 0; font-size: 14px; color: #442917; text-align: center; font-weight: 600;">${item.qty}</td>
+        </tr>
+      `;
+    }
+
+    const logoUrl = `https://res.cloudinary.com/doaukkerp/image/upload/v1782071677/logo_i8gszq.png`;
+
+    const emailLayout = (title: string, bodyContent: string) => `
+      <div style="font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; background-color: #f9f6f3; padding: 40px 20px; color: #442917; min-height: 100%;">
+        <div style="max-width: 600px; margin: 0 auto; background-color: #ffffff; border-radius: 20px; overflow: hidden; box-shadow: 0 10px 25px -5px rgba(68, 41, 23, 0.05), 0 8px 16px -8px rgba(68, 41, 23, 0.05); border: 1px solid #d6cbc4;">
+          <!-- Header -->
+          <div style="text-align: center; padding: 32px 24px; background-color: #e9dfd9; border-bottom: 1px solid #d6cbc4;">
+            <img src="${logoUrl}" alt="Milestone Books" style="width: 80px; height: 80px; object-fit: cover; display: block; margin: 0 auto; border-radius: 50%; border: 3px solid #ffffff; box-shadow: 0 4px 10px rgba(68, 41, 23, 0.15);" />
+            <h1 style="margin: 16px 0 0 0; font-size: 24px; font-weight: 700; color: #442917; letter-spacing: -0.5px; text-transform: lowercase; font-family: Georgia, serif;">milestone books</h1>
+            <p style="margin: 4px 0 0 0; font-size: 13px; opacity: 0.8; text-transform: uppercase; letter-spacing: 1px; font-weight: 600; color: #442917;">${title}</p>
+          </div>
+          <!-- Content -->
+          <div style="padding: 32px 24px;">
+            ${bodyContent}
+          </div>
+          <!-- Footer -->
+          <div style="background-color: #f9f6f3; padding: 24px; text-align: center; border-top: 1px solid #d6cbc4; font-size: 12px; color: #7a6e65;">
+            <p style="margin: 0 0 8px 0; line-height: 1.5;">This email was sent regarding your activity at Milestone Books.</p>
+            <p style="margin: 0; font-weight: 600;">&copy; ${currentYear} Milestone Books. All rights reserved.</p>
+          </div>
+        </div>
+      </div>
+    `;
+
+    const customerBody = `
+      <h2 style="margin: 0 0 12px 0; font-size: 20px; font-weight: 700; color: #442917; font-family: Georgia, serif;">Your order has shipped!</h2>
+      <p style="margin: 0 0 24px 0; font-size: 15px; line-height: 1.6; color: #442917; opacity: 0.9;">
+        Hi <strong>${user.name}</strong>, we've handed your package over to <strong>${carrier || "India Post"}</strong>.
+      </p>
+      
+      <div style="background-color: #f9f6f3; border-radius: 12px; padding: 20px; margin-bottom: 24px; border: 1px solid #d6cbc4;">
+        <div style="font-size: 13px; color: #7a6e65; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 4px;">Tracking / Consignment Number</div>
+        <div style="font-size: 18px; font-weight: 700; color: #b04a26; font-family: monospace; letter-spacing: 1px; margin-bottom: 12px;">${trackingNumber}</div>
+        <div style="font-size: 13px; color: #7a6e65; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 4px;">Carrier</div>
+        <div style="font-size: 15px; font-weight: 600; color: #442917; margin-bottom: 16px;">${carrier || "India Post"}</div>
+        
+        <div style="text-align: center; margin-top: 10px;">
+          <a href="https://www.indiapost.gov.in/_layouts/15/dop.portal.tracking/trackconsignment.aspx" target="_blank" style="display: inline-block; background-color: #442917; color: #ffffff; padding: 12px 24px; border-radius: 9999px; text-decoration: none; font-weight: 700; font-size: 14px; border: none; cursor: pointer;">Track Package on India Post</a>
+        </div>
+      </div>
+      
+      <h3 style="margin: 0 0 12px 0; font-size: 14px; font-weight: 700; text-transform: uppercase; letter-spacing: 1px; color: #7a6e65;">Shipped Items</h3>
+      <table style="width: 100%; border-collapse: collapse; margin-bottom: 24px;">
+        <thead>
+          <tr style="border-bottom: 2px solid #d6cbc4; text-align: left;">
+            <th style="padding: 8px 0; font-size: 13px; font-weight: 700; color: #7a6e65;">Item</th>
+            <th style="padding: 8px 0; font-size: 13px; font-weight: 700; color: #7a6e65; text-align: center; width: 60px;">Qty</th>
+          </tr>
+        </thead>
+        <tbody>
+          ${itemsHtml}
+        </tbody>
+      </table>
+    `;
+
+    try {
+      console.log(`Sending shipping confirmation to customer: ${user.email}`);
+      await resend.emails.send({
+        from: "Milestone Books <onboarding@resend.dev>",
+        to: user.email,
+        subject: `Your Milestone Books order has shipped! - #${orderId.substring(0, 8)}`,
+        html: emailLayout(`Shipping Update - #${orderId.substring(0, 8)}`, customerBody),
+      });
+      console.log(`Shipping confirmation successfully sent to ${user.email}`);
+    } catch (customerEmailErr) {
+      console.error(`Failed to send shipping email to customer (${user.email}):`, customerEmailErr);
+    }
+
+  } catch (error) {
+    console.error("Critical error in sendShippingEmail handler:", error);
+  }
+}
