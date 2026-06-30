@@ -1,6 +1,10 @@
 "use client";
 
-import { updateCODOrderToPaid, updateCODOrderToDelivered, updateOrderToShipped } from "@/lib/actions/order.action";
+import {
+  updateCODOrderToPaid,
+  updateCODOrderToDelivered,
+  updateOrderToShipped,
+} from "@/lib/actions/order.action";
 import { funnel } from "@/lib/fonts";
 import { formatCurrency, formatDate, formatId } from "@/lib/utils";
 import { Order } from "@/types";
@@ -53,12 +57,25 @@ const OrderDetailsTable = ({
   const parsedPaymentResult = paymentResult as { state?: string } | null;
   const isPaymentFailed = parsedPaymentResult?.state === "FAILED";
   const [isDeliveredUpdate, setIsDeliveredUpdate] = useState(isDelivered);
-  
+
   // Tracking & Fulfillment States
-  const [adminTrackingNumber, setAdminTrackingNumber] = useState(trackingNumber || "");
+  const [adminTrackingNumber, setAdminTrackingNumber] = useState(
+    trackingNumber || "",
+  );
   const [adminCarrier, setAdminCarrier] = useState(carrier || "India Post");
   const [editTrackingMode, setEditTrackingMode] = useState(false);
   const [isTrackingModalOpen, setIsTrackingModalOpen] = useState(false);
+  const [copied, setCopied] = useState(false);
+
+  const handleCopyTracking = () => {
+    if (trackingNumber) {
+      navigator.clipboard.writeText(trackingNumber);
+      setCopied(true);
+      setTimeout(() => {
+        setCopied(false);
+      }, 3000);
+    }
+  };
 
   const [isShippingPending, startShippingTransition] = useTransition();
   const [isDeliveryPending, startDeliveryTransition] = useTransition();
@@ -343,17 +360,16 @@ const OrderDetailsTable = ({
                                 {trackingNumber}
                               </span>
                             </div>
-                            <Button
-                              variant="outline"
-                              size="sm"
-                              className="text-xs h-7 px-2"
-                              onClick={() => {
-                                navigator.clipboard.writeText(trackingNumber);
-                                toast.success("Tracking number copied!");
-                              }}
-                            >
-                              Copy
-                            </Button>
+                            {!isDelivered && (
+                              <Button
+                                variant="outline"
+                                size="sm"
+                                className="text-xs h-7 px-2 min-w-[65px]"
+                                onClick={handleCopyTracking}
+                              >
+                                {copied ? "Copied!" : "Copy"}
+                              </Button>
+                            )}
                           </div>
                         )}
                       </div>
@@ -381,38 +397,42 @@ const OrderDetailsTable = ({
                     </div>
                   </div>
 
-                  {isShipped && trackingNumber && carrier === "India Post" && (
-                    <div className="bg-amber-500/10 border border-amber-500/20 rounded-xl p-4 text-xs space-y-2">
-                      <p className="font-bold text-amber-900">
-                        How to track your India Post package:
-                      </p>
-                      <ol className="list-decimal pl-4 space-y-1 text-amber-800 font-medium">
-                        <li>
-                          Copy the Consignment Number:{" "}
-                          <code className="font-mono bg-amber-500/20 px-1 rounded font-bold">
-                            {trackingNumber}
-                          </code>
-                        </li>
-                        <li>
-                          Click the button below to open the official India Post
-                          portal.
-                        </li>
-                        <li>
-                          Paste it into the <strong>Consignment Number</strong>{" "}
-                          box, solve the Captcha, and click search.
-                        </li>
-                      </ol>
-                      <a
-                        href="https://www.indiapost.gov.in/"
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className="inline-flex gap-1.5 items-center justify-center bg-primary-text text-white px-4 py-2.5 rounded-lg font-bold hover:opacity-90 transition-opacity mt-2 text-xs"
-                      >
-                        Go to India Post Portal
-                        <ExternalLink size={12} />
-                      </a>
-                    </div>
-                  )}
+                  {isShipped &&
+                    !isDelivered &&
+                    trackingNumber &&
+                    carrier === "India Post" && (
+                      <div className="bg-amber-500/10 border border-amber-500/20 rounded-xl p-4 text-xs space-y-2">
+                        <p className="font-bold text-amber-900">
+                          How to track your India Post package:
+                        </p>
+                        <ol className="list-decimal pl-4 space-y-1 text-amber-800 font-medium">
+                          <li>
+                            Copy the Consignment Number:{" "}
+                            <code className="font-mono bg-amber-500/20 px-1 rounded font-bold">
+                              {trackingNumber}
+                            </code>
+                          </li>
+                          <li>
+                            Click the button below to open the official India
+                            Post portal.
+                          </li>
+                          <li>
+                            Paste it into the{" "}
+                            <strong>Consignment Number</strong> box, solve the
+                            Captcha, and click search.
+                          </li>
+                        </ol>
+                        <a
+                          href="https://www.indiapost.gov.in/"
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="inline-flex gap-1.5 items-center justify-center bg-primary-text text-white px-4 py-2.5 rounded-lg font-bold hover:opacity-90 transition-opacity mt-2 text-xs"
+                        >
+                          Go to India Post Portal
+                          <ExternalLink size={12} />
+                        </a>
+                      </div>
+                    )}
                 </div>
               </DialogContent>
             </Dialog>
@@ -485,10 +505,16 @@ const OrderDetailsTable = ({
                 className={`${funnel.className} text-[13px] font-bold rounded-full px-4 py-1 ${
                   isDelivered
                     ? "bg-green-100 text-green-600"
-                    : "bg-amber-100 text-amber-600"
+                    : isShipped
+                      ? "bg-blue-100 text-blue-600"
+                      : "bg-amber-100 text-amber-600"
                 }`}
               >
-                {isDelivered ? "Delivered" : "Not Delivered"}
+                {isDelivered
+                  ? "Delivered"
+                  : isShipped
+                    ? "Shipped"
+                    : "Not Shipped"}
               </span>
             </div>
 
@@ -539,8 +565,51 @@ const OrderDetailsTable = ({
             </div>
           </div>
 
+          {/* {isShipped && trackingNumber && (
+            <div className="mt-6 pt-4 border-t border-primary-text/10 space-y-2">
+              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 bg-primary-border/20 p-3 rounded-xl border border-primary-text/10">
+                <div className="space-y-0.5">
+                  <span className="text-[10px] uppercase tracking-wider text-gray-500 font-bold block">
+                    Tracking ID ({carrier || "India Post"})
+                  </span>
+                  <span className="font-mono text-sm font-bold text-primary-text">
+                    {trackingNumber}
+                  </span>
+                </div>
+                <div className="flex gap-2">
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    className="text-xs h-8 px-2.5 min-w-[65px]"
+                    onClick={handleCopyTracking}
+                  >
+                    {copied ? "Copied!" : "Copy"}
+                  </Button>
+                  {carrier === "India Post" && (
+                    <a
+                      href="https://www.indiapost.gov.in/"
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="inline-flex gap-1.5 items-center justify-center bg-primary-text text-white px-3 py-1.5 rounded-md font-bold text-xs hover:opacity-90 transition-opacity"
+                    >
+                      Track Portal
+                      <ExternalLink size={12} />
+                    </a>
+                  )}
+                </div>
+              </div>
+              {shippedAt && (
+                <p className="text-[11px] text-gray-500 font-medium">
+                  Dispatched on {formatDate(shippedAt).dateTime}
+                </p>
+              )}
+            </div>
+          )} */}
+
           {isDelivered && deliveredAt && (
-            <div className="mt-6 pt-4 border-t border-primary-text/10">
+            <div
+              className={`mt-4 pt-4 border-t border-primary-text/10 ${isShipped ? "border-dashed" : ""}`}
+            >
               <p className="text-[13px] font-semibold text-gray-600">
                 Delivered on {formatDate(deliveredAt!).dateTime}
               </p>
