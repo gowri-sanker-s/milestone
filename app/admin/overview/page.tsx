@@ -6,6 +6,7 @@ import { ListOrdered } from "lucide-react";
 import { formatCurrency, formatId } from "@/lib/utils";
 import Cards from "./Cards";
 import MonthlySales from "./MonthlySales";
+import AnalyticsCharts from "./AnalyticsCharts";
 import Link from "next/link";
 import { requireAdmin } from "@/lib/auth-guard";
 export const metadata: Metadata = {
@@ -25,6 +26,10 @@ const Overview = async () => {
     userCount,
     totalSales,
     monthlySales,
+    dailySalesTrend,
+    bestSellingAuthors,
+    bestSellingGenres,
+    salesByProductType,
     latestSales,
   } = await getOrderSummary();
 
@@ -81,12 +86,18 @@ const Overview = async () => {
           color="bg-blue-100"
         />
       </div>
-      <div className="grid lg:grid-cols-2 gap-4 mt-10">
-        <div className="">
+      <AnalyticsCharts
+        dailySalesTrend={dailySalesTrend}
+        bestSellingAuthors={bestSellingAuthors}
+        bestSellingGenres={bestSellingGenres}
+        salesByProductType={salesByProductType}
+      />
+      <div className="grid lg:grid-cols-2 gap-8 mt-10">
+        <div className="bg-primary-border/20 border border-primary-text/10 p-5 rounded-2xl">
           {/* display monthly sales using recharts linechart */}
           <MonthlySales monthlySales={monthlySales} />
         </div>
-        <div className="">
+        <div className="bg-primary-border/20 border border-primary-text/10 p-5 rounded-2xl">
           {/* display latest sales */}
           <h1 className="text-2xl font-bold mb-4">Latest Sales</h1>
           <table className="bg-primary-border w-full rounded-2xl overflow-hidden text-primary-text">

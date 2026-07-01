@@ -6,6 +6,7 @@ import z from "zod";
 import { insertProductSchema, updateProductSchema } from "../validators";
 import { syncAuthorsFromProducts } from "./author.action";
 import { syncGenresFromProducts } from "./genre.action";
+import { auth } from "@/auth";
 
 export async function getFeaturedProducts(options?: {
   isFeatured?: boolean;
@@ -332,6 +333,151 @@ export async function getCategoryCounts() {
   } catch (error) {
     console.error("getCategoryCounts error:", error);
     return { featured: 0, newArrivals: 0, bestSellers: 0, comboOffers: 0 };
+  }
+}
+
+// Bulk import/upsert products from CSV payload
+export async function bulkImportProducts(products: any[]) {
+  try {
+    const session = await auth();
+    if (session?.user?.role !== "admin") {
+      return { success: false, message: "Unauthorized. Admin permissions required." };
+    }
+
+    let created = 0;
+    let updated = 0;
+    let failed = 0;
+    const errors: string[] = [];
+
+    for (let i = 0; i < products.length; i++) {
+      const rowNum = i + 2; // Row 1 is header
+      const raw = products[i];
+
+      try {
+        const name = String(raw.name || "").trim();
+        if (!name) {
+          throw new Error("Product name is required");
+        }
+
+        // Generate slug if not provided
+        let slug = String(raw.slug || "").trim();
+        if (!slug) {
+          slug = name
+            .toLowerCase()
+            .replace(/[^a-z0-9]+/g, "-")
+            .replace(/(^-|-$)/g, "");
+        }
+
+        const price = Math.floor(Number(raw.price || 0));
+        if (isNaN(price) || price < 0) {
+          throw new Error("Price must be a positive number");
+        }
+
+        const stock = Math.floor(Number(raw.stock || 0));
+        if (isNaN(stock) || stock < 0) {
+          throw new Error("Stock must be a positive integer");
+        }
+
+        const title = raw.title ? String(raw.title).trim() : name;
+        if (!title) {
+          throw new Error("Title is required");
+        }
+
+        const description = String(raw.description || "").trim();
+        const author = raw.author ? String(raw.author).trim() : null;
+        const language = raw.language ? String(raw.language).trim() : "English";
+        const pages = raw.pages ? Math.floor(Number(raw.pages)) : null;
+        const kind = raw.kind ? String(raw.kind).trim() : "book";
+
+        let genres: string[] = [];
+        if (raw.genres) {
+          if (Array.isArray(raw.genres)) {
+            genres = raw.genres.map((g: any) => String(g).trim()).filter(Boolean);
+          } else {
+            genres = String(raw.genres)
+              .split(",")
+              .map((g: string) => g.trim())
+              .filter(Boolean);
+          }
+        }
+
+        let images: string[] = ["/placeholder-book.jpg"];
+        if (raw.images) {
+          if (Array.isArray(raw.images)) {
+            images = raw.images.map((img: any) => String(img).trim()).filter(Boolean);
+          } else {
+            images = String(raw.images)
+              .split(",")
+              .map((img: string) => img.trim())
+              .filter(Boolean);
+          }
+        }
+
+        // Check if slug already exists to decide on update vs create
+        const existing = await prisma.product.findUnique({
+          where: { slug },
+        });
+
+        if (existing) {
+          await prisma.product.update({
+            where: { id: existing.id },
+            data: {
+              name,
+              title,
+              images,
+              description,
+              price,
+              stock,
+              author,
+              language,
+              pages,
+              genres,
+              kind,
+            },
+          });
+          updated++;
+        } else {
+          await prisma.product.create({
+            data: {
+              name,
+              title,
+              slug,
+              images,
+              description,
+              price,
+              stock,
+              author,
+              language,
+              pages,
+              genres,
+              kind,
+            },
+          });
+          created++;
+        }
+      } catch (e: any) {
+        failed++;
+        errors.push(`Row ${rowNum}: ${e.message}`);
+      }
+    }
+
+    // Revalidate relevant pages
+    revalidatePath("/admin/products");
+    revalidatePath("/books");
+    revalidatePath("/bookmarks");
+    revalidatePath("/combos");
+    revalidatePath("/");
+
+    return {
+      success: true,
+      createdCount: created,
+      updatedCount: updated,
+      failedCount: failed,
+      errors,
+    };
+  } catch (error) {
+    console.error("bulkImportProducts error:", error);
+    return { success: false, message: "Critical failure during bulk import process" };
   }
 }
 

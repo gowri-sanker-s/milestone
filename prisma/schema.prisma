@@ -138,6 +138,8 @@ model Account {
   shippedAt DateTime? @db.Timestamp(6)
   isDelivered Boolean @default(false)
   deliveredAt DateTime? @db.Timestamp(6)
+  isCancelled Boolean @default(false)
+  cancelledAt DateTime? @db.Timestamp(6)
   trackingNumber String?
   carrier String? @default("India Post")
   createdAt DateTime @default(now()) @db.Timestamp(6)

@@ -92,11 +92,23 @@ const AdminOrders = async (props: {
               </tr>
             ) : (
               orders?.orders.map((order) => (
-                <tr key={order.id}>
+                <tr
+                  key={order.id}
+                  className={`border-b border-primary-text/20 last:border-b-0 transition-colors ${
+                    order.isCancelled
+                      ? "bg-red-500/5 opacity-70 hover:bg-red-500/10"
+                      : "hover:bg-primary-text/5"
+                  }`}
+                >
                   <td
-                    className={`px-6 py-4 whitespace-nowrap text-sm font-normal ${funnel.className}`}
+                    className={`px-6 py-4 whitespace-nowrap text-sm font-normal ${funnel.className} flex items-center gap-2`}
                   >
-                    {formatId(order.id)}
+                    <span>{formatId(order.id)}</span>
+                    {order.isCancelled && (
+                      <span className="bg-red-100 text-red-600 text-[10px] font-bold px-2 py-0.5 rounded-full uppercase">
+                        Cancelled
+                      </span>
+                    )}
                   </td>
                   <td
                     className={`px-6 py-4 whitespace-nowrap text-sm font-normal ${funnel.className}`}
@@ -116,16 +128,20 @@ const AdminOrders = async (props: {
                   <td
                     className={`px-6 py-4 whitespace-nowrap text-sm font-normal ${funnel.className}`}
                   >
-                    {order.isPaid && order?.paidAt
-                      ? formatDate(order.paidAt).dateTime
-                      : "Not Paid"}
+                    {order.isCancelled
+                      ? "Cancelled"
+                      : order.isPaid && order?.paidAt
+                        ? formatDate(order.paidAt).dateTime
+                        : "Not Paid"}
                   </td>
                   <td
                     className={`px-6 py-4 whitespace-nowrap text-sm font-normal ${funnel.className}`}
                   >
-                    {order.isDelivered && order?.deliveredAt
-                      ? formatDate(order.deliveredAt).dateTime
-                      : "Not Delivered"}
+                    {order.isCancelled
+                      ? "Cancelled"
+                      : order.isDelivered && order?.deliveredAt
+                        ? formatDate(order.deliveredAt).dateTime
+                        : "Not Delivered"}
                   </td>
                   <td
                     className={`px-6 py-4 whitespace-nowrap text-sm font-normal ${funnel.className}`}

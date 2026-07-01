@@ -21,6 +21,8 @@ export type Order = z.infer<typeof insertOrderSchema> & {
   shippedAt: Date | null;
   isDelivered: boolean;
   deliveredAt: Date | null;
+  isCancelled: boolean;
+  cancelledAt: Date | null;
   trackingNumber: string | null;
   carrier: string | null;
   orderitems: OrderItem[];

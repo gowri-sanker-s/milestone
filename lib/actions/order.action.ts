@@ -330,6 +330,79 @@ export const getOrderSummary = async () => {
     totalSales: Number(sale.totalSales),
   }));
 
+  // Query daily sales and order count trend for the past 30 days
+  const dailySalesTrendRaw = await prisma.$queryRaw<
+    Array<{ day: string; sales: number; orders: number }>
+  >` SELECT 
+    to_char("createdAt", 'DD/MM') AS "day",
+    coalesce(sum(case when "isPaid" = true then "totalPrice" else 0 end), 0) AS "sales",
+    count("id") AS "orders"
+  FROM "Order"
+  WHERE "createdAt" >= NOW() - INTERVAL '30 days'
+  GROUP BY to_char("createdAt", 'DD/MM'), date_trunc('day', "createdAt")
+  ORDER BY date_trunc('day', "createdAt") ASC `;
+
+  const dailySalesTrend = dailySalesTrendRaw.map((t) => ({
+    day: t.day,
+    sales: Number(t.sales),
+    orders: Number(t.orders),
+  }));
+
+  // Query top 5 best selling authors based on units sold in paid orders
+  const bestSellingAuthorsRaw = await prisma.$queryRaw<
+    Array<{ author: string; sold: number }>
+  >` SELECT 
+    p."author" AS "author",
+    sum(oi."qty") AS "sold"
+  FROM "OrderItem" oi
+  JOIN "Product" p ON oi."productId" = p."id"
+  JOIN "Order" o ON oi."orderId" = o."id"
+  WHERE o."isPaid" = true AND p."author" IS NOT NULL AND p."author" <> ''
+  GROUP BY p."author"
+  ORDER BY "sold" DESC
+  LIMIT 5 `;
+
+  const bestSellingAuthors = bestSellingAuthorsRaw.map((a) => ({
+    author: a.author,
+    sold: Number(a.sold),
+  }));
+
+  // Query top 5 best selling genres based on units sold in paid orders
+  const bestSellingGenresRaw = await prisma.$queryRaw<
+    Array<{ genre: string; sold: number }>
+  >` SELECT 
+    unnest(p."genres") AS "genre",
+    sum(oi."qty") AS "sold"
+  FROM "OrderItem" oi
+  JOIN "Product" p ON oi."productId" = p."id"
+  JOIN "Order" o ON oi."orderId" = o."id"
+  WHERE o."isPaid" = true AND p."genres" IS NOT NULL
+  GROUP BY unnest(p."genres")
+  ORDER BY "sold" DESC
+  LIMIT 5 `;
+
+  const bestSellingGenres = bestSellingGenresRaw.map((g) => ({
+    genre: String(g.genre || "General").trim(),
+    sold: Number(g.sold),
+  }));
+
+  // Query sales distribution by product type (kind: book vs bookmark vs combo)
+  const salesByProductTypeRaw = await prisma.$queryRaw<
+    Array<{ kind: string; count: number }>
+  >` SELECT 
+    p."kind" AS "kind",
+    sum(oi."qty") AS "count"
+  FROM "OrderItem" oi
+  JOIN "Product" p ON oi."productId" = p."id"
+  JOIN "Order" o ON oi."orderId" = o."id"
+  WHERE o."isPaid" = true
+  GROUP BY p."kind" `;
+
+  const salesByProductType = salesByProductTypeRaw.map((p) => ({
+    kind: p.kind === "book" ? "Books" : p.kind === "bookmark" ? "Bookmarks" : "Combos",
+    count: Number(p.count),
+  }));
+
   // get latest sales
   const latestSales = await prisma.order.findMany({
     orderBy: { createdAt: "desc" },
@@ -349,6 +422,10 @@ export const getOrderSummary = async () => {
     userCount,
     totalSales,
     monthlySales,
+    dailySalesTrend,
+    bestSellingAuthors,
+    bestSellingGenres,
+    salesByProductType,
     latestSales,
   };
 };

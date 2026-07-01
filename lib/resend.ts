@@ -1,6 +1,7 @@
 import { Resend } from "resend";
 import { prisma } from "./prisma";
 import { formatCurrency, formatDate } from "./utils";
+import { generateInvoicePDF } from "./utils/invoice-pdf";
 
 const resendApiKey = process.env.RESEND_API;
 const adminEmail = process.env.ADMIN_EMAIL || "amyv461@gmail.com";
@@ -266,11 +267,25 @@ export async function sendOrderConfirmationEmail(orderId: string, paymentStatus?
     // 1. Send confirmation email to Customer (Try-catch wrapped for Sandbox safety)
     try {
       console.log(`Sending order confirmation to customer: ${user.email}`);
+      
+      // Generate invoice PDF
+      const pdfDoc = generateInvoicePDF({
+        ...order,
+        shippingAddress: address as any,
+      });
+      const pdfBuffer = Buffer.from(pdfDoc.output("arraybuffer"));
+
       await resend.emails.send({
         from: "Milestone Books <onboarding@resend.dev>",
         to: user.email,
         subject: customerSubject,
         html: emailLayout(customerTitle, customerBody),
+        attachments: [
+          {
+            filename: `invoice_${orderId.slice(0, 8)}.pdf`,
+            content: pdfBuffer,
+          },
+        ],
       });
       console.log(`Order confirmation successfully sent to ${user.email}`);
     } catch (customerEmailErr) {

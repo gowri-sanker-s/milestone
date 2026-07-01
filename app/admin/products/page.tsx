@@ -1,7 +1,7 @@
 import DeleteDialogue from "@/components/shared/delete-dialogue";
 import { deleteProduct, getAllProducts } from "@/lib/actions/product.action";
 import { formatCurrency, formatId } from "@/lib/utils";
-import { Eye, Pencil, Plus } from "lucide-react";
+import { Eye, Pencil, Plus, Upload } from "lucide-react";
 import Link from "next/link";
 import React from "react";
 import Pagination from "@/components/shared/Pagination";
@@ -39,15 +39,22 @@ const AdminProductsPage = async (props: {
             </>
           )}
         </div>
-        <button>
+        <div className="flex gap-3">
           <Link
-            className="bg-primary-text text-primary-bg font-semibold text-[15px] p-2 px-4 rounded-md flex gap-2 items-center"
+            className="bg-primary-border text-primary-text border border-primary-text/10 font-semibold text-[15px] p-2 px-4 rounded-md flex gap-2 items-center hover:bg-primary-border/80 transition-colors"
+            href="/admin/products/import"
+          >
+            <Upload size={14} strokeWidth={1.5} />
+            Import CSV
+          </Link>
+          <Link
+            className="bg-primary-text text-primary-bg font-semibold text-[15px] p-2 px-4 rounded-md flex gap-2 items-center hover:opacity-95 transition-opacity"
             href="/admin/products/create"
           >
             <Plus size={14} strokeWidth={1.5} />
             Add Product
           </Link>
-        </button>
+        </div>
       </div>
       {/* table that displays all the products */}
       <div className="overflow-x-auto mt-6 rounded-2xl border border-primary-text/30 shadow-md ">
